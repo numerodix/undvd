@@ -3,6 +3,8 @@
 # Author: Martin Matusiak <numerodix@gmail.com>
 # Licensed under the GNU Public License, version 3.
 #
+# revision 4 - adding -i switch to read from iso images
+# revision 3 - fixed quoting bug for dirs with whitespace
 # revision 2 - add support for dvd is a dir
 # revision 1 - changed shell to bash
 
@@ -12,16 +14,17 @@ p=$(dirname $(readlink -f $0)); . $p/lib.sh
 
 echo -e "${wh}{( --- scandvd.sh $version --- )}${pl}"
 
-while getopts "d:q:" opts; do
+while getopts "d:q:i:" opts; do
 	case $opts in
 		d ) dvd_device=$OPTARG;;
 		q ) dvd_device=$OPTARG;dvdisdir="-q ";;
-		* ) echo -e " Usage:  ${wh}scandvd.sh [-d ${gr}/dev/dvd${wh} | -q ${gr}/path]${pl}"; exit 1;;
+		i ) dvd_device=$OPTARG;dvdisdir="-q ";;
+		* ) echo -e " Usage:  ${wh}scandvd.sh [-d ${gr}/dev/dvd${wh} | -q ${gr}/path${wh} | -i ${gr}disc.iso ${wh}]${pl}"; exit 1;;
 	esac
 done
 
 
-cmd="lsdvd -avs $dvdisdir $dvd_device > ${tmpdir}/lsdisc 2> ${tmpdir}/lsdisc.err"
+cmd="lsdvd -avs $dvdisdir \"$dvd_device\" > ${tmpdir}/lsdisc 2> ${tmpdir}/lsdisc.err"
 sh -c "$cmd"
 if [ $? != 0 ]; then
 	echo -en "${re}" ; cat "${tmpdir}/lsdisc.err"; echo -en ${pl}

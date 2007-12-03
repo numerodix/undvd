@@ -5,6 +5,7 @@
 #
 # More info: http://www.matusiak.eu/numerodix/blog/index.php/2007/01/30/undvd-dvd-ripping-made-easy/
 #
+# revision 6 - fixing bug that broke -i switch
 # revision 5 - changed time counter to include both elapsed and estimated time
 # revision 4 - made ripping from iso option clearer
 # revision 3 - -q switch made consistent with scandvd, fixing variable quoting bug
@@ -80,8 +81,7 @@ if [ $? != 0 ] ; then
 	exit 1
 fi
 
-
-if [ "x$dvdisdir" = "x" ] || [ $skipclone ]; then
+if [ ! $dvdisdir ] && [ ! $skipclone ]; then
 	echo -en " * Copying dvd to disk first... "
 	cmd="time \
 	nice -n20 \
