@@ -5,43 +5,15 @@
 #
 # More info: http://www.matusiak.eu/numerodix/blog/index.php/2007/01/30/undvd-dvd-ripping-made-easy/
 #
+# revision 5 - changed time counter to include both elapsed and estimated time
+# revision 4 - made ripping from iso option clearer
 # revision 3 - -q switch made consistent with scandvd, fixing variable quoting bug
 # revision 2 - adding option to rip from directory instead of disc/iso
 # revision 1 - changed shell to bash and updated color scheme
 
 
-### DECLARATIONS
-
-# version
-p=$(dirname $(readlink -f $0)); . $p/version
-
-# x264 encoding options
-x264="x264 -x264encopts subq=5:frameref=2:partitions=all:weight_b:bitrate=900:threads=auto"
-faac="faac -faacopts object=1:tns:quality=100"
-
-# xvid encoding options
-xvid="xvid -xvidencopts bitrate=900"
-lame="mp3lame -lameopts vbr=2:q=3"
-
-# codec defaults
-vcodec=$x264
-acodec=$lame
-
-# mplayer filters
-prescale=
-postscale=
-
-# sources
-disc_image="disc.iso"
-mencoder_source="$disc_image"
-
-# colors
-wh="\033[1;37m"
-pl="\033[m"
-ye="\033[1;33m"
-cy="\033[1;36m"
-gr="\033[1;32m"
-re="\033[1;31m"
+# load constants
+p=$(dirname $(readlink -f $0)); . $p/lib.sh
 
 echo -e "${wh}{( --- undvd.sh $version --- )}${pl}"
 
@@ -52,11 +24,11 @@ usage=" Usage:  ${wh}undvd.sh -t ${gr}01,02,03${wh} -a ${gr}en${wh} -s ${gr}es${
 \t-e \texit after this many seconds (usually for testing)\n
 \t-d \tdvd device to rip from (default is /dev/dvd)\n
 \t-q \tdvd directory to rip from\n
-\t-z \tskip copy dvd to disk (if disc.iso exists)\n
+\t-i \tdvd iso image to rip from\n
 \t-f \tuse picture smoothing filter\n
 \t-x \tuse xvid compression (faster, slightly lower quality)"
 
-while getopts "t:a:s:e:d:q:zfx" opts; do
+while getopts "t:a:s:e:d:q:i:fx" opts; do
 	case $opts in
 		t ) titles=$(echo $OPTARG | sed 's|,| |g');;
 		a ) alang=$OPTARG;;
@@ -64,7 +36,7 @@ while getopts "t:a:s:e:d:q:zfx" opts; do
 		e ) end=$OPTARG;;
 		d ) dvd_device=$OPTARG;;
 		q ) dvdisdir="y";mencoder_source="$OPTARG";;
-		z ) skipclone="y";;
+		i ) skipclone="y";mencoder_source="$OPTARG";;
 		f ) prescale="spp,";postscale=",hqdn3d";;
 		x ) vcodec=$xvid;acodec=$lame;;
 		* ) echo -e $usage; exit 1;;
@@ -109,23 +81,19 @@ if [ $? != 0 ] ; then
 fi
 
 
-if [ "x$dvdisdir" = "x" ]; then
+if [ "x$dvdisdir" = "x" ] || [ $skipclone ]; then
 	echo -en " * Copying dvd to disk first... "
 	cmd="time \
 	nice -n20 \
 	dd if=${dvd_device} of=$disc_image.partial && \
 	mv $disc_image.partial $disc_image"
-	if [ "x$skipclone" != "x" ]; then
-		echo -e "${ye}skipping${pl}"
-	else
-		( echo "$cmd"; sh -c "$cmd" ) &> logs/iso.log
-		if [ $? != 0 ] ; then
-			echo -e "${re}\nFailed, dumping log:${pl}"
-			cat logs/iso.log
-			exit 1
-		fi
-		echo -e "${gr}done${pl}"
+	( echo "$cmd"; sh -c "$cmd" ) &> logs/iso.log
+	if [ $? != 0 ] ; then
+		echo -e "${re}\nFailed, dumping log:${pl}"
+		cat logs/iso.log
+		exit 1
 	fi
+	echo -e "${gr}done${pl}"
 fi
 
 
@@ -195,11 +163,13 @@ mv ${title}.avi.partial ${title}.avi"
 	
 	# Write mencoder's ETA estimate
 	
+	start_time=$(date +%s)
 	(while ps $pid &> /dev/null; do
 		eta=$([ -e logs/${title}.log ] && tail -n15 logs/${title}.log | \
-			grep "Trem:" | tail -n1 | sed 's|.*\( .*min\).*|\1|g')
-		echo -ne "${status}${cy}time left:$eta${pl}       \r"
-		sleep 3
+			grep "Trem:" | tail -n1 | sed 's|.*\( .*min\).*|\1|g' | tr " " "-")
+		ela=$(( ( $(date +%s) - $start_time ) / 60 ))
+		echo -ne "${status}${ye}+${ela}min${pl}  ${cy}${eta}${pl}    \r"
+		sleep $timer_refresh
 	done)
 	
 	# Report exit code

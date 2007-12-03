@@ -5,7 +5,7 @@ font-family: DejaVu Sans, Bitstream Vera Sans, Verdana;
 font-size: 10pt; }
 
 h2 {
-font-size: 130%; }
+font-size: 140%; }
 
 table, td {
 font-family: DejaVu Sans Mono, Bitstream Vera Sans Mono, Monospace;
@@ -94,7 +94,7 @@ undvd depends on a few programs to run, so make sure you have this:
 <tr><td><c>-e<c></td><td>exit after this many seconds (usually for testing)</td></tr>
 <tr><td><c>-d<c></td><td>dvd device to rip from (default is <h>/dev/dvd</h>)</td></tr>
 <tr><td><c>-q<c></td><td>dvd directory to rip from</td></tr>
-<tr><td><c>-z<c></td><td>skip copy dvd to disk (if disc.iso exists)</td></tr>
+<tr><td><c>-i<c></td><td>dvd iso image to rip from</td></tr>
 <tr><td><c>-f<c></td><td>use picture smoothing filter (not recommended for top quality source content)</td></tr>
 <tr><td><c>-x<c></td><td>use xvid compression (faster, slightly lower quality)</td></tr>
 </table>
@@ -108,7 +108,17 @@ undvd depends on a few programs to run, so make sure you have this:
 
 <p>This depends mostly on your cpu. Copying the dvd to disk can take about <e>10-15 minutes</e>. Encoding the video can take about <e>2-5 minutes per minute of video</e> (so for a 2 hour movie - 4h-10h).</p>
 
-<p>For a more precise estimate, have a look at the logfiles. You can keep track of updates with <c>tail -F logs/01.log</c>. <e>mencoder</e> writes lines like this:</p>
+<p><c>undvd.sh</c> uses <e>mencoder</e>'s estimate to give you an idea of how long it takes. For every title it displays a line like this:</p>
+
+<table><tr>
+<td><h>[01]</h></td>
+<td>Encoding, to monitor log:</td>
+<td>tail -F logs/01.log</td>
+<td><h>+101min</h></td>
+<td><h>-44min</h></td>
+</tr></table>
+
+<p>Here track <e>01</e> is being ripped and it has been running for <e>101</e> minutes. The estimated time to completion is <e>44</e> minutes. For more detailed information, have a look at the log file, which displays line like this:</p>
 
 <table><tr>
 <td>Pos: <h>54.5s</h></td>
@@ -118,9 +128,9 @@ undvd depends on a few programs to run, so make sure you have this:
 <td><h>277mb</h></td>
 </tr></table>
 
-<p>At this point, 54.5 seconds have been processed, which is 3% of the title. The current rate is 13 frames/second (normally there are about 25 fps in a movie), and the time remaining is estimated to 44 minutes. The output file is estimated at 277mb.</p>
+<p>At this point, 54.5 seconds of video have been processed, which is 3% of the title. The current rate is 13 frames/second (normally there are about 25 fps in a movie), and the time remaining is estimated to 44 minutes. The output file is estimated at 277mb.</p>
 
-<p><b>Note:</b> undvd.sh runs at the lowest priority, so it should not interfere with use of your computer, it just runs in the background. (The less you use computer the faster it will run :-)</p>
+<p><b>Note:</b> <c>undvd.sh</c> runs at the lowest priority, so it should not interfere with use of your computer, it just runs in the background. (The less you use computer the faster it will run :-)</p>
 
 
 <h2>Problems?</h2>
@@ -134,6 +144,9 @@ undvd depends on a few programs to run, so make sure you have this:
 
 <dt>Q. What's the picture smoothing filter?
 <dd>A. Source content with certain imperfections tends to look better smoothed before encoded. The filter slows down encoding, so you might want to rip a small part of the video first to see if it's worth it.
+
+<dt>Q. When I play the movie in xine/totem/kaffeine I see patches of green color.
+<dd>A. This is a known bug in xine. See <a href="http://sourceforge.net/tracker/index.php?func=detail&aid=1754446&group_id=9655&atid=109655">this bug</a>.
 </dl>
 
 

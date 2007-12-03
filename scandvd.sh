@@ -7,20 +7,8 @@
 # revision 1 - changed shell to bash
 
 
-### DECLARATIONS
-
-# version
-p=$(dirname $(readlink -f $0)); . $p/version
-
-tmpdir="/tmp"
-
-#colors
-wh="\033[1;37m"
-pl="\033[m"
-ye="\033[1;33m"
-gr="\033[1;32m"
-re="\033[1;31m"
-
+# load constants
+p=$(dirname $(readlink -f $0)); . $p/lib.sh
 
 echo -e "${wh}{( --- scandvd.sh $version --- )}${pl}"
 

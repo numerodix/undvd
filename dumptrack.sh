@@ -4,18 +4,8 @@
 # Licensed under the GNU Public License, version 3.
 
 
-### DECLARATIONS
-
-# version
-p=$(dirname $(readlink -f $0)); . $p/version
-
-# colors
-wh="\033[1;37m"
-pl="\033[m"
-ye="\033[1;33m"
-cy="\033[1;36m"
-gr="\033[1;32m"
-re="\033[1;31m"
+# load constants
+p=$(dirname $(readlink -f $0)); . $p/lib.sh
 
 echo -e "${wh}{( --- dumptrack.sh $version --- )}${pl}"
 
