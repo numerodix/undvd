@@ -1,0 +1,153 @@
+<html>
+<style type="text/css">
+body, td {
+font-family: DejaVu Sans, Bitstream Vera Sans, Verdana;
+font-size: 10pt; }
+
+h2 {
+font-size: 130%; }
+
+table, td {
+font-family: DejaVu Sans Mono, Bitstream Vera Sans Mono, Monospace;
+padding: 0px 10px 0px 10px; }
+
+dt {
+font-weight: bold; }
+
+dd {
+padding-bottom: 5px; }
+
+c {
+font-family: DejaVu Sans Mono, Bitstream Vera Sans Mono, Monospace;
+font-weight: bold;
+color: navy; }
+
+e {
+font-style: italic; }
+
+h {
+font-weight: bold;
+color: green; }
+</style>
+
+<body>
+<h1>undvd user guide</h1>
+
+<p>Most dvd rippers give you so many options and settings that it takes 45 minutes to set it up before you can start ripping, and you're still not sure if you chose the right settings. undvd is based on the principle of <e>sensible defaults</e> - it makes those decisions for you, making ripping dvds easy.</p>
+
+<p>A dvd consists of a number of <e>titles</e> (videos), each of which can have several <e>audio tracks</e> and <e>subtitles</e>. When ripping, you have to select which of each to use. Unfortunately, titles on a dvd don't contain any names that would suggest what they are (the movie? a trailer? director's cut?), and so they computer doesn't know. But you can probably figure out what is what by looking at the lenght of the title.</p>
+
+
+<h2>Quick start</h2>
+
+<ol>
+<li>Run <c>scandvd.sh</c> to list all the titles on the disc.
+<li>If in doubt about what the titles are, play with mplayer: <c>mplayer dvd://01</c>
+<li>Run <c>undvd.sh -t <h>01</h> -a <h>en</h> -s <h>es</h></c> to rip only the <e>first</e> title, with <e>English</e> audio and <e>Spanish</e> subtitles.
+</ol>
+
+
+<h2>Prerequisites</h2>
+undvd depends on a few programs to run, so make sure you have this:
+<ul>
+<li><a href="http://www.gnu.org/software/coreutils/">dd</a> (coreutils)
+<li><a href="http://untrepid.com/lsdvd/">lsdvd</a>
+<li><a href="http://www.mplayerhq.hu/">mplayer</a> with mencoder and support for
+	<ul>
+	<li><a href="http://www.dtek.chalmers.se/groups/dvd/">dvdread</a>
+	<li><a href="http://lame.sourceforge.net">mp3</a> (lame)
+	<li><a href="http://developers.videolan.org/x264.html">x264</a>
+	<li><a href="http://www.xvid.org">xvid</a>
+	</ul>
+</ul>
+
+
+<h2>Diving in</h2>
+
+<p><c>scandvd.sh</c> uses <e>lsdvd</e> to print a list of titles on the disc. Each line in the output looks like this:</p>
+
+<table><tr>
+<td>03</td>
+<td><c>length:</c> <h>00:22:06</h></td>
+<td><c>audio:</c> en es</td>
+<td><c>subtitles:</c> en es nl</td>
+</tr></table>
+
+<p>This particular title has two audio tracks and three subtitles. You can also tell <c>scandvd.sh</c>  which device to scan with:</p>
+
+<p><c>scandvd.sh -d <h>/dev/dvd</h></c></p>
+
+<p>Or, if you already have the dvd mounted, you can give it a path:</p>
+
+<p><c>scandvd.sh -q <h>/path</h></c></p>
+
+<p>&nbsp;</p>
+
+<p>Once you know which titles to rip, run <c>undvd.sh</c>, where the first argument is the title(s), the second is the audio, the third is the subtitles (the rest are optional):</p>
+
+<p><c>undvd.sh -t <h>01,02,03</h> -a <h>en</h> -s <h>es</h> [-e <h>200</h>] [-d <h>/dev/dvd</h>] [more options]</c></p>
+
+<table>
+<tr><td><c>-t<c></td><td>titles to rip (comma separated)</td></tr>
+<tr><td><c>-a<c></td><td>audio language (two letter code, eg. <h>en</h>)</td></tr>
+<tr><td><c>-s<c></td><td>subtitle language (two letter code or <h>off</h>)</td></tr>
+<tr><td><c>-e<c></td><td>exit after this many seconds (usually for testing)</td></tr>
+<tr><td><c>-d<c></td><td>dvd device to rip from (default is <h>/dev/dvd</h>)</td></tr>
+<tr><td><c>-q<c></td><td>dvd directory to rip from</td></tr>
+<tr><td><c>-z<c></td><td>skip copy dvd to disk (if disc.iso exists)</td></tr>
+<tr><td><c>-f<c></td><td>use picture smoothing filter (not recommended for top quality source content)</td></tr>
+<tr><td><c>-x<c></td><td>use xvid compression (faster, slightly lower quality)</td></tr>
+</table>
+
+<p>Normally, you omit the <c>-e</c> argument, but it's useful if you want to just rip a small part of the title to see that it works and that it looks good.</p>
+
+<p><c>undvd.sh</c> first copies the entire disc to the harddisk with <e>dd</e>. It then encodes the title(s) with <e>mencoder</e>, part of <e>mplayer</e>. The output format uses <a href="http://en.wikipedia.org/wiki/H264">x264</a> compression (optionally xvid) for the video and mp3 for the audio.</p>
+
+
+<h2>How long does it take?</h2>
+
+<p>This depends mostly on your cpu. Copying the dvd to disk can take about <e>10-15 minutes</e>. Encoding the video can take about <e>2-5 minutes per minute of video</e> (so for a 2 hour movie - 4h-10h).</p>
+
+<p>For a more precise estimate, have a look at the logfiles. You can keep track of updates with <c>tail -F logs/01.log</c>. <e>mencoder</e> writes lines like this:</p>
+
+<table><tr>
+<td>Pos: <h>54.5s</h></td>
+<td>1367f ( <h>3%</h>)</td>
+<td><h>13fps</h></td>
+<td>Trem:  <h>44min</h></td>
+<td><h>277mb</h></td>
+</tr></table>
+
+<p>At this point, 54.5 seconds have been processed, which is 3% of the title. The current rate is 13 frames/second (normally there are about 25 fps in a movie), and the time remaining is estimated to 44 minutes. The output file is estimated at 277mb.</p>
+
+<p><b>Note:</b> undvd.sh runs at the lowest priority, so it should not interfere with use of your computer, it just runs in the background. (The less you use computer the faster it will run :-)</p>
+
+
+<h2>Problems?</h2>
+
+<dl>
+<dt>Q. When I preview a file in progress, the video is out of sync with the audio.
+<dd>A. Wait until it's finished, then it should be fine.
+
+<dt>Q. What is the difference between x264 and xvid encoding?
+<dd>A. Xvid can be up to 30% faster, and produces very good results when the source video isn't that high quality (eg. remastered old tv-shows). But for movies of top quality, the picture is better with x264.
+
+<dt>Q. What's the picture smoothing filter?
+<dd>A. Source content with certain imperfections tends to look better smoothed before encoded. The filter slows down encoding, so you might want to rip a small part of the video first to see if it's worth it.
+</dl>
+
+
+<h2>References</h2>
+<ol>
+<li><a href="http://gentoo-wiki.com/HOWTO_Rip_DVD_mencoder">HOWTO Rip DVD mencoder [gentoo-wiki]</a>
+<li><a href="http://www.mplayerhq.hu/DOCS/HTML/en/menc-feat-quicktime-7.html">Using MEncoder to create QuickTime-compatible files</a>
+<li><a href="http://gentoo-wiki.com/HOWTO_Mencoder_Introduction_Guide#XviD">HOWTO Mencoder Introduction Guide [gentoo-wiki]</a>
+<li><a href="http://www.mplayerhq.hu/DOCS/HTML/en/menc-feat-xvid.html">Encoding with the Xvid  codec</a>
+</ol>
+
+<hr>
+# Author: Martin Matusiak &lt;numerodix@gmail.com&gt;
+<br># Licensed under the GNU Public License, version 3.
+
+</body>
+</html>
