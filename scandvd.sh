@@ -3,6 +3,7 @@
 # Author: Martin Matusiak <numerodix@gmail.com>
 # Licensed under the GNU Public License, version 3.
 #
+# revision 5 - only print subtitles field if non-empty
 # revision 4 - adding -i switch to read from iso images
 # revision 3 - fixed quoting bug for dirs with whitespace
 # revision 2 - add support for dvd is a dir
@@ -47,7 +48,8 @@ for i in $titles; do
 	echo -en   "${pl}${i}"
 	echo -en "  ${wh}length: ${gr}${length}"
 	echo -en "  ${wh}audio: ${pl}${audio}"
-	echo -e  "  ${wh}subtitles: ${pl}${subtitles}"
+	if [ "$subtitles" ]; then echo -en "  ${wh}subtitles: ${pl}${subtitles}"; fi
+	echo
 done
 
 echo -e "${pl}\nTo watch a title:"
