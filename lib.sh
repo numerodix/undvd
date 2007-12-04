@@ -16,12 +16,15 @@ cy="\033[1;36m"
 gr="\033[1;32m"
 re="\033[1;31m"
 
+# bitrate
+bitrate=900
+
 # x264 encoding options
-x264="x264 -x264encopts subq=5:frameref=2:partitions=all:weight_b:bitrate=900:threads=auto"
+x264="x264 -x264encopts subq=5:frameref=2:partitions=all:weight_b:bitrate=$bitrate:threads=auto"
 faac="faac -faacopts object=1:tns:quality=100"
 
 # xvid encoding options
-xvid="xvid -xvidencopts bitrate=900"
+xvid="xvid -xvidencopts bitrate=$bitrate"
 lame="mp3lame -lameopts vbr=2:q=3"
 
 # codec defaults
