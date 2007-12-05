@@ -36,12 +36,15 @@ prescale=
 postscale=
 
 # sources
+dvd_device="/dev/dvd"
 disc_image="disc.iso"
 mencoder_source="$disc_image"
 
 # seconds to pause between updating rip status line
 timer_refresh=5
 
+
+### FUNCTIONS
 
 # obtain title length from lsdvd
 function title_length() {
@@ -81,18 +84,18 @@ function compute_bitrate() {
 	echo $bitrate
 }
 
-len=$(title_length 03 /gentoo/st/sein8xcd1 /tmp)
-echo $len
+#len=$(title_length 03 /gentoo/st/sein8xcd1 /tmp)
+#echo $len
 
-br=$(compute_bitrate $len 160 167)
-echo $br
+#br=$(compute_bitrate $len 160 167)
+#echo $br
 
 
 # compute title scaling with mplayer
 function title_scale() {
 	title=$1
-	dvd_device=$2
-	tmpdir=$3
+	dvd_device="$2"
+	tmpdir="$3"
 
 	cmd="mplayer -slave -quiet dvd://${title} -dvd-device \"$dvd_device\" -ao null -vo null -endpos 1"
 	bash -c "$cmd" &> ${tmpdir}/title.size
@@ -111,5 +114,5 @@ function title_scale() {
 	echo $scale
 }
 
-dim=$(title_scale 03 /gentoo/st/sein8xcd1 /tmp)
-echo $dim
+#dim=$(title_scale 03 /gentoo/st/sein8xcd1 /tmp)
+#echo $dim

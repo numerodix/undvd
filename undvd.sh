@@ -28,10 +28,13 @@ usage=" Usage:  ${wh}undvd.sh -t ${gr}01,02,03${wh} -a ${gr}en${wh} -s ${gr}es${
 \t-q \tdvd directory to rip from\n
 \t-i \tdvd iso image to rip from\n
 \t-f \tuse picture smoothing filter\n
-\t-2 \tdouble filesize for improved quality\n
-\t-x \tuse xvid compression (faster, slightly lower quality)"
+\t-x \tuse xvid compression (faster, slightly lower quality)\n
+\t-z \t<show advanced options>"
 
-while getopts "t:a:s:e:d:q:i:fx2" opts; do
+adv_usage=" Usage:  ${wh}undvd.sh -t ${gr}01,02,03${wh} -a ${gr}en${wh} -s ${gr}es${wh} [-e ${gr}200${wh}] [-d ${gr}/dev/dvd${wh}] [more options]${pl}\n
+\t-o \toutput file size"
+
+while getopts "t:a:s:e:d:q:i:o:fxz" opts; do
 	case $opts in
 		t ) titles=$(echo $OPTARG | sed 's|,| |g');;
 		a ) alang=$OPTARG;;
@@ -41,15 +44,12 @@ while getopts "t:a:s:e:d:q:i:fx2" opts; do
 		q ) dvdisdir="y";mencoder_source="$OPTARG";;
 		i ) skipclone="y";mencoder_source="$OPTARG";;
 		f ) prescale="spp,";postscale=",hqdn3d";;
-		2 ) double=y;;
-		x ) vcodec=$xvid;acodec=$lame;;
+		x ) vcodec="$xvid";acodec="$lame";;
+		o ) output_filesize="$OPTARG";;
+		z ) echo -e $adv_usage; exit 1;;
 		* ) echo -e $usage; exit 1;;
 	esac
 done
-
-if [ "x$dvd_device" = "x" ]; then
-	dvd_device="/dev/dvd"
-fi
 
 
 if [ "x$end" = "x" ]; then
@@ -75,11 +75,6 @@ if [ "x$slang" = "x" ]; then
 	echo -e "${re}No subtitle language selected, exiting (use 'off' if you dont want any)${pl}"
 	echo -e $usage
 	exit 1
-fi
-
-if [ $double ]; then
-	nbitrate="bitrate=$(( $bitrate * 2 ))"
-	vcodec=$( echo $vcodec | sed "s/bitrate=$bitrate/$nbitrate/g" )
 fi
 
 
@@ -125,27 +120,7 @@ for i in $titles; do
 	
 	# Find out how to scale the dimensions
 	
-	mplayer -slave -quiet \
-		dvd://${title} \
-		-dvd-device "$mencoder_source" \
-		-ao null \
-		-vo null \
-		-endpos 1 \
-	&> /tmp/title.size
-	size=$(cat /tmp/title.size | grep "VIDEO:" | awk '{ print $3 }')
-	sizex=$(echo $size | sed 's|\(.*\)x\(.*\)|\1|g')
-	sizey=$(echo $size | sed 's|\(.*\)x\(.*\)|\2|g')
-	if [ "x$sizex" != x ]; then
-		sizex=$(($sizex*2/3))
-		sizey=$(($sizey*2/3))
-		scale="scale=$sizex:$sizey"
-		expand=",expand=$sizex:$sizey::1"
-	else
-		scale="scale"
-	fi
-	
-	rm /tmp/title.size
-	
+	scale=$(title_scale ${title} "$mencoder_source" $tmpdir)
 	
 	# Encode video
 	
