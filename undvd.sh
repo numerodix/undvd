@@ -6,7 +6,7 @@
 # More info: http://www.matusiak.eu/numerodix/blog/index.php/2007/01/30/undvd-dvd-ripping-made-easy/
 
 
-# load constants
+# load constants and functions
 p=$(dirname $(readlink -f $0)); . $p/lib.sh
 
 echo -e "${wh}{( --- undvd.sh $version --- )}${pl}"

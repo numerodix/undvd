@@ -4,7 +4,7 @@
 # Licensed under the GNU Public License, version 3.
 
 
-# load constants
+# load constants and functions
 p=$(dirname $(readlink -f $0)); . $p/lib.sh
 
 echo -e "${wh}{( --- scandvd.sh $version --- )}${pl}"
