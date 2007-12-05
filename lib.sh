@@ -17,23 +17,21 @@ gr="\033[1;32m"
 re="\033[1;31m"
 
 # bitrates
-bitrate=900
+standard_bitrate=900
+bitrate=$standard_bitrate
 standard_audio_bitrate=160
 
 # x264 encoding options
-x264="x264 -x264encopts subq=5:frameref=2:partitions=all:weight_b:bitrate=$bitrate:threads=auto"
+#x264="x264 -x264encopts subq=5:frameref=2:partitions=all:weight_b:bitrate=$bitrate:threads=auto"
 faac="faac -faacopts object=1:tns:quality=100"
 
 # xvid encoding options
-xvid="xvid -xvidencopts bitrate=$bitrate"
+#xvid="xvid -xvidencopts bitrate=$bitrate"
 lame="mp3lame -lameopts vbr=2:q=3"
 
 # codec defaults
 video_codec="x264"
 acodec=$lame
-
-# passes default
-passes=1
 
 # mplayer filters
 prescale=
@@ -49,36 +47,6 @@ timer_refresh=5
 
 
 ### FUNCTIONS
-
-# get x264 codec options
-function vcodec_opts() {
-	codec="$1"
-	twopass="$2"
-	pass="$3"
-	custom_bitrate="$4"
-	
-	if [ $custom_bitrate ]; then
-		bitrate=$custom_bitrate
-	fi
-	
-	if [ "$codec" = "x264" ]; then
-		opts="subq=5:frameref=2"
-		
-		if [ $twopass ]; then
-			if [ $pass -eq "1" ]; then
-				opts="subq=1:frameref=1:pass=1"
-			elif [ $pass -eq "2" ]; then
-				opts="$opts:pass=2"
-			fi
-		fi
-		
-		opts="x264 -x264encopts $opts:partitions=all:weight_b:bitrate=$bitrate:threads=auto"
-	elif [ "$codec" = "xvid" ]; then
-	
-		opts="xvid -xvidencopts bitrate=$bitrate"
-	fi
-	echo $opts
-}
 
 # obtain title length from lsdvd
 function title_length() {
@@ -138,4 +106,94 @@ function title_scale() {
 	rm ${tmpdir}/title.size 
 
 	echo $scale
+}
+
+# get video codec options
+function vcodec_opts() {
+	codec="$1"
+	twopass="$2"
+	pass="$3"
+	custom_bitrate="$4"
+	
+	if [ $custom_bitrate ]; then
+		bitrate=$custom_bitrate
+	fi
+	
+	if [ "$codec" = "x264" ]; then
+		opts="subq=5:frameref=2"
+		
+		if [ $twopass ]; then
+			if [ $pass -eq "1" ]; then
+				opts="subq=1:frameref=1:pass=1"
+			elif [ $pass -eq "2" ]; then
+				opts="$opts:pass=2"
+			fi
+		fi
+		
+		opts="x264 -x264encopts $opts:partitions=all:weight_b:bitrate=$bitrate:threads=auto"
+	elif [ "$codec" = "xvid" ]; then
+	
+		opts="xvid -xvidencopts bitrate=$bitrate"
+	fi
+	echo $opts
+}
+
+# run encode and print updates
+function run_encode() {
+	cmd="$1"
+	title="$2"
+	twopass="$3"
+	pass="$4"
+	
+	if [ ! $pass ]; then
+		pass="*"
+	fi
+	
+	# Set output and logging depending on number of passes
+	
+	output_file="${title}.avi.partial"
+	logfile="logs/${title}.log"
+	
+	if [ $twopass ]; then
+		if [ $pass -eq 1 ]; then
+			output_file="/dev/null"
+			logfile="$logfile.pass1"
+		elif [ $pass -eq 2 ]; then
+			logfile="$logfile.pass2"
+		fi
+	else
+		pass="-"
+	fi
+	
+	cmd="$cmd -o $output_file"
+	
+	# Print initial status message
+	
+	status="${pl}[$pass] Encoding, to monitor log:  tail -F $logfile    "
+	echo -en "${status}\r"
+	
+	# Execute encoder in the background
+	
+	( echo "$cmd"; bash -c "$cmd" ) &> $logfile &
+	pid=$!
+	
+	# Write mencoder's ETA estimate
+	
+	start_time=$(date +%s)
+	(while ps $pid &> /dev/null; do
+		eta=$([ -e $logfile ] && tail -n15 $logfile | \
+			grep "Trem:" | tail -n1 | sed 's|.*\( .*min\).*|\1|g' | tr " " "-")
+		ela=$(( ( $(date +%s) - $start_time ) / 60 ))
+		echo -ne "${status}${ye}+${ela}min${pl}  ${cy}${eta}${pl}    \r"
+		sleep $timer_refresh
+	done)
+	
+	# Report exit code
+	
+	wait $pid
+	if [ $? = 0 ]; then
+		echo -e "${status}[ ${gr}done${pl} ]             "
+	else
+		echo -e "${status}[ ${re}failed${pl} ] ${re}check log${pl}"
+	fi
 }
