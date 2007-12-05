@@ -37,7 +37,7 @@ while getopts "t:a:s:e:d:q:i:o:fxz" opts; do
 		q ) dvdisdir="y";mencoder_source="$OPTARG";;
 		i ) skipclone="y";mencoder_source="$OPTARG";;
 		f ) prescale="spp,";postscale=",hqdn3d";;
-		x ) vcodec="$xvid";acodec="$lame";;
+		x ) video_codec="xvid";acodec="$lame";;
 		o ) output_filesize="$OPTARG";;
 		z ) echo -e $adv_usage; exit 1;;
 		* ) echo -e $usage; exit 1;;
@@ -120,9 +120,18 @@ for i in $titles; do
 
 	if [ $output_filesize ]; then
 		len=$(title_length ${title} "$mencoder_source" $tmpdir)
-		nbitrate="bitrate=$(compute_bitrate $len $output_filesize)"
-		vcodec=$( echo $vcodec | sed "s/bitrate=$bitrate/$nbitrate/g" )
+		bitrate="bitrate=$(compute_bitrate $len $output_filesize)"
 	fi
+	
+	passes=2
+
+	pass=1
+	for p in $(seq $passes); do
+		vcodec=$(x264_opts "" "" "$bitrate")
+		
+		echo $vcodec
+	done
+	exit 1
 	
 	# Encode video
 	

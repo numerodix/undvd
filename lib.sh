@@ -29,7 +29,7 @@ xvid="xvid -xvidencopts bitrate=$bitrate"
 lame="mp3lame -lameopts vbr=2:q=3"
 
 # codec defaults
-vcodec=$x264
+video_codec="x264"
 acodec=$lame
 
 # mplayer filters
@@ -46,6 +46,30 @@ timer_refresh=5
 
 
 ### FUNCTIONS
+
+# get x264 codec options
+function x264_opts() {
+	twopass="$1"
+	pass="$2"
+	custom_bitrate="$3"
+	
+	opts="subq=5:frameref=2"
+	
+	if [ $custom_bitrate ]; then
+		bitrate=$custom_bitrate
+	fi
+	
+	if [ $twopass ]; then
+		if [ $pass -eq "1" ]; then
+			opts="subq=1:frameref=1:pass=1"
+		elif [ $pass -eq "2" ]; then
+			opts="$opts:pass=2"
+		fi
+	fi
+	
+	opts="x264 -x264encopts $opts:partitions=all:weight_b:bitrate=$bitrate:threads=auto"
+	echo $opts
+}
 
 # obtain title length from lsdvd
 function title_length() {
