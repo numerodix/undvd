@@ -16,8 +16,9 @@ cy="\033[1;36m"
 gr="\033[1;32m"
 re="\033[1;31m"
 
-# bitrate
+# bitrates
 bitrate=900
+standard_audio_bitrate=160
 
 # x264 encoding options
 x264="x264 -x264encopts subq=5:frameref=2:partitions=all:weight_b:bitrate=$bitrate:threads=auto"
@@ -52,7 +53,7 @@ function title_length() {
 	dvd_device=$2
 	tmpdir=$3
 
-	cmd="lsdvd -avs $dvdisdir \"$dvd_device\" > ${tmpdir}/lsdisc 2> ${tmpdir}/lsdisc.err"
+	cmd="lsdvd -avs \"$dvd_device\" > ${tmpdir}/lsdisc 2> ${tmpdir}/lsdisc.err"
 	sh -c "$cmd"
 	titles=$(cat ${tmpdir}/lsdisc | egrep "^Title" | awk '{ print $2 }' | sed 's|,||g')
 
@@ -74,22 +75,14 @@ function title_length() {
 # compute video bitrate based on title length
 function compute_bitrate() {
 	title_length=$1
-	audio_bitrate=$2
-	output_size=$(( $3 * 1024 ))
+	output_size=$(( $2 * 1024 ))
+	audio_bitrate=$standard_audio_bitrate
 
 	audio_size=$(( $title_length * ($audio_bitrate / 8)  ))
-	echo $audio_size
 	bitrate=$(( ( ($output_size - $audio_size) * 8 ) / $title_length ))
 
 	echo $bitrate
 }
-
-#len=$(title_length 03 /gentoo/st/sein8xcd1 /tmp)
-#echo $len
-
-#br=$(compute_bitrate $len 160 167)
-#echo $br
-
 
 # compute title scaling with mplayer
 function title_scale() {
@@ -113,6 +106,3 @@ function title_scale() {
 
 	echo $scale
 }
-
-#dim=$(title_scale 03 /gentoo/st/sein8xcd1 /tmp)
-#echo $dim

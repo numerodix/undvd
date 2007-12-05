@@ -31,8 +31,9 @@ usage=" Usage:  ${wh}undvd.sh -t ${gr}01,02,03${wh} -a ${gr}en${wh} -s ${gr}es${
 \t-x \tuse xvid compression (faster, slightly lower quality)\n
 \t-z \t<show advanced options>"
 
-adv_usage=" Usage:  ${wh}undvd.sh -t ${gr}01,02,03${wh} -a ${gr}en${wh} -s ${gr}es${wh} [-e ${gr}200${wh}] [-d ${gr}/dev/dvd${wh}] [more options]${pl}\n
-\t-o \toutput file size"
+adv_usage=" Advanced usage:  ${wh}undvd.sh -t [standard options] [advanced
+options]${pl}\n
+\t-o \toutput file size in mb (integer value)"
 
 while getopts "t:a:s:e:d:q:i:o:fxz" opts; do
 	case $opts in
@@ -121,6 +122,15 @@ for i in $titles; do
 	# Find out how to scale the dimensions
 	
 	scale=$(title_scale ${title} "$mencoder_source" $tmpdir)
+	
+	
+	# User set bitrate
+
+	if [ $output_filesize ]; then
+		len=$(title_length ${title} "$mencoder_source" $tmpdir)
+		nbitrate="bitrate=$(compute_bitrate $len $output_filesize)"
+		vcodec=$( echo $vcodec | sed "s/bitrate=$bitrate/$nbitrate/g" )
+	fi
 	
 	# Encode video
 	
