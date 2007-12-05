@@ -87,3 +87,29 @@ echo $len
 br=$(compute_bitrate $len 160 167)
 echo $br
 
+
+# compute title scaling with mplayer
+function title_scale() {
+	title=$1
+	dvd_device=$2
+	tmpdir=$3
+
+	cmd="mplayer -slave -quiet dvd://${title} -dvd-device \"$dvd_device\" -ao null -vo null -endpos 1"
+	bash -c "$cmd" &> ${tmpdir}/title.size
+	size=$(cat ${tmpdir}/title.size | grep "VIDEO:" | awk '{ print $3 }')
+	sizex=$(echo $size | sed 's|\(.*\)x\(.*\)|\1|g')
+	sizey=$(echo $size | sed 's|\(.*\)x\(.*\)|\2|g')
+	if [ $sizex ]; then
+		sizex=$(($sizex*2/3))
+		sizey=$(($sizey*2/3))
+		scale="scale=$sizex:$sizey"
+	else
+		scale="scale"
+	fi
+	rm ${tmpdir}/title.size 
+
+	echo $scale
+}
+
+dim=$(title_scale 03 /gentoo/st/sein8xcd1 /tmp)
+echo $dim
