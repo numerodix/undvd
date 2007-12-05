@@ -51,26 +51,32 @@ timer_refresh=5
 ### FUNCTIONS
 
 # get x264 codec options
-function x264_opts() {
-	twopass="$1"
-	pass="$2"
-	custom_bitrate="$3"
-	
-	opts="subq=5:frameref=2"
+function vcodec_opts() {
+	codec="$1"
+	twopass="$2"
+	pass="$3"
+	custom_bitrate="$4"
 	
 	if [ $custom_bitrate ]; then
 		bitrate=$custom_bitrate
 	fi
 	
-	if [ $twopass ]; then
-		if [ $pass -eq "1" ]; then
-			opts="subq=1:frameref=1:pass=1"
-		elif [ $pass -eq "2" ]; then
-			opts="$opts:pass=2"
+	if [ "$codec" = "x264" ]; then
+		opts="subq=5:frameref=2"
+		
+		if [ $twopass ]; then
+			if [ $pass -eq "1" ]; then
+				opts="subq=1:frameref=1:pass=1"
+			elif [ $pass -eq "2" ]; then
+				opts="$opts:pass=2"
+			fi
 		fi
-	fi
+		
+		opts="x264 -x264encopts $opts:partitions=all:weight_b:bitrate=$bitrate:threads=auto"
+	elif [ "$codec" = "xvid" ]; then
 	
-	opts="x264 -x264encopts $opts:partitions=all:weight_b:bitrate=$bitrate:threads=auto"
+		opts="xvid -xvidencopts bitrate=$bitrate"
+	fi
 	echo $opts
 }
 

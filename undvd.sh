@@ -127,13 +127,13 @@ for i in $titles; do
 	if [ $twopass ]; then
 		passes=2
 	fi
-	echo $twopass
+	
 	pass=1
 	for p in $(seq $passes); do
-		vcodec=$(x264_opts "" "" "$bitrate")
-		echo $twopass
+		vcodec=$(vcodec_opts "$video_codec" "" "" "$bitrate")
+		
 		if [ $twopass ]; then
-			vcodec=$(x264_opts "y" "$pass" "$bitrate")
+			vcodec=$(vcodec_opts "$video_codec" "y" "$pass" "$bitrate")
 		fi
 		
 		pass=$(( $pass + 1 ))
