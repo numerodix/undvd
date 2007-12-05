@@ -32,6 +32,9 @@ lame="mp3lame -lameopts vbr=2:q=3"
 video_codec="x264"
 acodec=$lame
 
+# passes default
+passes=1
+
 # mplayer filters
 prescale=
 postscale=

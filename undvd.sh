@@ -123,11 +123,20 @@ for i in $titles; do
 		bitrate="bitrate=$(compute_bitrate $len $output_filesize)"
 	fi
 	
-	passes=2
-
+	twopass=y
+	if [ $twopass ]; then
+		passes=2
+	fi
+	echo $twopass
 	pass=1
 	for p in $(seq $passes); do
 		vcodec=$(x264_opts "" "" "$bitrate")
+		echo $twopass
+		if [ $twopass ]; then
+			vcodec=$(x264_opts "y" "$pass" "$bitrate")
+		fi
+		
+		pass=$(( $pass + 1 ))
 		
 		echo $vcodec
 	done
