@@ -4,14 +4,6 @@
 # Licensed under the GNU Public License, version 3.
 #
 # More info: http://www.matusiak.eu/numerodix/blog/index.php/2007/01/30/undvd-dvd-ripping-made-easy/
-#
-# revision 7 - adding -2 switch to double bitrate
-# revision 6 - fixing bug that broke -i switch
-# revision 5 - changed time counter to include both elapsed and estimated time
-# revision 4 - made ripping from iso option clearer
-# revision 3 - -q switch made consistent with scandvd, fixing variable quoting bug
-# revision 2 - adding option to rip from directory instead of disc/iso
-# revision 1 - changed shell to bash and updated color scheme
 
 
 # load constants

@@ -2,12 +2,6 @@
 #
 # Author: Martin Matusiak <numerodix@gmail.com>
 # Licensed under the GNU Public License, version 3.
-#
-# revision 5 - only print subtitles field if non-empty
-# revision 4 - adding -i switch to read from iso images
-# revision 3 - fixed quoting bug for dirs with whitespace
-# revision 2 - add support for dvd is a dir
-# revision 1 - changed shell to bash
 
 
 # load constants
