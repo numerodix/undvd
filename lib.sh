@@ -41,3 +41,49 @@ mencoder_source="$disc_image"
 
 # seconds to pause between updating rip status line
 timer_refresh=5
+
+
+# obtain title length from lsdvd
+function title_length() {
+	title_no=$1
+	dvd_device=$2
+	tmpdir=$3
+
+	cmd="lsdvd -avs $dvdisdir \"$dvd_device\" > ${tmpdir}/lsdisc 2> ${tmpdir}/lsdisc.err"
+	sh -c "$cmd"
+	titles=$(cat ${tmpdir}/lsdisc | egrep "^Title" | awk '{ print $2 }' | sed 's|,||g')
+
+	for t in $titles; do
+		if [ $t -eq $title_no ]; then
+			title_length=$(cat ${tmpdir}/lsdisc | egrep "^Title: $t" | awk '{ print $4 }' | sed 's|\(.*\)\..*|\1|g')
+		fi
+	done
+	rm ${tmpdir}/lsdisc* &> /dev/null
+
+	hours=${title_length:0:2}
+	min=${title_length:3:2}
+	sec=${title_length:6:2}
+	title_length=$(( ($hours*3600) + ($min*60) + $sec ))
+
+	echo $title_length
+}
+
+# compute video bitrate based on title length
+function compute_bitrate() {
+	title_length=$1
+	audio_bitrate=$2
+	output_size=$(( $3 * 1024 ))
+
+	audio_size=$(( $title_length * ($audio_bitrate / 8)  ))
+	echo $audio_size
+	bitrate=$(( ( ($output_size - $audio_size) * 8 ) / $title_length ))
+
+	echo $bitrate
+}
+
+len=$(title_length 03 /gentoo/st/sein8xcd1 /tmp)
+echo $len
+
+br=$(compute_bitrate $len 160 167)
+echo $br
+
