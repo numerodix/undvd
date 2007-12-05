@@ -145,10 +145,6 @@ function run_encode() {
 	twopass="$3"
 	pass="$4"
 	
-	if [ ! $pass ]; then
-		pass="*"
-	fi
-	
 	# Set output and logging depending on number of passes
 	
 	output_file="${title}.avi.partial"
