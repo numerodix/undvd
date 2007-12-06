@@ -133,7 +133,15 @@ function vcodec_opts() {
 		opts="x264 -x264encopts $opts:partitions=all:weight_b:bitrate=$bitrate:threads=auto"
 	elif [ "$codec" = "xvid" ]; then
 	
-		opts="xvid -xvidencopts bitrate=$bitrate"
+		if [ $twopass ]; then
+			if [ $pass -eq "1" ]; then
+				opts="pass=1"
+			elif [ $pass -eq "2" ]; then
+				opts="pass=2"
+			fi
+		fi
+	
+		opts="xvid -xvidencopts $opts:bitrate=$bitrate"
 	fi
 	echo $opts
 }
