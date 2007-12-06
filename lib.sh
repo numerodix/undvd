@@ -124,9 +124,9 @@ function vcodec_opts() {
 		
 		if [ $twopass ]; then
 			if [ $pass -eq "1" ]; then
-				opts="subq=1:frameref=1:pass=1"
+				opts="pass=1:subq=1:frameref=1"
 			elif [ $pass -eq "2" ]; then
-				opts="$opts:pass=2"
+				opts="pass=2:$opts"
 			fi
 		fi
 		
