@@ -8,7 +8,7 @@ DESCRIPTION="Simple dvd ripping command line app"
 HOMEPAGE="http://www.matusiak.eu/numerodix/code.php"
 SRC_URI="http://www.opendesktop.org/content/files/${P}.tar.gz"
 
-LICENSE="GPL-2"
+LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~x86"
 IUSE="css xvid"
