@@ -19,15 +19,15 @@ usage=" Usage:  ${wh}undvd.sh -t ${gr}01,02,03${wh} -a ${gr}en${wh} -s ${gr}es${
 \t-d \tdvd device to rip from (default is /dev/dvd)\n
 \t-q \tdvd directory to rip from\n
 \t-i \tdvd iso image to rip from\n
-\t-f \tuse picture smoothing filter\n
-\t-x \tuse xvid compression (faster, slightly lower quality)\n
 \t-z \t<show advanced options>"
 
 adv_usage=" Advanced usage:  ${wh}undvd.sh [standard options] ${gr}[advanced
 options]${pl}\n
 \t-o \toutput file size in mb (integer value)\n
 \t-1 \tforce 1-pass encoding\n
-\t-2 \tforce 2-pass encoding"
+\t-2 \tforce 2-pass encoding\n
+\t-f \tuse picture smoothing filter\n
+\t-x \tuse xvid compression (faster, slightly lower quality)"
 
 while getopts "t:a:s:e:d:q:i:o:fxz12" opts; do
 	case $opts in
