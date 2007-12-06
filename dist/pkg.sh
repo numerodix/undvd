@@ -7,3 +7,4 @@ if [ ! $v ]; then
 fi
 
 git-archive --prefix=undvd-$v/ $v  | gzip > undvd-$v.tar.gz 
+
