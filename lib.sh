@@ -55,7 +55,7 @@ function title_length() {
 	tmpdir=$3
 
 	cmd="lsdvd -avs \"$dvd_device\" > ${tmpdir}/lsdisc 2> ${tmpdir}/lsdisc.err"
-	sh -c "$cmd"
+	bash -c "$cmd"
 	titles=$(cat ${tmpdir}/lsdisc | egrep "^Title" | awk '{ print $2 }' | sed 's|,||g')
 
 	for t in $titles; do

@@ -87,7 +87,7 @@ if [ ! $dvdisdir ] && [ ! $skipclone ]; then
 	nice -n20 \
 	dd if=${dvd_device} of=$disc_image.partial && \
 	mv $disc_image.partial $disc_image"
-	( echo "$cmd"; sh -c "$cmd" ) &> logs/iso.log
+	( echo "$cmd"; bash -c "$cmd" ) &> logs/iso.log
 	if [ $? != 0 ] ; then
 		echo -e "${re}\nFailed, dumping log:${pl}"
 		cat logs/iso.log

@@ -52,7 +52,7 @@ deinterlace,audio-sync}:std{access=file, mux=ps,url=\"$output\"}' vlc:quit"
 #echo $cmd
 #exit 1
 echo -en " * Dumping track with vlc... "
-( echo "$cmd"; sh -c "$cmd" ) &> logs/dump${title}.log
+( echo "$cmd"; bash -c "$cmd" ) &> logs/dump${title}.log
 if [ $? != 0 ] ; then
 	echo -e "${re}\nFailed, check log:${pl} logs/dump${title}.log"
 	exit 1

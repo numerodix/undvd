@@ -20,7 +20,7 @@ done
 
 
 cmd="lsdvd -avs $dvdisdir \"$dvd_device\" > ${tmpdir}/lsdisc 2> ${tmpdir}/lsdisc.err"
-sh -c "$cmd"
+bash -c "$cmd"
 if [ $? != 0 ]; then
 	echo -en "${re}" ; cat "${tmpdir}/lsdisc.err"; echo -en ${pl}
 	rm ${tmpdir}/lsdisc* &> /dev/null
