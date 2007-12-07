@@ -31,11 +31,11 @@ cd debian
 
 sed -i "s,Section: unknown,Section: multiverse/graphics,g" control
 sed -i "s,Architecture: any,Architecture: all,g" control
-sed -i "s|Depends: .*|Depends: mencoder, lsdvd, bash, coreutils, gawk, libdvdcss2|g" control
+sed -i "s|^Depends: .*|Depends: mencoder, lsdvd, bash, coreutils, gawk\nSuggests: libdvdcss2|g" control
 sed -i "s,Description: .*,Description: Simple dvd ripping command line app,g" control
 sed -i "s,<insert long.*,undvd is dvd ripping made *simple* with an easy interface to mencoder with sensible default settings that give good results.  For those times you just want to rip a movie and not consider thousands of variables.,g" control
 
-sed -i "s,9999-1,9999-0ubuntu1,g" changelog
+sed -i "s,$v-1,$v-0ubuntu1,g" changelog
 
 cd ..
 dpkg-buildpackage -rfakeroot
@@ -55,7 +55,7 @@ mv dist/undvd_$v-0ubuntu1_all.deb undvd-$v/ubuntu
 
 mkdir -p undvd-$v/fedora
 sudo mkdir -p /usr/src/rpm/SOURCES
-sudo cp undvd-9999.tar.gz /usr/src/rpm/SOURCES
+sudo cp undvd-$v.tar.gz /usr/src/rpm/SOURCES
 sudo rpmbuild -ba dist/undvd.spec
 cp /usr/src/rpm/RPMS/noarch/undvd-$v-1.noarch.rpm undvd-$v/fedora
 

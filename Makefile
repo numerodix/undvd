@@ -4,7 +4,9 @@ BIN=/usr/bin
 SHARED_CHROOT=${DESTDIR}${SHARED}
 BIN_CHROOT=${DESTDIR}${BIN}
 
-all:
+all: clean
+
+clean:
 	-@true
 
 install:
