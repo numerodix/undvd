@@ -1,17 +1,19 @@
-SHARED=${DESTDIR}/usr/share/undvd
-BIN=${DESTDIR}/usr/bin
+SHARED=/usr/share/undvd
+SHARED_CHROOT=${DESTDIR}${SHARED}
+BIN=/usr/bin
+BIN_CHROOT=${DESTDIR}${BIN}
 
 all:
 	-@true
 
 install:
-	mkdir -p ${SHARED}
-	install -m644 lib.sh ${SHARED}
-	install -m755 dumptrack.sh ${SHARED}
-	install -m755 scandvd.sh ${SHARED}
-	install -m755 undvd.sh ${SHARED}
-	install -m644 userguide.html ${SHARED}
+	mkdir -p ${SHARED_CHROOT}
+	install -m644 lib.sh ${SHARED_CHROOT}
+	install -m755 dumptrack.sh ${SHARED_CHROOT}
+	install -m755 scandvd.sh ${SHARED_CHROOT}
+	install -m755 undvd.sh ${SHARED_CHROOT}
+	install -m644 userguide.html ${SHARED_CHROOT}
 
-	mkdir -p ${BIN}
-	ln -s ${SHARED}/scandvd.sh ${BIN}
-	ln -s ${SHARED}/undvd.sh ${BIN}
+	mkdir -p ${BIN_CHROOT}
+	ln -s ${SHARED}/scandvd.sh ${BIN_CHROOT}
+	ln -s ${SHARED}/undvd.sh ${BIN_CHROOT}
