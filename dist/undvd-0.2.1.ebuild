@@ -23,7 +23,7 @@ RDEPEND="${DEPEND}"
 
 
 pkg_setup() {
-    einfo "Checking mplayer for USE flags we need..."
+	einfo "Checking mplayer for USE flags we need..."
 	for f in "encode dvd x264 mad"; do
 		if ! built_with_use media-video/mplayer $f; then
 			eerror "$f"
@@ -47,14 +47,5 @@ src_unpack() {
 }
 
 src_install() {
-	insinto /usr/share/${PN}
-	insopts -m755
-	for i in *.sh; do
-		doins $i
-	done
-	dohtml userguide.html
-
-	dodir /usr/bin
-	dosym /usr/share/${PN}/undvd.sh /usr/bin/undvd.sh
-	dosym /usr/share/${PN}/scandvd.sh /usr/bin/scandvd.sh
+	emake DESTDIR="${D}" install || die "Install failed"
 }

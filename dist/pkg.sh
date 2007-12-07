@@ -6,4 +6,4 @@ if [ ! $v ]; then
 	exit 1
 fi
 
-git-archive --prefix=undvd-$v/ $v | gzip > undvd-$v.tar.gz 
+git-archive --prefix=undvd-$v/ HEAD | gzip > undvd-$v.tar.gz 
