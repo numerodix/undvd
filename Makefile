@@ -1,6 +1,7 @@
 SHARED=/usr/share/undvd
-SHARED_CHROOT=${DESTDIR}${SHARED}
 BIN=/usr/bin
+
+SHARED_CHROOT=${DESTDIR}${SHARED}
 BIN_CHROOT=${DESTDIR}${BIN}
 
 all:
