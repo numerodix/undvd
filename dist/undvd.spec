@@ -2,10 +2,10 @@ Summary: Simple dvd ripping command line app
 Name: undvd
 Version: 9999
 Release: 1
-Copyright: GPL
+License: GPL
 Group: Applications/Multimedia
-Source: http://www.opendesktop.org/content/download.php?content=64833&id=1&tan=78972573
-#Patch: eject-2.0.2-buildroot.patch
+BuildArch: noarch
+Source: http://www.opendesktop.org/content/undvd-9999.tar.gz
 BuildRoot: /var/tmp/%{name}-buildroot
 
 %description
