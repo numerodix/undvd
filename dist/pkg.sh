@@ -13,3 +13,36 @@ if [ $v = "git" ]; then
 fi
 
 git-archive --prefix=undvd-$v/ $tag | gzip > undvd-$v.tar.gz 
+
+# ubuntu
+mkdir -p deb
+cp undvd-$v.tar.gz deb
+cd deb
+tar zxvf undvd-$v.tar.gz
+cd undvd-$v
+
+cp $(which dh_make) ../../deb
+sed -i "s,my \$dummy = <STDIN>;,,g" ../../deb/dh_make
+
+export DEBFULLNAME="Martin Matusiak"
+../../deb/dh_make -s -c gpl \
+	-e $(git-config user.email) -f ../undvd-$v.tar.gz
+cd debian
+
+sed -i "s,Section: unknown,Section: multiverse/graphics,g" control
+sed -i "s,Architecture: any,Architecture: all,g" control
+sed -i "s,Depends: .*,Depends: ,g" control
+sed -i "s,Description: .*,Description: Simple dvd ripping command line app,g" control
+sed -i "s,<insert long.*,undvd is dvd ripping made *simple* with an easy interface to mencoder with sensible default settings that give good results.  For those times you just want to rip a movie and not consider thousands of variables.,g" control
+
+sed -i "s,9999-1,9999-0ubuntu1,g" changelog
+
+cd ..
+dpkg-buildpackage -rfakeroot
+cd ..
+cd ..
+
+cp deb/undvd_$v-0ubuntu1_all.deb dist
+#rm -rf deb
+
+rm undvd-$v.tar.gz
