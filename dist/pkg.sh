@@ -8,7 +8,7 @@ if [ ! $v ]; then
 fi
 
 if [ $v = "git" ]; then
-	v="git-9999"
+	v="9999"
 	tag=HEAD
 fi
 
