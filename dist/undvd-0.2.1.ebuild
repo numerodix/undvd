@@ -46,7 +46,6 @@ src_unpack() {
 	cd ${WORKDIR}
 }
 
-
 src_install() {
 	insinto /usr/share/${PN}
 	insopts -m755
