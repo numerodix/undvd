@@ -48,23 +48,25 @@ rm -rf deb
 
 # package
 mkdir -p undvd-$v/gentoo
-cp dist/undvd-$v.ebuild undvd-$v/gentoo
+cp dist/undvd.ebuild undvd-$v/gentoo/undvd-$v.ebuild
 
 mkdir -p undvd-$v/ubuntu
 mv dist/undvd_$v-0ubuntu1_all.deb undvd-$v/ubuntu
 
-mkdir -p undvd-$v/redhat
+mkdir -p undvd-$v/fedora
 sudo mkdir -p /usr/src/rpm/SOURCES
 sudo cp undvd-9999.tar.gz /usr/src/rpm/SOURCES
 sudo rpmbuild -ba dist/undvd.spec
-cp /usr/src/rpm/RPMS/noarch/undvd-$v-1.noarch.rpm undvd-$v/redhat
+cp /usr/src/rpm/RPMS/noarch/undvd-$v-1.noarch.rpm undvd-$v/fedora
 
 rm undvd-$v.tar.gz
 
 # zip it up
 files=$(find . -maxdepth 1 -type f | xargs)
 git-archive --prefix=undvd-$v/ $tag $files > undvd-$v.tar
-tar -rvf undvd-$v.tar undvd-$v
+tar cvf undvd-$v.tar.2 undvd-$v
+tar -Af undvd-$v.tar undvd-$v.tar.2
+rm undvd-$v.tar.2
 gzip undvd-$v.tar
 
 rm -rf undvd-$v
