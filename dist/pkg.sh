@@ -31,7 +31,7 @@ cd debian
 
 sed -i "s,Section: unknown,Section: multiverse/graphics,g" control
 sed -i "s,Architecture: any,Architecture: all,g" control
-sed -i "s,Depends: .*,Depends: ,g" control
+sed -i "s|Depends: .*|Depends: mencoder, lsdvd, bash, coreutils, gawk, libdvdcss2|g" control
 sed -i "s,Description: .*,Description: Simple dvd ripping command line app,g" control
 sed -i "s,<insert long.*,undvd is dvd ripping made *simple* with an easy interface to mencoder with sensible default settings that give good results.  For those times you just want to rip a movie and not consider thousands of variables.,g" control
 
@@ -43,6 +43,6 @@ cd ..
 cd ..
 
 cp deb/undvd_$v-0ubuntu1_all.deb dist
-#rm -rf deb
+rm -rf deb
 
 rm undvd-$v.tar.gz
