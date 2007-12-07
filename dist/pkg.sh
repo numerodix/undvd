@@ -46,3 +46,18 @@ cp deb/undvd_$v-0ubuntu1_all.deb dist
 rm -rf deb
 
 rm undvd-$v.tar.gz
+
+
+# package
+mkdir -p undvd-$v/gentoo
+cp dist/undvd-$v.ebuild undvd-$v/gentoo
+
+mkdir -p undvd-$v/ubuntu
+mv dist/undvd_$v-0ubuntu1_all.deb undvd-$v/ubuntu
+
+files=$(find . -maxdepth 1 -type f | xargs)
+git-archive --prefix=undvd-$v/ $tag $files > undvd-$v.tar
+tar -rvf undvd-$v.tar undvd-$v
+gzip undvd-$v.tar
+
+rm -rf undvd-$v
