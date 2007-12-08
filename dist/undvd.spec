@@ -1,11 +1,11 @@
-Summary: Simple dvd ripping command line app
-Name: undvd
-Version: 9999
-Release: 1
-License: GPL
-Group: Applications/Multimedia
-BuildArch: noarch
-Source: http://www.opendesktop.org/content/undvd-9999.tar.gz
+Summary: <description>
+Name: <name>
+Version: <version>
+Release: <release>
+License: <license>
+Group: <license>
+BuildArch: <arch>
+Source: <source_url>
 BuildRoot: /var/tmp/%{name}-buildroot
 
 %description
