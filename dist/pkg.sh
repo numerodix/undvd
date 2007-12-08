@@ -13,7 +13,7 @@ email=$(git-config user.email)
 
 tag=$v
 if [ ! $v ]; then
-	echo "Usage: $0 <version>"
+	echo "Usage: $0 <version> [action]"
 	exit 1
 fi
 
