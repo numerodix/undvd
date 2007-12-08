@@ -20,10 +20,9 @@ usage=" Usage:  ${wh}undvd.sh -t ${gr}01,02,03${wh} -a ${gr}en${wh} -s ${gr}es${
 \t-q \tdvd directory to rip from\n
 \t-i \tdvd iso image to rip from\n
 \t-f \tuse picture smoothing filter\n
-\t-2 \tdouble filesize for improved quality\n
 \t-x \tuse xvid compression (faster, slightly lower quality)"
 
-while getopts "t:a:s:e:d:q:i:fx2" opts; do
+while getopts "t:a:s:e:d:q:i:fx" opts; do
 	case $opts in
 		t ) titles=$(echo $OPTARG | sed 's|,| |g');;
 		a ) alang=$OPTARG;;
@@ -33,7 +32,6 @@ while getopts "t:a:s:e:d:q:i:fx2" opts; do
 		q ) dvdisdir="y";mencoder_source="$OPTARG";;
 		i ) skipclone="y";mencoder_source="$OPTARG";;
 		f ) prescale="spp,";postscale=",hqdn3d";;
-		2 ) double=y;;
 		x ) vcodec=$xvid;acodec=$lame;;
 		* ) echo -e $usage; exit 1;;
 	esac
@@ -67,11 +65,6 @@ if [ "x$slang" = "x" ]; then
 	echo -e "${re}No subtitle language selected, exiting (use 'off' if you dont want any)${pl}"
 	echo -e $usage
 	exit 1
-fi
-
-if [ $double ]; then
-	nbitrate="bitrate=$(( $bitrate * 2 ))"
-	vcodec=$( echo $vcodec | sed "s/bitrate=$bitrate/$nbitrate/g" )
 fi
 
 
