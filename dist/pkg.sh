@@ -26,6 +26,7 @@ desc_long="undvd is dvd ripping made *simple* with an easy interface to\n \
 mencoder with sensible default settings that give good results. For those\n \
 times you just want to rip a movie and not consider thousands of variables."
 
+ebuild_lic="GPL-3"
 deb_lic="gpl"
 rpm_lic="GPL"
 
@@ -58,6 +59,11 @@ function gentoo() {
 	local dest="$1"
 	mkdir -p $dest
 	cp $dist/$proj.ebuild $dest/$proj-$v.ebuild
+
+	sed -i "s|DESCRIPTION.*|DESCRIPTION=\"$desc_short\"|g" $dest/$proj-$v.ebuild 
+	sed -i "s|HOMEPAGE.*|HOMEPAGE=\"$proj_url\"|g" $dest/$proj-$v.ebuild 
+	sed -i "s|SRC_URI.*|SRC_URI=\"$proj_tarball\"|g" $dest/$proj-$v.ebuild 
+	sed -i "s|LICENSE.*|LICENSE=\"$ebuild_lic\"|g" $dest/$proj-$v.ebuild 
 }
 
 function ubuntu() {

@@ -4,11 +4,11 @@
 
 inherit eutils
 
-DESCRIPTION="Simple dvd ripping command line app"
-HOMEPAGE="http://www.matusiak.eu/numerodix/code.php"
-SRC_URI="http://www.opendesktop.org/content/files/${P}.tar.gz"
+DESCRIPTION="<desc>"
+HOMEPAGE="<homepage>"
+SRC_URI="<tarball>"
 
-LICENSE="GPL-3"
+LICENSE="<license>"
 SLOT="0"
 KEYWORDS="~x86"
 IUSE="css xvid"
