@@ -77,6 +77,7 @@ function ubuntu() {
 	
 	# run dh_make to generate boilerplate
 	export DEBFULLNAME="$myname" ;
+	export DEBEMAIL="$myemail" ;
 	$dest/tmp/dh_make -s -c $deb_lic \
 		-e "$myemail" -f ../$proj-$v.tar.gz ;
 	cd debian ;
@@ -105,7 +106,7 @@ function ubuntu() {
 	dpkg-buildpackage -rfakeroot )
 	
 	cp $dest/tmp/${proj}_$v-0ubuntu1_$deb_arch.deb $dest
-	
+	exit
 	rm -rf $dest/tmp
 }
 
