@@ -117,9 +117,11 @@ function fedora() {
 		[ -e "$f" ] && rcfiles="$f:$rcfiles"
 	done
 	
-	# copy project .spec file and reset BuildRoot path
+	# copy project .spec file and patch spec
 	cp $dist/$proj.spec $dest/tmp
 	sed -i "s|BuildRoot: .*|BuildRoot: $(cd $dest/tmp; pwd)/%{name}-buildroot|g" $dest/tmp/$proj.spec
+	sed -i "s|Version: .*|Version: $v|g" $dest/tmp/$proj.spec
+	sed -i "s|$proj-.*\.tar\.gz|$proj-$v.tar.gz|g" $dest/tmp/$proj.spec
 	
 	# build package locally given .spec file and local .rpmrc
 	rpmbuild -ba $dest/tmp/$proj.spec --rcfile "$rcfiles"
@@ -142,37 +144,14 @@ function package() {
 	mkdir -p $dest/$proj-$v/fedora
 	fedora $dest/$proj-$v/fedora
 	
-#	mkdir -p undvd-$v/gentoo
-#	cp dist/undvd.ebuild undvd-$v/gentoo/undvd-$v.ebuild
-	
-#	mkdir -p undvd-$v/ubuntu
-#	mv dist/undvd_$v-0ubuntu1_all.deb undvd-$v/ubuntu
-	
-#	mkdir -p undvd-$v/fedora
-#	sudo mkdir -p /usr/src/rpm/SOURCES
-#	sudo cp undvd-$v.tar.gz /usr/src/rpm/SOURCES
-#	sudo rpmbuild -ba dist/undvd.spec
-#	cp /usr/src/rpm/RPMS/noarch/undvd-$v-1.noarch.rpm undvd-$v/fedora
-	
-#	rm undvd-$v.tar.gz
-	
 	tarball $dest "1"
 	
-	# zip it up
-#	files=$(find . -maxdepth 1 -type f | xargs)
-#	git-archive --prefix=undvd-$v/ $tag $files > undvd-$v.tar
-
-	( cd $dest ; 
+	( cd $dest ;
 	tar cvf $proj-$v.tar.2 $proj-$v ;
 	tar -Af $proj-$v.tar $proj-$v.tar.2 ;
 	rm $proj-$v.tar.2 ;
 	gzip $proj-$v.tar )
-	
-#	tar cvf undvd-$v.tar.2 undvd-$v
-#	tar -Af undvd-$v.tar undvd-$v.tar.2
-#	rm undvd-$v.tar.2
-#	gzip undvd-$v.tar
-	
+
 	rm -rf $dest/$proj-$v
 }
 
