@@ -33,7 +33,7 @@ rpm_lic="GPL"
 deb_arch="all"
 rpm_arch="noarch"
 
-deb_deps="mencoder, lsdvd, bash, coreutils, gawk"
+deb_deps="mencoder, lsdvd, bash, vobcopy, gawk"
 deb_suggests="libdvdcss2"
 
 deb_section="multiverse/graphics"

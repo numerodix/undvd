@@ -14,7 +14,7 @@ KEYWORDS="~x86"
 IUSE="css xvid"
 
 DEPEND="app-shells/bash
-	sys-apps/coreutils
+	media-video/vobcopy
 	sys-apps/gawk
 	media-video/lsdvd
 	media-video/mplayer
