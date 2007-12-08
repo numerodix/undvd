@@ -26,10 +26,11 @@ options]${pl}\n
 \t-o \toutput file size in mb (integer value)\n
 \t-1 \tforce 1-pass encoding\n
 \t-2 \tforce 2-pass encoding\n
+\t-r \tscale video to width (integer value)\n
 \t-f \tuse picture smoothing filter\n
 \t-x \tuse xvid compression (faster, slightly lower quality)"
 
-while getopts "t:a:s:e:d:q:i:o:fxz12" opts; do
+while getopts "t:a:s:e:d:q:i:o:r:fxz12" opts; do
 	case $opts in
 		t ) titles=$(echo $OPTARG | sed 's|,| |g');;
 		a ) alang=$OPTARG;;
@@ -43,6 +44,7 @@ while getopts "t:a:s:e:d:q:i:o:fxz12" opts; do
 		o ) output_filesize="$OPTARG";;
 		1 ) passes="1";;
 		2 ) twopass=y;passes="2";;
+		r ) custom_scale="$OPTARG";;
 		z ) echo -e $adv_usage; exit 1;;
 		* ) echo -e $usage; exit 1;;
 	esac
@@ -117,7 +119,7 @@ for i in $titles; do
 	
 	# Find out how to scale the dimensions
 	
-	scale=$(title_scale ${title} "$mencoder_source" $tmpdir)
+	scale=$(title_scale ${title} "$mencoder_source" $tmpdir "$custom_scale")
 	
 	
 	# User set bitrate

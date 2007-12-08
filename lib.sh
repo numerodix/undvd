@@ -90,6 +90,7 @@ function title_scale() {
 	title=$1
 	dvd_device="$2"
 	tmpdir="$3"
+	custom_scale="$4"
 
 	cmd="mplayer -slave -quiet dvd://${title} -dvd-device \"$dvd_device\" -ao null -vo null -endpos 1"
 	bash -c "$cmd" &> ${tmpdir}/title.size
@@ -97,13 +98,18 @@ function title_scale() {
 	sizex=$(echo $size | sed 's|\(.*\)x\(.*\)|\1|g')
 	sizey=$(echo $size | sed 's|\(.*\)x\(.*\)|\2|g')
 	if [ $sizex ]; then
-		sizex=$(($sizex*2/3))
-		sizey=$(($sizey*2/3))
-		scale="scale=$sizex:$sizey"
+		if [ $custom_scale ]; then
+			nsizex=$(( $sizex * $custom_scale/$sizex ))
+			nsizey=$(( $sizey * $custom_scale/$sizex ))
+		else
+			nsizex=$(( $sizex * 2/3 ))
+			nsizey=$(( $sizey * 2/3 ))
+		fi
+		scale="scale=$nsizex:$nsizey"
 	else
 		scale="scale"
 	fi
-	rm ${tmpdir}/title.size 
+	rm ${tmpdir}/title.size
 
 	echo $scale
 }
