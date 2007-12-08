@@ -83,16 +83,29 @@ fi
 
 if [ ! $dvdisdir ] && [ ! $skipclone ]; then
 	echo -en " * Copying dvd to disk first... "
+	
+	# check for vobcopy bug. enforce mounted disc if found
+	check_bad_vobcopy ${dvd_device}
+	
+	# transparently find mount point and pass to vobcopy
+	mnt_point=$(get_mount_point ${dvd_device})
 	cmd="time \
 	nice -n20 \
-	dd if=${dvd_device} of=$disc_image.partial && \
-	mv $disc_image.partial $disc_image"
-	( echo "$cmd"; sh -c "$cmd" ) &> logs/iso.log
+	vobcopy -l -m -F 64 -t disc -i ${mnt_point}"
+	
+	# vobcopy detects existing output dir and prompts for action, we don't
+	# want that
+	[ -d disc ] && rm -rf disc
+	
+	( echo "$cmd"; bash -c "$cmd" ) &> logs/iso.log
 	if [ $? != 0 ] ; then
 		echo -e "${re}\nFailed, dumping log:${pl}"
 		cat logs/iso.log
 		exit 1
 	fi
+	
+	# set mencoder_source to the new directory
+	mencoder_source="disc"
 	echo -e "${gr}done${pl}"
 fi
 
