@@ -62,31 +62,39 @@ function gentoo() {
 	mkdir -p $dest
 	cp $dist/$proj.ebuild $dest/$proj-$v.ebuild
 
-	sed -i "s|DESCRIPTION.*|DESCRIPTION=\"$desc_short\"|g" $dest/$proj-$v.ebuild 
-	sed -i "s|HOMEPAGE.*|HOMEPAGE=\"$proj_url\"|g" $dest/$proj-$v.ebuild 
-	sed -i "s|SRC_URI.*|SRC_URI=\"$proj_tarball\"|g" $dest/$proj-$v.ebuild 
-	sed -i "s|LICENSE.*|LICENSE=\"$ebuild_lic\"|g" $dest/$proj-$v.ebuild 
+	sed -i "s|DESCRIPTION.*|DESCRIPTION=\"$desc_short\"|g" $dest/$proj-$v.ebuild
+	sed -i "s|HOMEPAGE.*|HOMEPAGE=\"$proj_url\"|g" $dest/$proj-$v.ebuild
+	sed -i "s|SRC_URI.*|SRC_URI=\"$proj_tarball\"|g" $dest/$proj-$v.ebuild
+	sed -i "s|LICENSE.*|LICENSE=\"$ebuild_lic\"|g" $dest/$proj-$v.ebuild
 }
 
 function ubuntu() {
 	local dest="$1"
+	local workdir="$2"
 	mkdir -p $dest; dest=$(cd $dest; pwd)
 	
-	mkdir -p $dest/tmp
-	tarball $dest/tmp
+	local tmp="$dest/debtmp"
+	if [ $workdir ]; then
+		tmp="$workdir"
+	fi
+	[ -d $tmp ] && rm -rf $tmp
+	mkdir -p $tmp
+	tmp=$(cd $tmp; pwd)
 	
-	( cd $dest/tmp ;
+	tarball $tmp
+	
+	( cd $tmp ;
 	tar zxvf $proj-$v.tar.gz ;
 	cd $proj-$v ;
 	
 	# patch stupid dh_make to make it non-interactive
-	cp $(which dh_make) $dest/tmp ;
-	sed -i "s,my \$dummy = <STDIN>;,,g" $dest/tmp/dh_make ;
+	cp $(which dh_make) $tmp ;
+	sed -i "s,my \$dummy = <STDIN>;,,g" $tmp/dh_make ;
 	
 	# run dh_make to generate boilerplate
 	export DEBFULLNAME="$myname" ;
 	export DEBEMAIL="$myemail" ;
-	$dest/tmp/dh_make -s -c $deb_lic \
+	$tmp/dh_make -s -c $deb_lic \
 		-e "$myemail" -f ../$proj-$v.tar.gz ;
 	cd debian ;
 
@@ -114,85 +122,100 @@ function ubuntu() {
 	cd .. ;
 	dpkg-buildpackage -rfakeroot )
 	
-	cp $dest/tmp/${proj}_$v-0ubuntu1_$deb_arch.deb $dest
+	cp $tmp/${proj}_$v-0ubuntu1_$deb_arch.deb $dest
 	
-	rm -rf $dest/tmp
+	[ $DEBUG ] || rm -rf $tmp
 }
 
 function fedora() {
 	local dest="$1"
+	local workdir="$2"
 	mkdir -p $dest; dest=$(cd $dest; pwd)
 	
-	mkdir -p $dest/tmp
+	local tmp="$dest/rpmtmp"
+	if [ $workdir ]; then
+		tmp="$workdir"
+	fi
+	[ -d $tmp ] && rm -rf $tmp
+	mkdir -p $tmp
+	tmp=$(cd $tmp; pwd)
 	
 	# point macrofiles field in local .rpmrc to local .rpmmacros
 	macrofiles=$(rpmbuild --showrc | grep macrofiles)
-	echo "$macrofiles:$dest/tmp/rpmmacros" > $dest/tmp/rpmrc
+	echo "$macrofiles:$tmp/rpmmacros" > $tmp/rpmrc
 	
 	# set rpmbuild path in local .rpmmacros
-	echo "%_topdir      $dest/tmp/rpmbuild" > $dest/tmp/rpmmacros
+	echo "%_topdir      $tmp/rpmbuild" > $tmp/rpmmacros
 	
 	# create dirs expected by rpmbuild
 	for d in RPMS SOURCES SPECS SRPMS BUILD; do
-		mkdir -p $dest/tmp/rpmbuild/$d
+		mkdir -p $tmp/rpmbuild/$d
 	done
 	
 	# place project tarball in SOURCES dir
-	tarball $dest/tmp/rpmbuild/SOURCES
+	tarball $tmp/rpmbuild/SOURCES
 	
 	# find system rpmrc files and append our local .rpmrc
-	rcfiles="$dest/tmp/rpmrc"
+	rcfiles="$tmp/rpmrc"
 	for f in /usr/lib/rpm/rpmrc /usr/lib/rpm/red‐hat/rpmrc /etc/rpmrc ~/.rpmrc; do
 		[ -e "$f" ] && rcfiles="$f:$rcfiles"
 	done
 	
 	# copy project .spec file and patch spec
-	cp $dist/$proj.spec $dest/tmp
-	sed -i "s|Summary: .*|Summary: $desc_short|g" $dest/tmp/$proj.spec
-	sed -i "s|Name: .*|Name: $proj|g" $dest/tmp/$proj.spec
-	sed -i "s|Version: .*|Version: $v|g" $dest/tmp/$proj.spec
-	sed -i "s|Release: .*|Release: $r|g" $dest/tmp/$proj.spec
-	sed -i "s|License: .*|License: $rpm_lic|g" $dest/tmp/$proj.spec
-	sed -i "s|Group: .*|Group: $rpm_group|g" $dest/tmp/$proj.spec
-	sed -i "s|BuildRoot: .*|BuildRoot: $dest/tmp/%{name}-buildroot|g" $dest/tmp/$proj.spec
-	sed -i "s|Source: .*|Source: $proj_tarball|g" $dest/tmp/$proj.spec
-	sed -i "s|BuildArch: .*|BuildArch: $rpm_arch|g" $dest/tmp/$proj.spec
-	sed -i "s|Requires: .*|Requires: $rpm_deps|g" $dest/tmp/$proj.spec
+	cp $dist/$proj.spec $tmp
+	sed -i "s|Summary: .*|Summary: $desc_short|g" $tmp/$proj.spec
+	sed -i "s|Name: .*|Name: $proj|g" $tmp/$proj.spec
+	sed -i "s|Version: .*|Version: $v|g" $tmp/$proj.spec
+	sed -i "s|Release: .*|Release: $r|g" $tmp/$proj.spec
+	sed -i "s|License: .*|License: $rpm_lic|g" $tmp/$proj.spec
+	sed -i "s|Group: .*|Group: $rpm_group|g" $tmp/$proj.spec
+	sed -i "s|BuildRoot: .*|BuildRoot: $tmp/%{name}-buildroot|g" $tmp/$proj.spec
+	sed -i "s|Source: .*|Source: $proj_tarball|g" $tmp/$proj.spec
+	sed -i "s|BuildArch: .*|BuildArch: $rpm_arch|g" $tmp/$proj.spec
+	sed -i "s|Requires: .*|Requires: $rpm_deps|g" $tmp/$proj.spec
 	
 	# build package locally given .spec file and local .rpmrc
-	rpmbuild -ba $dest/tmp/$proj.spec --rcfile "$rcfiles"
+	rpmbuild -ba $tmp/$proj.spec --rcfile "$rcfiles"
 	
-	cp $dest/tmp/rpmbuild/RPMS/$rpm_arch/$proj-$v-1.$rpm_arch.rpm $dest
+	cp $tmp/rpmbuild/RPMS/$rpm_arch/$proj-$v-1.$rpm_arch.rpm $dest
 	
-	rm -rf $dest/tmp
+	[ $DEBUG ] || rm -rf $tmp
 }
 
 function package() {
 	local dest="$1"
 	mkdir -p $dest
-		
-	mkdir -p $dest/$proj-$v/gentoo
-	gentoo $dest/$proj-$v/gentoo
 	
-	mkdir -p $dest/$proj-$v/ubuntu
-	ubuntu $dest/$proj-$v/ubuntu
+	local tmp="$dest/pkgtmp"
+	[ -d $tmp ] && rm -rf $tmp
+	mkdir -p $tmp
 	
-	mkdir -p $dest/$proj-$v/fedora
-	fedora $dest/$proj-$v/fedora
+	mkdir -p $tmp/$proj-$v/gentoo
+	gentoo $tmp/$proj-$v/gentoo
 	
-	tarball $dest "1"
+	mkdir -p $tmp/$proj-$v/ubuntu
+	ubuntu $tmp/$proj-$v/ubuntu "$dest/debtmp"
 	
-	( cd $dest ;
+	mkdir -p $tmp/$proj-$v/fedora
+	fedora $tmp/$proj-$v/fedora "$dest/rpmtmp"
+	
+	tarball $tmp "1"
+	
+	( cd $tmp ;
 	tar cvf $proj-$v.tar.2 $proj-$v ;
 	tar -Af $proj-$v.tar $proj-$v.tar.2 ;
 	rm $proj-$v.tar.2 ;
 	gzip $proj-$v.tar )
 
-	rm -rf $dest/$proj-$v
+	cp $tmp/$proj-$v.tar.gz $dest
+	
+	[ $DEBUG ] || rm -rf $tmp
 }
 
 
-if [ "$action" = "fedora" ]; then
+if [ "$action" = "tarball" ]; then
+	tarball pub
+elif [ "$action" = "fedora" ]; then
 	fedora pub
 elif [ "$action" = "gentoo" ]; then
 	gentoo pub
