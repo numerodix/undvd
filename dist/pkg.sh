@@ -33,8 +33,10 @@ rpm_lic="GPL"
 deb_arch="all"
 rpm_arch="noarch"
 
-deb_deps="mencoder, lsdvd, bash, vobcopy, gawk"
+deb_deps="mencoder, vobcopy, lsdvd, bash, gawk"
 deb_suggests="libdvdcss2"
+
+rpm_deps="mencoder, vobcopy, lsdvd, bash, gawk"
 
 deb_section="multiverse/graphics"
 rpm_group="Applications/Multimedia"
@@ -155,12 +157,13 @@ function fedora() {
 	sed -i "s|BuildRoot: .*|BuildRoot: $dest/tmp/%{name}-buildroot|g" $dest/tmp/$proj.spec
 	sed -i "s|Source: .*|Source: $proj_tarball|g" $dest/tmp/$proj.spec
 	sed -i "s|BuildArch: .*|BuildArch: $rpm_arch|g" $dest/tmp/$proj.spec
+	sed -i "s|Requires .*|Requires $rpm_deps|g" $dest/tmp/$proj.spec
 
 	# build package locally given .spec file and local .rpmrc
 	rpmbuild -ba $dest/tmp/$proj.spec --rcfile "$rcfiles"
 	
 	cp $dest/tmp/rpmbuild/RPMS/$rpm_arch/$proj-$v-1.$rpm_arch.rpm $dest
-
+	
 	rm -rf $dest/tmp
 }
 

@@ -7,6 +7,7 @@ Group: <license>
 BuildArch: <arch>
 Source: <source_url>
 BuildRoot: /var/tmp/%{name}-buildroot
+Requires: <deps>
 
 %description
 undvd is dvd ripping made *simple* with an easy interface to mencoder with
