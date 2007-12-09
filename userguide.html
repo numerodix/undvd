@@ -169,6 +169,22 @@ undvd depends on a few programs to run, so make sure you have this:
 <li><a href="http://www.mplayerhq.hu/DOCS/HTML/en/menc-feat-xvid.html">Encoding with the Xvid  codec</a>
 </ol>
 
+<h2>Changelog</h2>
+<ul>
+	<li>0.3.0
+	<ul>
+		<li> Use vobcopy over dd to clone dvd from disc to harddrive. Motivated by the
+	fact that encrypted discs refuse to be read in full the standard way.
+	vobcopy can deal with this provided libdvdcss is on the system.
+		<li> New install script. While there was no official way of "installing" undvd there is now a makefile with an "install" target, therefore "make install" will deploy the files into the filesystem.
+		<li> Distribution specific packages: 
+		<br/>+ gentoo ebuild
+		<br/>+ ubuntu .deb
+		<br/>+ fedora .rpm
+		<br/>These are all brand new and not well tested.
+	</ul>
+</ul>
+
 <hr>
 # Author: Martin Matusiak &lt;numerodix@gmail.com&gt;
 <br># Licensed under the GNU Public License, version 3.
