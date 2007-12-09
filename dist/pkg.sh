@@ -19,7 +19,8 @@ fi
 
 proj=undvd
 proj_url="http://sourceforge.net/projects/undvd/"
-proj_tarball="http://www.opendesktop.org/content/$proj-$v.tar.gz"
+proj_tarball="http://downloads.sourceforge.net/$proj/$proj-$v.tar.gz"
+ebuild_proj_tarball="http://downloads.sourceforge.net/\${PN}/\${P}.tar.gz"
 
 desc_short="Simple dvd ripping command line app"
 desc_long="undvd is dvd ripping made *simple* with an easy interface to\n \
@@ -64,7 +65,7 @@ function gentoo() {
 
 	sed -i "s|DESCRIPTION.*|DESCRIPTION=\"$desc_short\"|g" $dest/$proj-$v.ebuild
 	sed -i "s|HOMEPAGE.*|HOMEPAGE=\"$proj_url\"|g" $dest/$proj-$v.ebuild
-	sed -i "s|SRC_URI.*|SRC_URI=\"$proj_tarball\"|g" $dest/$proj-$v.ebuild
+	sed -i "s|SRC_URI.*|SRC_URI=\"$ebuild_proj_tarball\"|g" $dest/$proj-$v.ebuild
 	sed -i "s|LICENSE.*|LICENSE=\"$ebuild_lic\"|g" $dest/$proj-$v.ebuild
 }
 
