@@ -221,6 +221,14 @@ elif [ "$action" = "gentoo" ]; then
 	gentoo pub
 elif [ "$action" = "ubuntu" ]; then
 	ubuntu pub
+elif [ "$action" = "sf" ]; then
+	rm -rf pub
+	tarball pub
+	fedora pub
+	gentoo pub
+	ubuntu pub
+	cd pub
+	ftp-upload -h upload.sourceforge.net -d incoming *
 else
 	package pub
 fi
