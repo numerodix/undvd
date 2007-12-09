@@ -14,9 +14,9 @@ KEYWORDS="~x86"
 IUSE="css xvid"
 
 DEPEND="app-shells/bash
-	media-video/vobcopy
 	sys-apps/gawk
 	media-video/lsdvd
+	media-video/vobcopy
 	media-video/mplayer
 	css? ( media-libs/libdvdcss )"
 RDEPEND="${DEPEND}"

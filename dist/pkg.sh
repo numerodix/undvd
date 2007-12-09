@@ -157,8 +157,8 @@ function fedora() {
 	sed -i "s|BuildRoot: .*|BuildRoot: $dest/tmp/%{name}-buildroot|g" $dest/tmp/$proj.spec
 	sed -i "s|Source: .*|Source: $proj_tarball|g" $dest/tmp/$proj.spec
 	sed -i "s|BuildArch: .*|BuildArch: $rpm_arch|g" $dest/tmp/$proj.spec
-	sed -i "s|Requires .*|Requires $rpm_deps|g" $dest/tmp/$proj.spec
-
+	sed -i "s|Requires: .*|Requires: $rpm_deps|g" $dest/tmp/$proj.spec
+	
 	# build package locally given .spec file and local .rpmrc
 	rpmbuild -ba $dest/tmp/$proj.spec --rcfile "$rcfiles"
 	
