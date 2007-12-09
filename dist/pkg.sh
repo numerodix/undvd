@@ -15,6 +15,11 @@ fi
 if [ $v = "git" ]; then
 	v="9999"
 	tag=HEAD
+else
+	branch=$(git-branch -a | grep $v | head -n1 | tr -d "*")
+	if [ $branch ]; then
+		tag=$branch
+	fi
 fi
 
 proj=undvd
