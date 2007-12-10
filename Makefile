@@ -12,7 +12,6 @@ clean:
 install:
 	mkdir -p ${SHARED_CHROOT}
 	install -m644 lib.sh ${SHARED_CHROOT}
-	install -m755 dumptrack.sh ${SHARED_CHROOT}
 	install -m755 scandvd.sh ${SHARED_CHROOT}
 	install -m755 undvd.sh ${SHARED_CHROOT}
 	install -m644 userguide.html ${SHARED_CHROOT}
