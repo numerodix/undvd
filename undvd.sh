@@ -37,31 +37,31 @@ while getopts "t:a:s:e:d:q:i:fx" opts; do
 	esac
 done
 
-if [ "x$dvd_device" = "x" ]; then
+if [ ! $dvd_device ]; then
 	dvd_device="/dev/dvd"
 fi
 
 
-if [ "x$end" = "x" ]; then
+if [ ! $end ]; then
 	endpos=""
 else
 	endpos="-endpos $end"
 fi
 
 
-if [ "x$titles" = "x" ]; then
+if [ ! $titles ]; then
 	echo -e "${re}No titles to rip, exiting${pl}"
 	echo -e $usage
 	exit 1
 fi
 
-if [ "x$alang" = "x" ]; then
+if [ ! $alang ]; then
 	echo -e "${re}No audio language selected, exiting${pl}"
 	echo -e $usage
 	exit 1
 fi
 
-if [ "x$slang" = "x" ]; then
+if [ ! $slang ]; then
 	echo -e "${re}No subtitle language selected, exiting (use 'off' if you dont want any)${pl}"
 	echo -e $usage
 	exit 1
@@ -80,7 +80,7 @@ if [ ! $dvdisdir ] && [ ! $skipclone ]; then
 	nice -n20 \
 	dd if=${dvd_device} of=$disc_image.partial && \
 	mv $disc_image.partial $disc_image"
-	( echo "$cmd"; sh -c "$cmd" ) &> logs/iso.log
+	( echo "$cmd"; bash -c "$cmd" ) &> logs/iso.log
 	if [ $? != 0 ] ; then
 		echo -e "${re}\nFailed, dumping log:${pl}"
 		cat logs/iso.log
@@ -151,7 +151,7 @@ ${endpos} \
 -ovc ${vcodec} \
 -oac ${acodec} && \
 mv ${title}.avi.partial ${title}.avi"
-	( echo "$cmd"; sh -c "$cmd" ) &> logs/${title}.log &
+	( echo "$cmd"; bash -c "$cmd" ) &> logs/${title}.log &
 	pid=$!
 	
 	# Write mencoder's ETA estimate
