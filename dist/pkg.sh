@@ -39,10 +39,10 @@ rpm_lic="GPL"
 deb_arch="all"
 rpm_arch="noarch"
 
-deb_deps="mencoder, vobcopy, lsdvd, bash, gawk"
+deb_deps="mencoder, lsdvd, bash, coreutils, gawk"
 deb_suggests="libdvdcss2"
 
-rpm_deps="mencoder, vobcopy, lsdvd, bash, gawk"
+rpm_deps="mencoder, lsdvd, bash, coreutils, gawk"
 
 deb_section="multiverse/graphics"
 rpm_group="Applications/Multimedia"

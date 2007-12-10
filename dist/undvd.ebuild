@@ -15,8 +15,8 @@ IUSE="css xvid"
 
 DEPEND="app-shells/bash
 	sys-apps/gawk
+	sys-apps/coreutils
 	media-video/lsdvd
-	media-video/vobcopy
 	media-video/mplayer
 	css? ( media-libs/libdvdcss )"
 RDEPEND="${DEPEND}"
