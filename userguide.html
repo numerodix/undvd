@@ -1,4 +1,5 @@
 <html>
+<title>undvd user guide</title>
 <style type="text/css">
 body, td {
 font-family: DejaVu Sans, Bitstream Vera Sans, Verdana;
@@ -35,7 +36,7 @@ color: green; }
 
 <p>Most dvd rippers give you so many options and settings that it takes 45 minutes to set it up before you can start ripping, and you're still not sure if you chose the right settings. undvd is based on the principle of <e>sensible defaults</e> - it makes those decisions for you, making ripping dvds easy.</p>
 
-<p>A dvd consists of a number of <e>titles</e> (videos), each of which can have several <e>audio tracks</e> and <e>subtitles</e>. When ripping, you have to select which of each to use. Unfortunately, titles on a dvd don't contain any names that would suggest what they are (the movie? a trailer? director's cut?), and so the computer doesn't know. But you can probably figure out what is what by looking at the lenght of the title.</p>
+<p>A dvd consists of a number of <e>titles</e> (videos), each of which can have several <e>audio tracks</e> and <e>subtitles</e>. When ripping, you have to select which of each to use. Unfortunately, titles on a dvd don't contain any names that would suggest what they are (the movie? a trailer? director's cut?), and so they computer doesn't know. But you can probably figure out what is what by looking at the lenght of the title.</p>
 
 
 <h2>Quick start</h2>
@@ -50,10 +51,10 @@ color: green; }
 <h2>Prerequisites</h2>
 undvd depends on a few programs to run, so make sure you have this:
 <ul>
-<li><a href="http://www.gnu.org/software/gawk/">awk</a>
 <li><a href="http://www.gnu.org/software/bash/">bash</a>
+<li><a href="http://www.gnu.org/software/gawk/">gawk</a>
+<li><a href="http://www.gnu.org/software/coreutils/">dd</a> (coreutils)
 <li><a href="http://untrepid.com/lsdvd/">lsdvd</a>
-<li><a href="http://vobcopy.org/">vobcopy</a>
 <li><a href="http://www.mplayerhq.hu/">mplayer</a> with mencoder and support for
 	<ul>
 	<li><a href="http://www.dtek.chalmers.se/groups/dvd/">dvdread</a>
@@ -75,7 +76,7 @@ undvd depends on a few programs to run, so make sure you have this:
 <td><c>subtitles:</c> en es nl</td>
 </tr></table>
 
-<p>This particular title has two audio tracks and three subtitles. You can also tell <c>scandvd.sh</c>  which device to scan:</p>
+<p>This particular title has two audio tracks and three subtitles. You can also tell <c>scandvd.sh</c> which device to scan:</p>
 
 <p><c>scandvd.sh -d <h>/dev/dvd</h></c></p>
 
@@ -171,13 +172,10 @@ undvd depends on a few programs to run, so make sure you have this:
 
 <h2>Changelog</h2>
 <ul>
-	<li>0.3.0
+	<li>0.2.2
 	<ul>
-		<li> Use vobcopy over dd to clone dvd from disc to harddrive. Motivated by the
-	fact that encrypted discs refuse to be read in full the standard way.
-	vobcopy can deal with this provided libdvdcss is on the system.
 		<li> New install script. While there was no official way of "installing" undvd there is now a makefile with an "install" target, therefore "make install" will deploy the files into the filesystem.
-		<li> Distribution specific packages: 
+		<li> Distribution specific packages:
 		<br/>+ gentoo ebuild
 		<br/>+ ubuntu .deb
 		<br/>+ fedora .rpm

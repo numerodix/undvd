@@ -11,7 +11,7 @@ p=$(dirname $(readlink -f $0)); . $p/lib.sh
 
 echo -e "${wh}{( --- undvd.sh $version --- )}${pl}"
 
-usage=" Usage:  ${wh}undvd.sh -t ${gr}01,02,03${wh} -a ${gr}en${wh} -s ${gr}es${wh} [-e ${gr}200${wh}] [-d ${gr}/dev/dvd${wh}] [more options]${pl}\n
+usage=" Usage:  ${wh}undvd.sh -t ${gr}01,02,03${wh} -a ${gr}en${wh} -s ${gr}es${wh} [-d ${gr}/dev/dvd${wh}] [more options]${pl}\n
 \t-t \ttitles to rip (comma separated)\n
 \t-a \taudio language (two letter code, eg. 'en')\n
 \t-s \tsubtitle language (two letter code or 'off')\n
@@ -37,31 +37,31 @@ while getopts "t:a:s:e:d:q:i:fx" opts; do
 	esac
 done
 
-if [ "x$dvd_device" = "x" ]; then
+if [ ! $dvd_device ]; then
 	dvd_device="/dev/dvd"
 fi
 
 
-if [ "x$end" = "x" ]; then
+if [ ! $end ]; then
 	endpos=""
 else
 	endpos="-endpos $end"
 fi
 
 
-if [ "x$titles" = "x" ]; then
+if [ ! $titles ]; then
 	echo -e "${re}No titles to rip, exiting${pl}"
 	echo -e $usage
 	exit 1
 fi
 
-if [ "x$alang" = "x" ]; then
+if [ ! $alang ]; then
 	echo -e "${re}No audio language selected, exiting${pl}"
 	echo -e $usage
 	exit 1
 fi
 
-if [ "x$slang" = "x" ]; then
+if [ ! $slang ]; then
 	echo -e "${re}No subtitle language selected, exiting (use 'off' if you dont want any)${pl}"
 	echo -e $usage
 	exit 1
@@ -76,29 +76,16 @@ fi
 
 if [ ! $dvdisdir ] && [ ! $skipclone ]; then
 	echo -en " * Copying dvd to disk first... "
-	
-	# check for vobcopy bug. enforce mounted disc if found
-	check_bad_vobcopy ${dvd_device}
-	
-	# transparently find mount point and pass to vobcopy
-	mnt_point=$(get_mount_point ${dvd_device})
 	cmd="time \
 	nice -n20 \
-	vobcopy -l -m -F 64 -t disc -i ${mnt_point}"
-	
-	# vobcopy detects existing output dir and prompts for action, we don't
-	# want that
-	[ -d disc ] && rm -rf disc
-	
+	dd if=${dvd_device} of=$disc_image.partial && \
+	mv $disc_image.partial $disc_image"
 	( echo "$cmd"; bash -c "$cmd" ) &> logs/iso.log
 	if [ $? != 0 ] ; then
 		echo -e "${re}\nFailed, dumping log:${pl}"
 		cat logs/iso.log
 		exit 1
 	fi
-	
-	# set mencoder_source to the new directory
-	mencoder_source="disc"
 	echo -e "${gr}done${pl}"
 fi
 
@@ -164,7 +151,7 @@ ${endpos} \
 -ovc ${vcodec} \
 -oac ${acodec} && \
 mv ${title}.avi.partial ${title}.avi"
-	( echo "$cmd"; sh -c "$cmd" ) &> logs/${title}.log &
+	( echo "$cmd"; bash -c "$cmd" ) &> logs/${title}.log &
 	pid=$!
 	
 	# Write mencoder's ETA estimate

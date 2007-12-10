@@ -18,9 +18,13 @@ while getopts "d:q:i:" opts; do
 	esac
 done
 
+if [ $dvd_device ]; then
+	dvd_device="\"$dvd_device\""
+fi
 
-cmd="lsdvd -avs $dvdisdir \"$dvd_device\" > ${tmpdir}/lsdisc 2> ${tmpdir}/lsdisc.err"
-sh -c "$cmd"
+cmd="lsdvd -avs $dvdisdir $dvd_device > ${tmpdir}/lsdisc 2> ${tmpdir}/lsdisc.err"
+
+bash -c "$cmd"
 if [ $? != 0 ]; then
 	echo -en "${re}" ; cat "${tmpdir}/lsdisc.err"; echo -en ${pl}
 	rm ${tmpdir}/lsdisc* &> /dev/null

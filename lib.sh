@@ -4,7 +4,7 @@
 ### DECLARATIONS
 
 # undvd version
-version=0.3.0
+version=0.2.2
 
 tmpdir="/tmp"
 
@@ -41,30 +41,3 @@ mencoder_source="$disc_image"
 
 # seconds to pause between updating rip status line
 timer_refresh=5
-
-
-### FUNCTIONS
-
-# bad version of vobcopy requires disc to be mounted
-function check_bad_vobcopy() {
-	local device=$(readlink -f $1)
-	bad_ver="0.5.14"
-	vobcopy_ver=$(vobcopy --help 2>&1 | head -n1 | awk '{ print $2 }')
-	if [ "$vobcopy_ver" = $bad_ver ]; then
-		mnt_point=$(get_mount_point $device)
-		if [ ! $mnt_point ]; then
-			echo -e "\n${ye}=> ${pl}Vobcopy $bad_ver detected, does not support reading directly from dvd device"
-			echo -e "${ye}=> ${pl}You have to mount the disc first, eg:${pl}"
-			echo -e "  ${wh}sudo mount $device ${gr}/mnt/dvd${pl}"
-			echo -e "  ${wh}undvd.sh -q ${gr}/mnt/dvd${wh} [other options]"
-			exit 1
-		fi
-	fi
-}
-
-# find mount point for disc
-function get_mount_point() {
-	local device=$(readlink -f $1)
-	mount 2>/dev/null | grep $device | awk '{ print $3 }'
-}
-
