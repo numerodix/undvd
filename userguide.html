@@ -1,4 +1,5 @@
 <html>
+<title>undvd user guide</title>
 <style type="text/css">
 body, td {
 font-family: DejaVu Sans, Bitstream Vera Sans, Verdana;
@@ -50,6 +51,8 @@ color: green; }
 <h2>Prerequisites</h2>
 undvd depends on a few programs to run, so make sure you have this:
 <ul>
+<li><a href="http://www.gnu.org/software/bash/">bash</a>
+<li><a href="http://www.gnu.org/software/gawk/">gawk</a>
 <li><a href="http://www.gnu.org/software/coreutils/">dd</a> (coreutils)
 <li><a href="http://untrepid.com/lsdvd/">lsdvd</a>
 <li><a href="http://www.mplayerhq.hu/">mplayer</a> with mencoder and support for
@@ -73,13 +76,17 @@ undvd depends on a few programs to run, so make sure you have this:
 <td><c>subtitles:</c> en es nl</td>
 </tr></table>
 
-<p>This particular title has two audio tracks and three subtitles. You can also tell <c>scandvd.sh</c>  which device to scan with:</p>
+<p>This particular title has two audio tracks and three subtitles. You can also tell <c>scandvd.sh</c> which device to scan:</p>
 
 <p><c>scandvd.sh -d <h>/dev/dvd</h></c></p>
 
 <p>Or, if you already have the dvd mounted, you can give it a path:</p>
 
 <p><c>scandvd.sh -q <h>/path</h></c></p>
+
+<p>Or, if you have an iso image you want to rip from:</p>
+
+<p><c>scandvd.sh -i <h>disc.iso</h></c></p>
 
 <p>&nbsp;</p>
 
@@ -150,6 +157,11 @@ undvd depends on a few programs to run, so make sure you have this:
 </dl>
 
 
+<h2>Background</h2>
+<ol>
+<li><a href="http://www.matusiak.eu/numerodix/blog/index.php/2007/01/30/undvd-dvd-ripping-made-easy/">Motivation for undvd</a>
+</ol>
+
 <h2>References</h2>
 <ol>
 <li><a href="http://gentoo-wiki.com/HOWTO_Rip_DVD_mencoder">HOWTO Rip DVD mencoder [gentoo-wiki]</a>
@@ -157,6 +169,19 @@ undvd depends on a few programs to run, so make sure you have this:
 <li><a href="http://gentoo-wiki.com/HOWTO_Mencoder_Introduction_Guide#XviD">HOWTO Mencoder Introduction Guide [gentoo-wiki]</a>
 <li><a href="http://www.mplayerhq.hu/DOCS/HTML/en/menc-feat-xvid.html">Encoding with the Xvid  codec</a>
 </ol>
+
+<h2>Changelog</h2>
+<ul>
+	<li>0.2.2
+	<ul>
+		<li> New install script. While there was no official way of "installing" undvd there is now a makefile with an "install" target, therefore "make install" will deploy the files into the filesystem.
+		<li> Distribution specific packages:
+		<br/>+ gentoo ebuild
+		<br/>+ ubuntu .deb
+		<br/>+ fedora .rpm
+		<br/>These are all brand new and not well tested.
+	</ul>
+</ul>
 
 <hr>
 # Author: Martin Matusiak &lt;numerodix@gmail.com&gt;

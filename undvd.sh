@@ -4,21 +4,14 @@
 # Licensed under the GNU Public License, version 3.
 #
 # More info: http://www.matusiak.eu/numerodix/blog/index.php/2007/01/30/undvd-dvd-ripping-made-easy/
-#
-# revision 6 - fixing bug that broke -i switch
-# revision 5 - changed time counter to include both elapsed and estimated time
-# revision 4 - made ripping from iso option clearer
-# revision 3 - -q switch made consistent with scandvd, fixing variable quoting bug
-# revision 2 - adding option to rip from directory instead of disc/iso
-# revision 1 - changed shell to bash and updated color scheme
 
 
-# load constants
+# load constants and functions
 p=$(dirname $(readlink -f $0)); . $p/lib.sh
 
 echo -e "${wh}{( --- undvd.sh $version --- )}${pl}"
 
-usage=" Usage:  ${wh}undvd.sh -t ${gr}01,02,03${wh} -a ${gr}en${wh} -s ${gr}es${wh} [-e ${gr}200${wh}] [-d ${gr}/dev/dvd${wh}] [more options]${pl}\n
+usage=" Usage:  ${wh}undvd.sh -t ${gr}01,02,03${wh} -a ${gr}en${wh} -s ${gr}es${wh} [-d ${gr}/dev/dvd${wh}] [more options]${pl}\n
 \t-t \ttitles to rip (comma separated)\n
 \t-a \taudio language (two letter code, eg. 'en')\n
 \t-s \tsubtitle language (two letter code or 'off')\n
