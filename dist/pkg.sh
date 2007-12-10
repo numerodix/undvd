@@ -227,6 +227,11 @@ elif [ "$action" = "gentoo" ]; then
 	gentoo pub
 elif [ "$action" = "ubuntu" ]; then
 	ubuntu pub
+elif [ "$action" = "all" ]; then
+	tarball pub
+	fedora pub
+	gentoo pub
+	ubuntu pub
 elif [ "$action" = "sf" ]; then
 	rm -rf pub
 	tarball pub
