@@ -19,10 +19,18 @@ usage=" Usage:  ${wh}undvd.sh -t ${gr}01,02,03${wh} -a ${gr}en${wh} -s ${gr}es${
 \t-d \tdvd device to rip from (default is /dev/dvd)\n
 \t-q \tdvd directory to rip from\n
 \t-i \tdvd iso image to rip from\n
+\t-z \t<show advanced options>"
+
+adv_usage=" Advanced usage:  ${wh}undvd.sh [standard options] ${gr}[advanced
+options]${pl}\n
+\t-o \toutput file size in mb (integer value)\n
+\t-1 \tforce 1-pass encoding\n
+\t-2 \tforce 2-pass encoding\n
+\t-r \tscale video to width (integer value)\n
 \t-f \tuse picture smoothing filter\n
 \t-x \tuse xvid compression (faster, slightly lower quality)"
 
-while getopts "t:a:s:e:d:q:i:fx" opts; do
+while getopts "t:a:s:e:d:q:i:o:r:fxz12" opts; do
 	case $opts in
 		t ) titles=$(echo $OPTARG | sed 's|,| |g');;
 		a ) alang=$OPTARG;;
@@ -32,14 +40,15 @@ while getopts "t:a:s:e:d:q:i:fx" opts; do
 		q ) dvdisdir="y";mencoder_source="$OPTARG";;
 		i ) skipclone="y";mencoder_source="$OPTARG";;
 		f ) prescale="spp,";postscale=",hqdn3d";;
-		x ) vcodec=$xvid;acodec=$lame;;
+		x ) video_codec="xvid";acodec="$lame";;
+		o ) output_filesize="$OPTARG";;
+		1 ) passes="1";;
+		2 ) twopass=y;passes="2";;
+		r ) custom_scale="$OPTARG";;
+		z ) echo -e $adv_usage; exit 1;;
 		* ) echo -e $usage; exit 1;;
 	esac
 done
-
-if [ ! $dvd_device ]; then
-	dvd_device="/dev/dvd"
-fi
 
 
 if [ ! $end ]; then
@@ -76,6 +85,12 @@ fi
 
 if [ ! $dvdisdir ] && [ ! $skipclone ]; then
 	echo -en " * Copying dvd to disk first... "
+	
+	# check for vobcopy bug. enforce mounted disc if found
+	check_bad_vobcopy ${dvd_device}
+	
+	# transparently find mount point and pass to vobcopy
+	mnt_point=$(get_mount_point ${dvd_device})
 	cmd="time \
 	nice -n20 \
 	dd if=${dvd_device} of=$disc_image.partial && \
@@ -86,6 +101,9 @@ if [ ! $dvdisdir ] && [ ! $skipclone ]; then
 		cat logs/iso.log
 		exit 1
 	fi
+	
+	# set mencoder_source to the new directory
+	mencoder_source="disc"
 	echo -e "${gr}done${pl}"
 fi
 
@@ -95,7 +113,7 @@ for i in $titles; do
 	
 	echo -en " * Now ripping title ${wh}$title${pl}, with audio: ${wh}$alang${pl} and subtitles: ${wh}$slang${pl}"
 	if [ "x$end" != "x" ]; then
-		echo -e " ${pl}(stopping after ${wh}${end}${pl}s)"
+		echo -e " ${pl}(only first ${wh}${end}${pl}s)"
 	else
 		echo
 	fi
@@ -110,70 +128,53 @@ for i in $titles; do
 	
 	# Find out how to scale the dimensions
 	
-	mplayer -slave -quiet \
-		dvd://${title} \
-		-dvd-device "$mencoder_source" \
-		-ao null \
-		-vo null \
-		-endpos 1 \
-	&> /tmp/title.size
-	size=$(cat /tmp/title.size | grep "VIDEO:" | awk '{ print $3 }')
-	sizex=$(echo $size | sed 's|\(.*\)x\(.*\)|\1|g')
-	sizey=$(echo $size | sed 's|\(.*\)x\(.*\)|\2|g')
-	if [ "x$sizex" != x ]; then
-		sizex=$(($sizex*2/3))
-		sizey=$(($sizey*2/3))
-		scale="scale=$sizex:$sizey"
-		expand=",expand=$sizex:$sizey::1"
-	else
-		scale="scale"
+	scale=$(title_scale ${title} "$mencoder_source" $tmpdir "$custom_scale")
+	
+	
+	# User set bitrate
+
+	if [ $output_filesize ]; then
+		len=$(title_length ${title} "$mencoder_source" $tmpdir)
+		bitrate=$(compute_bitrate $len $output_filesize)
 	fi
 	
-	rm /tmp/title.size
+	
+	# Determine the number of passes
+	
+	if [ ! $passes ]; then
+		if [ $bitrate -lt $standard_bitrate ]; then
+			twopass=y
+			passes=2
+		else
+			passes=1
+		fi
+	fi
 	
 	
 	# Encode video
 	
-	status="${pl}[$title] Encoding, to monitor log:  tail -F logs/${title}.log    "
-	echo -en "${status}\r"
+	pass=0
+	for p in $(seq $passes); do
+		pass=$(( $pass + 1 ))
 	
-	cmd="time \
+		vcodec=$(vcodec_opts "$video_codec" "$twopass" "$pass" "$bitrate")
+		
+		cmd="time \
 nice -n20 \
 mencoder -v \
 dvd://${title} \
 -dvd-device \"$mencoder_source\" \
--o ${title}.avi.partial \
 -alang ${alang} \
 -slang ${slang} \
 ${crop} \
 ${endpos} \
 -vf ${prescale}${scale}${postscale} \
 -ovc ${vcodec} \
--oac ${acodec} && \
-mv ${title}.avi.partial ${title}.avi"
-	( echo "$cmd"; bash -c "$cmd" ) &> logs/${title}.log &
-	pid=$!
+-oac ${acodec}"
+		run_encode "$cmd" "$title" "$twopass" "$pass"
+	done
 	
-	# Write mencoder's ETA estimate
-	
-	start_time=$(date +%s)
-	(while ps $pid &> /dev/null; do
-		eta=$([ -e logs/${title}.log ] && tail -n15 logs/${title}.log | \
-			grep "Trem:" | tail -n1 | sed 's|.*\( .*min\).*|\1|g' | tr " " "-")
-		ela=$(( ( $(date +%s) - $start_time ) / 60 ))
-		echo -ne "${status}${ye}+${ela}min${pl}  ${cy}${eta}${pl}    \r"
-		sleep $timer_refresh
-	done)
-	
-	# Report exit code
-	
-	wait $pid
-	if [ $? = 0 ]; then
-		echo -e "${status}[ ${gr}done${pl} ]             "
-	else
-		echo -e "${status}[ ${re}failed${pl} ] ${re}check log${pl}"
-	fi
-	
+	mv ${title}.avi.partial ${title}.avi	
 	rm crop.file divx2pass* *~ subtitles.idx subtitles.sub ${title}.vob 2> /dev/null
 
 done

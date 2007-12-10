@@ -1,4 +1,5 @@
 <html>
+<head>
 <title>undvd user guide</title>
 <style type="text/css">
 body, td {
@@ -6,7 +7,15 @@ font-family: DejaVu Sans, Bitstream Vera Sans, Verdana;
 font-size: 10pt; }
 
 h2 {
-font-size: 140%; }
+font-size: 140%;
+padding: 3px;
+background-color: #ed7; }
+
+h3 {
+font-size: 125%; }
+
+table {
+margin: 1px; }
 
 table, td {
 font-family: DejaVu Sans Mono, Bitstream Vera Sans Mono, Monospace;
@@ -23,6 +32,15 @@ font-family: DejaVu Sans Mono, Bitstream Vera Sans Mono, Monospace;
 font-weight: bold;
 color: navy; }
 
+code {
+font-family: DejaVu Sans Mono, Bitstream Vera Sans Mono, Monospace;
+font-weight: bold;
+color: navy;
+background-color: #eeb;
+border: 1px dotted #aaa;
+padding: 4px;
+margin: 3px; }
+
 e {
 font-style: italic; }
 
@@ -30,6 +48,7 @@ h {
 font-weight: bold;
 color: green; }
 </style>
+</head>
 
 <body>
 <h1>undvd user guide</h1>
@@ -67,6 +86,8 @@ undvd depends on a few programs to run, so make sure you have this:
 
 <h2>Diving in</h2>
 
+<h3>Find out which title(s) to rip</h3>
+
 <p><c>scandvd.sh</c> uses <e>lsdvd</e> to print a list of titles on the disc. Each line in the output looks like this:</p>
 
 <table><tr>
@@ -78,17 +99,18 @@ undvd depends on a few programs to run, so make sure you have this:
 
 <p>This particular title has two audio tracks and three subtitles. You can also tell <c>scandvd.sh</c> which device to scan:</p>
 
-<p><c>scandvd.sh -d <h>/dev/dvd</h></c></p>
+<code>scandvd.sh -d <h>/dev/dvd</h></code>
 
 <p>Or, if you already have the dvd mounted, you can give it a path:</p>
 
-<p><c>scandvd.sh -q <h>/path</h></c></p>
+<code>scandvd.sh -q <h>/path</h></code>
 
 <p>Or, if you have an iso image you want to rip from:</p>
 
-<p><c>scandvd.sh -i <h>disc.iso</h></c></p>
+<code>scandvd.sh -i <h>disc.iso</h></code>
 
-<p>&nbsp;</p>
+
+<h3>Rip titles</h3>
 
 <p>Once you know which titles to rip, run <c>undvd.sh</c>, where the first argument is the title(s), the second is the audio, the third is the subtitles (the rest are optional):</p>
 
@@ -102,13 +124,31 @@ undvd depends on a few programs to run, so make sure you have this:
 <tr><td><c>-d<c></td><td>dvd device to rip from (default is <h>/dev/dvd</h>)</td></tr>
 <tr><td><c>-q<c></td><td>dvd directory to rip from</td></tr>
 <tr><td><c>-i<c></td><td>dvd iso image to rip from</td></tr>
+</table>
+
+<p>So to rip the <i>first</i> title with <i>English</i> audio and no subtitles from a dvd (assuming your dvd device is called /dev/dvd) you would run:</p>
+
+<code>undvd.sh -t <h>01</h> -a <h>en</h> -s <h>off</h> -d <h>/dev/dvd</h></code>
+
+<p>Normally, you omit the <c>-e</c> parameter, but it's useful if you want to just rip a small part of the title to see that it works and that it looks good.</p>
+
+<p><c>undvd.sh</c> first copies the entire disc to the harddisk with <e>dd</e>. It then encodes the title(s) with <e>mencoder</e>, part of <e>mplayer</e>. The output format uses <a href="http://en.wikipedia.org/wiki/H264">x264</a> compression (optionally xvid) for the video and mp3 for the audio.</p>
+
+
+<h3>Advanced options</h3>
+
+The above options are sufficient to get a good quality rip, but if you need more control over the process, there are some extra options you can set.
+
+<p><c>undvd.sh -t <h>01,02,03</h> -a <h>en</h> -s <h>es</h> [-e <h>200</h>] [-d <h>/dev/dvd</h>] [more options]</c></p>
+
+<table>
+<tr><td><c>-o<c></td><td>output file size in mb (integer value)</td></tr>
+<tr><td><c>-1<c></td><td>force 1-pass encoding</td></tr>
+<tr><td><c>-2<c></td><td>force 2-pass encoding</td></tr>
+<tr><td><c>-r<c></td><td>scale video to width (integer value)</td></tr>
 <tr><td><c>-f<c></td><td>use picture smoothing filter (not recommended for top quality source content)</td></tr>
 <tr><td><c>-x<c></td><td>use xvid compression (faster, slightly lower quality)</td></tr>
 </table>
-
-<p>Normally, you omit the <c>-e</c> argument, but it's useful if you want to just rip a small part of the title to see that it works and that it looks good.</p>
-
-<p><c>undvd.sh</c> first copies the entire disc to the harddisk with <e>dd</e>. It then encodes the title(s) with <e>mencoder</e>, part of <e>mplayer</e>. The output format uses <a href="http://en.wikipedia.org/wiki/H264">x264</a> compression (optionally xvid) for the video and mp3 for the audio.</p>
 
 
 <h2>How long does it take?</h2>
@@ -118,7 +158,7 @@ undvd depends on a few programs to run, so make sure you have this:
 <p><c>undvd.sh</c> uses <e>mencoder</e>'s estimate to give you an idea of how long it takes. For every title it displays a line like this:</p>
 
 <table><tr>
-<td><h>[01]</h></td>
+<td><h>[-]</h></td>
 <td>Encoding, to monitor log:</td>
 <td>tail -F logs/01.log</td>
 <td><h>+101min</h></td>
@@ -162,13 +202,26 @@ undvd depends on a few programs to run, so make sure you have this:
 <li><a href="http://www.matusiak.eu/numerodix/blog/index.php/2007/01/30/undvd-dvd-ripping-made-easy/">Motivation for undvd</a>
 </ol>
 
-<h2>References</h2>
-<ol>
-<li><a href="http://gentoo-wiki.com/HOWTO_Rip_DVD_mencoder">HOWTO Rip DVD mencoder [gentoo-wiki]</a>
-<li><a href="http://www.mplayerhq.hu/DOCS/HTML/en/menc-feat-quicktime-7.html">Using MEncoder to create QuickTime-compatible files</a>
-<li><a href="http://gentoo-wiki.com/HOWTO_Mencoder_Introduction_Guide#XviD">HOWTO Mencoder Introduction Guide [gentoo-wiki]</a>
-<li><a href="http://www.mplayerhq.hu/DOCS/HTML/en/menc-feat-xvid.html">Encoding with the Xvid  codec</a>
-</ol>
+
+<h2>References (the hairy details)</h2>
+<ul>
+<li>mencoder general resources
+	<ol>
+	<li><a href="http://gentoo-wiki.com/HOWTO_Rip_DVD_mencoder">HOWTO Rip DVD mencoder [gentoo-wiki]</a>
+	</ol>
+
+<li>x264 info
+	<ol>
+	<li><a href="http://www.mplayerhq.hu/DOCS/HTML/en/menc-feat-quicktime-7.html">Using MEncoder to create QuickTime-compatible files [mplayerhq]</a>
+	</ol>
+
+<li>xvid info
+	<ol>
+	<li><a href="http://gentoo-wiki.com/HOWTO_Mencoder_Introduction_Guide#XviD">HOWTO Mencoder Introduction Guide [gentoo-wiki]</a>
+	<li><a href="http://www.mplayerhq.hu/DOCS/HTML/en/menc-feat-xvid.html">Encoding with the Xvid  codec [mplayerhq]</a>
+	</ol>
+</ul>
+
 
 <h2>Changelog</h2>
 <ul>
@@ -182,6 +235,7 @@ undvd depends on a few programs to run, so make sure you have this:
 		<br/>These are all brand new and not well tested.
 	</ul>
 </ul>
+
 
 <hr>
 # Author: Martin Matusiak &lt;numerodix@gmail.com&gt;
