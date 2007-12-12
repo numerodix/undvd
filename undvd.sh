@@ -73,7 +73,7 @@ if [ ! $alang ]; then
 fi
 
 if [ ! $slang ]; then
-	$echo -e "${re}No subtitle language selected, exiting (use 'off' if you dont want any)${pl}"
+	$echo -e "${re}No subtitle language selected, exiting (use 'off' if you don't want any)${pl}"
 	$echo -e $usage
 	exit 1
 fi
