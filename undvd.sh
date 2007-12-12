@@ -87,7 +87,7 @@ fi
 
 if [ ! $dvdisdir ] && [ ! $skipclone ]; then
 	$echo -en " * Copying dvd to disk first... "
-	cmd="$time \
+	cmd="time \
 	$nice -n20 \
 	$dd if=${dvd_device} of=$disc_image.partial && \
 	$mv $disc_image.partial $disc_image"
@@ -152,7 +152,7 @@ for i in $titles; do
 	
 		vcodec=$(vcodec_opts "$video_codec" "$twopass" "$pass" "$bitrate")
 		
-		cmd="$time \
+		cmd="time \
 $nice -n20 \
 $mencoder -v \
 dvd://${title} \

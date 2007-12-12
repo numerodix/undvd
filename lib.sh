@@ -48,7 +48,7 @@ timer_refresh=5
 # tools we need
 videoutils="lsdvd mencoder mplayer"
 shellutils="awk bash grep egrep ps sed xargs"
-coreutils="cat date dd dirname echo mkdir mv nice readlink rm seq sleep tail time tr"
+coreutils="cat date dd dirname echo mkdir mv nice readlink rm seq sleep tail tr"
 
 mencoder_acodecs="mp3lame"
 mencoder_vcodecs="xvid x264"
