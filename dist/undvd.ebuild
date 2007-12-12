@@ -28,7 +28,7 @@ RDEPEND="${DEPEND}"
 
 pkg_setup() {
 	einfo "Checking mplayer for USE flags we need..."
-	for f in "encode dvd x264 mad"; do
+	for f in "encode dvd x264 mp3"; do
 		if ! built_with_use media-video/mplayer $f; then
 			eerror "$f"
 			die "mplayer merged without $f USE flag"
