@@ -9,7 +9,7 @@
 # load constants and functions
 p=$(dirname $(readlink -f $0)); . $p/lib.sh
 
-echo -e "${wh}{( --- undvd.sh $version --- )}${pl}"
+$echo -e "${wh}{( --- undvd.sh $version --- )}${pl}"
 
 usage=" Usage:  ${wh}undvd.sh -t ${gr}01,02,03${wh} -a ${gr}en${wh} -s ${gr}es${wh} [-d ${gr}/dev/dvd${wh}] [more options]${pl}\n\n
 \t-t \ttitles to rip (comma separated)\n
@@ -33,7 +33,7 @@ options]${pl}\n
 
 while getopts "t:a:s:e:d:q:i:o:r:fx12zc" opts; do
 	case $opts in
-		t ) titles=$(echo $OPTARG | sed 's|,| |g');;
+		t ) titles=$($echo $OPTARG | $sed 's|,| |g');;
 		a ) alang=$OPTARG;;
 		s ) slang=$OPTARG;;
 		e ) end=$OPTARG;;
@@ -47,8 +47,8 @@ while getopts "t:a:s:e:d:q:i:o:r:fx12zc" opts; do
 		2 ) twopass=y;passes="2";;
 		r ) custom_scale="$OPTARG";;
 		c ) init_cmds "y"; exit;;
-		z ) echo -e $adv_usage; exit;;
-		* ) echo -e $usage; exit 1;;
+		z ) $echo -e $adv_usage; exit;;
+		* ) $echo -e $usage; exit 1;;
 	esac
 done
 
@@ -61,54 +61,54 @@ fi
 
 
 if [ ! $titles ]; then
-	echo -e "${re}No titles to rip, exiting${pl}"
-	echo -e $usage
+	$echo -e "${re}No titles to rip, exiting${pl}"
+	$echo -e $usage
 	exit 1
 fi
 
 if [ ! $alang ]; then
-	echo -e "${re}No audio language selected, exiting${pl}"
-	echo -e $usage
+	$echo -e "${re}No audio language selected, exiting${pl}"
+	$echo -e $usage
 	exit 1
 fi
 
 if [ ! $slang ]; then
-	echo -e "${re}No subtitle language selected, exiting (use 'off' if you dont want any)${pl}"
-	echo -e $usage
+	$echo -e "${re}No subtitle language selected, exiting (use 'off' if you dont want any)${pl}"
+	$echo -e $usage
 	exit 1
 fi
 
 
-mkdir -p logs
+$mkdir -p logs
 if [ $? != 0 ] ; then
-	echo -e "${re}Could not write to $PWD, exiting${pl}"
+	$echo -e "${re}Could not write to $PWD, exiting${pl}"
 	exit 1
 fi
 
 if [ ! $dvdisdir ] && [ ! $skipclone ]; then
-	echo -en " * Copying dvd to disk first... "
-	cmd="time \
-	nice -n20 \
-	dd if=${dvd_device} of=$disc_image.partial && \
-	mv $disc_image.partial $disc_image"
-	( echo "$cmd"; bash -c "$cmd" ) &> logs/iso.log
+	$echo -en " * Copying dvd to disk first... "
+	cmd="$time \
+	$nice -n20 \
+	$dd if=${dvd_device} of=$disc_image.partial && \
+	$mv $disc_image.partial $disc_image"
+	( $echo "$cmd"; $bash -c "$cmd" ) &> logs/iso.log
 	if [ $? != 0 ] ; then
-		echo -e "${re}\nFailed, dumping log:${pl}"
-		cat logs/iso.log
+		$echo -e "${re}\nFailed, dumping log:${pl}"
+		$cat logs/iso.log
 		exit 1
 	fi
-	echo -e "${gr}done${pl}"
+	$echo -e "${gr}done${pl}"
 fi
 
 
 for i in $titles; do
 	title=$i
 	
-	echo -en " * Now ripping title ${wh}$title${pl}, with audio: ${wh}$alang${pl} and subtitles: ${wh}$slang${pl}"
+	$echo -en " * Now ripping title ${wh}$title${pl}, with audio: ${wh}$alang${pl} and subtitles: ${wh}$slang${pl}"
 	if [ $end ]; then
-		echo -e " ${pl}(only first ${wh}${end}${pl}s)"
+		$echo -e " ${pl}(only first ${wh}${end}${pl}s)"
 	else
-		echo
+		$echo
 	fi
 	
 	
@@ -147,14 +147,14 @@ for i in $titles; do
 	# Encode video
 	
 	pass=0
-	for p in $(seq $passes); do
+	for p in $($seq $passes); do
 		pass=$(( $pass + 1 ))
 	
 		vcodec=$(vcodec_opts "$video_codec" "$twopass" "$pass" "$bitrate")
 		
-		cmd="time \
-nice -n20 \
-mencoder -v \
+		cmd="$time \
+$nice -n20 \
+$mencoder -v \
 dvd://${title} \
 -dvd-device \"$mencoder_source\" \
 -alang ${alang} \
@@ -167,7 +167,7 @@ ${endpos} \
 		run_encode "$cmd" "$title" "$twopass" "$pass"
 	done
 	
-	mv ${title}.avi.partial ${title}.avi
-	rm crop.file divx2pass* 2> /dev/null
+	$mv ${title}.avi.partial ${title}.avi
+	$rm crop.file divx2pass* 2> /dev/null
 
 done
