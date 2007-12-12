@@ -13,9 +13,13 @@ SLOT="0"
 KEYWORDS="~x86"
 IUSE="css xvid"
 
-DEPEND="app-shells/bash
+DEPEND="sys-apps/coreutils
+	app-shells/bash
+	sys-apps/findutils
 	sys-apps/gawk
-	sys-apps/coreutils
+	sys-apps/grep
+	sys-process/procps
+	sys-apps/sed
 	media-video/lsdvd
 	media-video/mplayer
 	css? ( media-libs/libdvdcss )"
