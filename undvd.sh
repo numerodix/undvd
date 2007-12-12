@@ -11,14 +11,15 @@ p=$(dirname $(readlink -f $0)); . $p/lib.sh
 
 echo -e "${wh}{( --- undvd.sh $version --- )}${pl}"
 
-usage=" Usage:  ${wh}undvd.sh -t ${gr}01,02,03${wh} -a ${gr}en${wh} -s ${gr}es${wh} [-d ${gr}/dev/dvd${wh}] [more options]${pl}\n
+usage=" Usage:  ${wh}undvd.sh -t ${gr}01,02,03${wh} -a ${gr}en${wh} -s ${gr}es${wh} [-d ${gr}/dev/dvd${wh}] [more options]${pl}\n\n
 \t-t \ttitles to rip (comma separated)\n
 \t-a \taudio language (two letter code, eg. 'en')\n
-\t-s \tsubtitle language (two letter code or 'off')\n
-\t-e \texit after this many seconds (usually for testing)\n
+\t-s \tsubtitle language (two letter code or 'off')\n\n
 \t-d \tdvd device to rip from (default is /dev/dvd)\n
 \t-q \tdvd directory to rip from\n
-\t-i \tdvd iso image to rip from\n
+\t-i \tdvd iso image to rip from\n\n
+\t-e \texit after this many seconds (usually for testing)\n\n
+\t-c \tdo sanity check (check for missing tools)\n
 \t-z \t<show advanced options>"
 
 adv_usage=" Advanced usage:  ${wh}undvd.sh [standard options] ${gr}[advanced
@@ -30,7 +31,7 @@ options]${pl}\n
 \t-f \tuse picture smoothing filter\n
 \t-x \tuse xvid compression (faster, slightly lower quality)"
 
-while getopts "t:a:s:e:d:q:i:o:r:fxz12" opts; do
+while getopts "t:a:s:e:d:q:i:o:r:fx12zc" opts; do
 	case $opts in
 		t ) titles=$(echo $OPTARG | sed 's|,| |g');;
 		a ) alang=$OPTARG;;
@@ -45,7 +46,8 @@ while getopts "t:a:s:e:d:q:i:o:r:fxz12" opts; do
 		1 ) passes="1";;
 		2 ) twopass=y;passes="2";;
 		r ) custom_scale="$OPTARG";;
-		z ) echo -e $adv_usage; exit 1;;
+		c ) init_cmds "y"; exit;;
+		z ) echo -e $adv_usage; exit;;
 		* ) echo -e $usage; exit 1;;
 	esac
 done
@@ -103,7 +105,7 @@ for i in $titles; do
 	title=$i
 	
 	echo -en " * Now ripping title ${wh}$title${pl}, with audio: ${wh}$alang${pl} and subtitles: ${wh}$slang${pl}"
-	if [ "x$end" != "x" ]; then
+	if [ $end ]; then
 		echo -e " ${pl}(only first ${wh}${end}${pl}s)"
 	else
 		echo
@@ -165,7 +167,7 @@ ${endpos} \
 		run_encode "$cmd" "$title" "$twopass" "$pass"
 	done
 	
-	mv ${title}.avi.partial ${title}.avi	
-	rm crop.file divx2pass* *~ subtitles.idx subtitles.sub ${title}.vob 2> /dev/null
+	mv ${title}.avi.partial ${title}.avi
+	rm crop.file divx2pass* 2> /dev/null
 
 done

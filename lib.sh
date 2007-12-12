@@ -23,7 +23,7 @@ standard_audio_bitrate=160
 
 # x264 encoding options
 #x264="x264 -x264encopts subq=5:frameref=2:partitions=all:weight_b:bitrate=$bitrate:threads=auto"
-faac="faac -faacopts object=1:tns:quality=100"
+#faac="faac -faacopts object=1:tns:quality=100"
 
 # xvid encoding options
 #xvid="xvid -xvidencopts bitrate=$bitrate"
@@ -45,9 +45,60 @@ mencoder_source="$disc_image"
 # seconds to pause between updating rip status line
 timer_refresh=5
 
+# tools we need
+videoutils="lsdvd mencoder mplayer"
+shellutils="awk bash grep egrep ps sed xargs"
+coreutils="cat dd dirname echo mkdir mv nice readlink rm tail time tr"
+
+mencoder_acodecs="mp3lame"
+mencoder_vcodecs="xvid x264"
+
+mplayer_acodecs="aac"
+mplayer_vcodecs="mpeg-2"
+
 
 ### FUNCTIONS
 
+# check for missing dependencies
+function init_cmds() {
+	local verbose="$1"
+	
+	[ $verbose ] && echo -e " * Checking for tool support... "
+	for i in $coreutils $shellutils $videoutils; do
+		p=$(which $i 2>/dev/null)
+		if [ $? -gt 0 ] && [ $verbose ]; then
+			echo -e "   ${ye}*${pl} $i missing"
+		elif [ $verbose ]; then
+			echo -e "   ${gr}*${pl} $p"
+		fi
+		eval "$i=$p"
+	done
+	
+	if [ $verbose ]; then
+		codec_check "audio" "mencoder" "-oac help" "$mencoder_acodecs"
+		codec_check "video" "mencoder" "-ovc help" "$mencoder_vcodecs"
+		codec_check "audio" "mplayer" "-ac help" "$mplayer_acodecs"
+		codec_check "video" "mplayer" "-vc help" "$mplayer_vcodecs"
+	fi
+}
+
+# check for codec support in player/encoder
+function codec_check() {
+	local type="$1"
+	local cmd="$2"
+	local arg="$3"
+	local codecs="$4"
+
+	echo -e " * Checking for $cmd $type codec support... "
+	for i in $codecs; do
+		c=$($cmd $arg 2>/dev/null | $grep -i $i)
+		if [ ! "$c" ]; then
+			echo -e "   ${ye}*${pl} $i missing"
+		elif [ $verbose ]; then
+			echo -e "   ${gr}*${pl} $i"
+		fi
+	done
+}
 
 # obtain title length from lsdvd
 function title_length() {
@@ -209,3 +260,7 @@ function run_encode() {
 		echo -e "${status}[ ${re}failed${pl} ] ${re}check log${pl}"
 	fi
 }
+
+
+# initialize command variables
+init_cmds
