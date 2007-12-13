@@ -53,7 +53,7 @@ coreutils="cat date dd dirname echo mkdir mv nice readlink rm seq sleep tail tr"
 mencoder_acodecs="mp3lame"
 mencoder_vcodecs="xvid x264"
 
-mplayer_acodecs="aac"
+mplayer_acodecs="ac3"
 mplayer_vcodecs="mpeg-2"
 
 
