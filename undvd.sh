@@ -27,25 +27,31 @@ options]${pl}\n
 \t-o \toutput file size in mb (integer value)\n
 \t-1 \tforce 1-pass encoding\n
 \t-2 \tforce 2-pass encoding\n
+\t-n \tno disc cloning (encode straight from the dvd, save diskspace)\n
 \t-r \tscale video to width (integer value)\n
 \t-f \tuse picture smoothing filter\n
 \t-x \tuse xvid compression (faster, slightly lower quality)"
 
-while getopts "t:a:s:e:d:q:i:o:r:fx12zc" opts; do
+while getopts "t:a:s:e:d:q:i:o:r:nfx12zc" opts; do
 	case $opts in
 		t ) titles=$($echo $OPTARG | $sed 's|,| |g');;
 		a ) alang=$OPTARG;;
 		s ) slang=$OPTARG;;
-		e ) end=$OPTARG;;
+		
 		d ) dvd_device=$OPTARG;;
 		q ) dvdisdir="y";mencoder_source="$OPTARG";;
 		i ) skipclone="y";mencoder_source="$OPTARG";;
-		f ) prescale="spp,";postscale=",hqdn3d";;
-		x ) video_codec="xvid";acodec="$lame";;
+		
+		e ) end=$OPTARG;;
+		
+		n ) skipclone="y";mencoder_source="$dvd_device";;
 		o ) output_filesize="$OPTARG";;
 		1 ) passes="1";;
 		2 ) twopass=y;passes="2";;
+		f ) prescale="spp,";postscale=",hqdn3d";;
+		x ) video_codec="xvid";acodec="$lame";;
 		r ) custom_scale="$OPTARG";;
+		
 		c ) init_cmds "y"; exit;;
 		z ) $echo -e $adv_usage; exit;;
 		* ) $echo -e $usage; exit 1;;
