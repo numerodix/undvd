@@ -237,7 +237,7 @@ The above options are sufficient to get a good quality rip, but if you need more
 	<ul>
 		<li> User set bitrate. Bitrate can now be set implicitly by setting an output filesize for the video with the -o switch.
 		<li> 2-pass encoding. 2-pass encoding is done automatically if the bitrate is set below the default. But 1-pass or 2-pass encoding can always be overriden by using -1 and -2.
-		<li> New option to prevent disc cloning before encoding. The -n switch can now be used to skip copying the dvd to the harddrive first, before encoding begins. This is a non-default behavior because encoding is expensive and dvds sometimes give read errors, so it's better to read the whole disc first to preempt a crash after several hours of work.
+		<li> New option to prevent disc cloning before encoding. The -n switch can now be used to skip copying the dvd to the harddrive first, before encoding begins. This is a non-default behavior because encoding is expensive and dvds sometimes give read errors, so it's safer to read the whole disc first (and make sure that succeeds) to avoid a crash after several hours of work.
 		<li> New system sanity check. undvd can now check for all programs it needs by supplying the -c switch. It also checks for codec support.
 	</ul>
 	<li>0.2.2
