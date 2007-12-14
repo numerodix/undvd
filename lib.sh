@@ -129,7 +129,7 @@ function clone_vobcopy() {
 	[ -d $dir ] && rm -rf $dir
 	cmd="time \
 	$nice -n20 \
-	$vobcopy -l -m -F 64 -i $mnt_point -t $dir"
+	$vobcopy -f -l -m -F 64 -i $mnt_point -t $dir"
 	( $echo "$cmd"; $bash -c "$cmd" ) &> logs/clone.log
 }
 
