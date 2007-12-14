@@ -4,7 +4,7 @@
 ### DECLARATIONS
 
 # undvd version
-version=0.3.0
+version=0.3.1
 
 tmpdir="/tmp"
 
@@ -46,8 +46,8 @@ mencoder_source="$disc_image"
 timer_refresh=5
 
 # tools we need
-videoutils="lsdvd mencoder mplayer"
-shellutils="awk bash grep egrep ps sed xargs"
+videoutils="lsdvd mencoder mplayer vobcopy"
+shellutils="awk bash grep egrep mount ps sed xargs"
 coreutils="cat date dd dirname echo mkdir mv nice readlink rm seq sleep tail tr"
 
 mencoder_acodecs="mp3lame"
@@ -98,6 +98,39 @@ function codec_check() {
 			$echo -e "   ${gr}*${pl} $i"
 		fi
 	done
+}
+
+# clone disc to iso image
+function clone_dd() {
+	local dvd_device="$1"
+	local img="$2"
+
+	cmd="time \
+	$nice -n20 \
+	$dd if=${dvd_device} of=$img.partial && \
+	$mv $img.partial $img"
+	( $echo "$cmd"; $bash -c "$cmd" ) &> logs/clone.log
+}
+
+# clone encrypted disc to directory
+function clone_vobcopy() {
+	local dvd_device=$($readlink -f $1)
+	local dir="$2"
+	
+	mnt_point=$($mount | $grep $dvd_device | $awk '{ print $3 }')
+
+	if [ ! $mnt_point ]; then
+		echo -e "\n${ye}=>${pl} Your dvd device $dvd_device has to be mounted for this."
+		echo -e "${ye}=>${pl} Mount the dvd and supply the device to undvd, eg:"
+		echo -e "    ${wh}sudo mount ${gr}${dvd_device}${wh} /mnt/dvd -t iso9660${pl}"
+		echo -e "    ${wh}undvd.sh -d ${gr}${dvd_device}${wh} [other options]${pl}"
+	fi
+	
+	[ -d $dir ] && rm -rf $dir
+	cmd="time \
+	$nice -n20 \
+	$vobcopy -l -m -F 64 -i $mnt_point -t $dir"
+	( $echo "$cmd"; $bash -c "$cmd" ) &> logs/clone.log
 }
 
 # obtain title length from lsdvd

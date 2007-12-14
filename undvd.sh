@@ -27,12 +27,13 @@ options]${pl}\n
 \t-o \toutput file size in mb (integer value)\n
 \t-1 \tforce 1-pass encoding\n
 \t-2 \tforce 2-pass encoding\n
+\t-u \tdvd is encrypted (requires libdvdcss to read)\n
 \t-n \tno disc cloning (encode straight from the dvd, save diskspace)\n
 \t-r \tscale video to width (integer value)\n
 \t-f \tuse picture smoothing filter\n
 \t-x \tuse xvid compression (faster, slightly lower quality)"
 
-while getopts "t:a:s:e:d:q:i:o:r:nfx12zc" opts; do
+while getopts "t:a:s:e:d:q:i:o:r:unfx12zc" opts; do
 	case $opts in
 		t ) titles=$($echo $OPTARG | $sed 's|,| |g');;
 		a ) alang=$OPTARG;;
@@ -44,13 +45,14 @@ while getopts "t:a:s:e:d:q:i:o:r:nfx12zc" opts; do
 		
 		e ) end=$OPTARG;;
 		
-		n ) skipclone="y";mencoder_source="$dvd_device";;
 		o ) output_filesize="$OPTARG";;
 		1 ) passes="1";;
 		2 ) twopass=y;passes="2";;
+		u ) encrypted="y";;
+		n ) skipclone="y";mencoder_source="$dvd_device";;
+		r ) custom_scale="$OPTARG";;
 		f ) prescale="spp,";postscale=",hqdn3d";;
 		x ) video_codec="xvid";acodec="$lame";;
-		r ) custom_scale="$OPTARG";;
 		
 		c ) init_cmds "y"; exit;;
 		z ) $echo -e $adv_usage; exit;;
@@ -92,15 +94,17 @@ if [ $? != 0 ] ; then
 fi
 
 if [ ! $dvdisdir ] && [ ! $skipclone ]; then
-	$echo -en " * Copying dvd to disk first... "
-	cmd="time \
-	$nice -n20 \
-	$dd if=${dvd_device} of=$disc_image.partial && \
-	$mv $disc_image.partial $disc_image"
-	( $echo "$cmd"; $bash -c "$cmd" ) &> logs/iso.log
+	$echo -en " * Cloning dvd to disk first... "
+	
+	if [ $encrypted ]; then
+		mencoder_source="disc"
+		clone_vobcopy "$dvd_device" "$mencoder_source"
+	else
+		clone_dd "$dvd_device" "$disc_image"
+	fi
+	
 	if [ $? != 0 ] ; then
-		$echo -e "${re}\nFailed, dumping log:${pl}"
-		$cat logs/iso.log
+		$echo -e "${re}\nFailed, check log${pl}"
 		exit 1
 	fi
 	$echo -e "${gr}done${pl}"

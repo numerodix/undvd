@@ -77,17 +77,20 @@ undvd depends on a few programs to run, so make sure you have these. These are s
 <li><a href="http://www.gnu.org/software/grep/">grep</a>
 <li><a href="http://procps.sourceforge.net/">procps</a>
 <li><a href="http://www.gnu.org/software/sed/">sed</a>
+<li><a href="http://www.kernel.org/pub/linux/utils/util-linux/">util-linux</a> (optional)
 </ul>
 And these are special video tools we need: 
 <ul>
+<li><a href="http://www.videolan.org/developers/libdvdcss.html">libdvdcss</a> (optional, but necessary to read encrypted dvds)
 <li><a href="http://untrepid.com/lsdvd/">lsdvd</a>
 <li><a href="http://www.mplayerhq.hu/">mplayer</a> with mencoder and support for
 	<ul>
-	<li><a href="http://www.dtek.chalmers.se/groups/dvd/">dvdread</a>
-	<li><a href="http://lame.sourceforge.net">mp3</a> (lame)
+	<li><a href="http://www.dtek.chalmers.se/groups/dvd/">dvd</a>
+	<li><a href="http://lame.sourceforge.net">mp3</a>
 	<li><a href="http://developers.videolan.org/x264.html">x264</a>
-	<li><a href="http://www.xvid.org">xvid</a>
+	<li><a href="http://www.xvid.org">xvid</a> (optional)
 	</ul>
+<li><a href="http://lpn.rnbhq.org/">vobcopy</a> (optional)
 </ul>
 
 
@@ -154,6 +157,7 @@ The above options are sufficient to get a good quality rip, but if you need more
 <tr><td><c>-o<c></td><td>output file size in mb (integer value)</td></tr>
 <tr><td><c>-1<c></td><td>force 1-pass encoding</td></tr>
 <tr><td><c>-2<c></td><td>force 2-pass encoding</td></tr>
+<tr><td><c>-u<c></td><td>dvd is encrypted (requires libdvdcss to read)</td></tr>
 <tr><td><c>-n<c></td><td>no disc cloning (encode straight from the dvd, save diskspace)</td></tr>
 <tr><td><c>-r<c></td><td>scale video to width (integer value)</td></tr>
 <tr><td><c>-f<c></td><td>use picture smoothing filter (not recommended for top quality source content)</td></tr>
@@ -196,6 +200,9 @@ The above options are sufficient to get a good quality rip, but if you need more
 <dt>Q. When I preview a file in progress, the video is out of sync with the audio.
 <dd>A. Wait until it's finished, then it should be fine.
 
+<dt>Q. undvd fails when reading from the dvd.
+<dd>A. This could be because the dvd is encrypted. Install libdvdcss and re-try with <c>-u</c> to decrypt the disc first.
+
 <dt>Q. What is the difference between x264 and xvid encoding?
 <dd>A. Xvid can be up to 30% faster, and produces very good results when the source video isn't that high quality (eg. remastered old tv-shows). But for movies of top quality, the picture is better with x264.
 
@@ -237,6 +244,10 @@ The above options are sufficient to get a good quality rip, but if you need more
 
 <h2>Changelog</h2>
 <ul>
+	<li>0.3.1
+	<ul>
+		<li> Adding support for vobcopy to clone encrypted dvds. undvd.sh now accepts the -u flag to clone a dvd to disk that otherwise doesn't let itself be copied.
+	</ul>
 	<li>0.3.0
 	<ul>
 		<li> User set bitrate. Bitrate can now be set implicitly by setting an output filesize for the video with the -o switch.
