@@ -16,6 +16,8 @@ install:
 	install -m644 lib.sh ${SHARED_CHROOT}
 	install -m755 scandvd.sh ${SHARED_CHROOT}
 	install -m755 undvd.sh ${SHARED_CHROOT}
+
+	mkdir -p ${DOC_CHROOT}
 	install -m644 userguide.html ${DOC_CHROOT}
 
 	mkdir -p ${BIN_CHROOT}
