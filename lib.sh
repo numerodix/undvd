@@ -18,7 +18,7 @@ re="\033[1;31m"
 
 # bitrates
 standard_bitrate=900
-bitrate=$standard_bitrate
+bitrate="$standard_bitrate"
 standard_audio_bitrate=160
 
 # x264 encoding options
@@ -31,7 +31,7 @@ lame="mp3lame -lameopts vbr=2:q=3"
 
 # codec defaults
 video_codec="x264"
-acodec=$lame
+acodec="$lame"
 
 # mplayer filters
 prescale=
@@ -119,14 +119,14 @@ function clone_vobcopy() {
 	
 	mnt_point=$($mount | $grep $dvd_device | $awk '{ print $3 }')
 
-	if [ ! $mnt_point ]; then
+	if [ ! "$mnt_point" ]; then
 		echo -e "\n${ye}=>${pl} Your dvd device $dvd_device has to be mounted for this."
 		echo -e "${ye}=>${pl} Mount the dvd and supply the device to undvd, eg:"
 		echo -e "    ${wh}sudo mount ${gr}${dvd_device}${wh} /mnt/dvd -t iso9660${pl}"
 		echo -e "    ${wh}undvd.sh -d ${gr}${dvd_device}${wh} [other options]${pl}"
 	fi
 	
-	[ -d $dir ] && rm -rf $dir
+	[ -d "$dir" ] && rm -rf $dir
 	cmd="time \
 	$nice -n20 \
 	$vobcopy -f -l -m -F 64 -i $mnt_point -t $dir"
@@ -182,8 +182,8 @@ function title_scale() {
 	local size=$($cat ${tmpdir}/title.size | $grep "VIDEO:" | $awk '{ print $3 }')
 	local sizex=$($echo $size | $sed 's|\(.*\)x\(.*\)|\1|g')
 	local sizey=$($echo $size | $sed 's|\(.*\)x\(.*\)|\2|g')
-	if [ $sizex ]; then
-		if [ $custom_scale ]; then
+	if [ "$sizex" ]; then
+		if [ "$custom_scale" ]; then
 			local nsizex=$(( $sizex * $custom_scale/$sizex ))
 			local nsizey=$(( $sizey * $custom_scale/$sizex ))
 		else
@@ -206,14 +206,14 @@ function vcodec_opts() {
 	local pass="$3"
 	local custom_bitrate="$4"
 	
-	if [ $custom_bitrate ]; then
+	if [ "$custom_bitrate" ]; then
 		local bitrate=$custom_bitrate
 	fi
 	
 	if [ "$codec" = "x264" ]; then
 		local opts="subq=5:frameref=2"
 		
-		if [ $twopass ]; then
+		if [ "$twopass" ]; then
 			if [ $pass -eq "1" ]; then
 				opts="pass=1:subq=1:frameref=1"
 			elif [ $pass -eq "2" ]; then
@@ -225,7 +225,7 @@ function vcodec_opts() {
 	elif [ "$codec" = "xvid" ]; then
 		local opts=
 	
-		if [ $twopass ]; then
+		if [ "$twopass" ]; then
 			if [ $pass -eq "1" ]; then
 				opts="pass=1:"
 			elif [ $pass -eq "2" ]; then
@@ -250,7 +250,7 @@ function run_encode() {
 	local output_file="${title}.avi.partial"
 	local logfile="logs/${title}.log"
 	
-	if [ $twopass ]; then
+	if [ "$twopass" ]; then
 		if [ $pass -eq 1 ]; then
 			output_file="/dev/null"
 			logfile="$logfile.pass1"

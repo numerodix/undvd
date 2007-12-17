@@ -61,26 +61,26 @@ while getopts "t:a:s:e:d:q:i:o:r:unfx12zc" opts; do
 done
 
 
-if [ ! $end ]; then
+if [ ! "$end" ]; then
 	endpos=""
 else
 	endpos="-endpos $end"
 fi
 
 
-if [ ! $titles ]; then
+if [ ! "$titles" ]; then
 	$echo -e "${re}No titles to rip, exiting${pl}"
 	$echo -e $usage
 	exit 1
 fi
 
-if [ ! $alang ]; then
+if [ ! "$alang" ]; then
 	$echo -e "${re}No audio language selected, exiting${pl}"
 	$echo -e $usage
 	exit 1
 fi
 
-if [ ! $slang ]; then
+if [ ! "$slang" ]; then
 	$echo -e "${re}No subtitle language selected, exiting (use 'off' if you don't want any)${pl}"
 	$echo -e $usage
 	exit 1
@@ -93,10 +93,10 @@ if [ $? != 0 ] ; then
 	exit 1
 fi
 
-if [ ! $dvdisdir ] && [ ! $skipclone ]; then
+if [ ! "$dvdisdir" ] && [ ! "$skipclone" ]; then
 	$echo -en " * Cloning dvd to disk first... "
 	
-	if [ $encrypted ]; then
+	if [ "$encrypted" ]; then
 		mencoder_source="disc"
 		clone_vobcopy "$dvd_device" "$mencoder_source"
 	else
@@ -115,7 +115,7 @@ for i in $titles; do
 	title=$i
 	
 	$echo -en " * Now ripping title ${wh}$title${pl}, with audio: ${wh}$alang${pl} and subtitles: ${wh}$slang${pl}"
-	if [ $end ]; then
+	if [ "$end" ]; then
 		$echo -e " ${pl}(only first ${wh}${end}${pl}s)"
 	else
 		$echo
@@ -136,7 +136,7 @@ for i in $titles; do
 	
 	# User set bitrate
 
-	if [ $output_filesize ]; then
+	if [ "$output_filesize" ]; then
 		len=$(title_length ${title} "$mencoder_source" $tmpdir)
 		bitrate=$(compute_bitrate $len $output_filesize)
 	fi
@@ -144,7 +144,7 @@ for i in $titles; do
 	
 	# Determine the number of passes
 	
-	if [ ! $passes ]; then
+	if [ ! "$passes" ]; then
 		if [ $bitrate -lt $standard_bitrate ]; then
 			twopass=y
 			passes=2
