@@ -18,7 +18,7 @@ while getopts "d:q:i:" opts; do
 	esac
 done
 
-if [ $dvd_device ]; then
+if [ "$dvd_device" ]; then
 	dvd_device="\"$dvd_device\""
 fi
 
