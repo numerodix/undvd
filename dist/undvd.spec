@@ -28,11 +28,11 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
-%doc userguide.html
 
 /usr/share/undvd/lib.sh
 /usr/share/undvd/undvd.sh
 /usr/share/undvd/scandvd.sh
+/usr/share/doc/undvd/userguide.html
 /usr/bin/undvd.sh
 /usr/bin/scandvd.sh
 
