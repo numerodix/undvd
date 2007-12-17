@@ -116,7 +116,7 @@ function ubuntu() {
 	
 	# patch changelog file
 	sed -i "s|$v-1|$v-0ubuntu$r|g" changelog ;
-	sed -i "s|* Initial release.*|* Version bump|g" changelog ;
+	sed -i "s|* Initial release.*|* New upstream release|g" changelog ;
 	
 	# patch copyright file
 	sed -i "s|It was downloaded from .*|It was downloaded from $proj_url|g" copyright ;
