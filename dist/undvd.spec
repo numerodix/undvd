@@ -32,7 +32,6 @@ rm -rf $RPM_BUILD_ROOT
 
 /usr/share/undvd/lib.sh
 /usr/share/undvd/undvd.sh
-/usr/share/undvd/userguide.html
 /usr/share/undvd/scandvd.sh
 /usr/bin/undvd.sh
 /usr/bin/scandvd.sh
