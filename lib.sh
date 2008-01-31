@@ -48,7 +48,7 @@ timer_refresh=5
 # tools we need
 videoutils="lsdvd mencoder mplayer vobcopy"
 shellutils="awk bash grep egrep mount ps sed xargs"
-coreutils="cat date dd dirname mkdir mv nice readlink rm seq sleep tail tr"
+coreutils="cat date dd dirname echo mkdir mv nice readlink rm seq sleep tail tr"
 
 mencoder_acodecs="mp3lame"
 mencoder_vcodecs="xvid x264"
@@ -89,13 +89,13 @@ function codec_check() {
 	local arg="$3"
 	local codecs="$4"
 
-	echo -e " * Checking for $cmd $type codec support... "
+	$echo -e " * Checking for $cmd $type codec support... "
 	for i in $codecs; do
 		local c=$($cmd $arg 2>/dev/null | $grep -i $i)
 		if [ ! "$c" ]; then
-			echo -e "   ${ye}*${pl} $i missing"
+			$echo -e "   ${ye}*${pl} $i missing"
 		elif [ $verbose ]; then
-			echo -e "   ${gr}*${pl} $i"
+			$echo -e "   ${gr}*${pl} $i"
 		fi
 	done
 }
@@ -109,7 +109,7 @@ function clone_dd() {
 	$nice -n20 \
 	$dd if=${dvd_device} of=$img.partial && \
 	$mv $img.partial $img"
-	( echo "$cmd"; $bash -c "$cmd" ) &> logs/clone.log
+	( $echo "$cmd"; $bash -c "$cmd" ) &> logs/clone.log
 }
 
 # clone encrypted disc to directory
@@ -130,7 +130,7 @@ function clone_vobcopy() {
 	cmd="time \
 	$nice -n20 \
 	$vobcopy -f -l -m -F 64 -i $mnt_point -t $dir"
-	( echo "$cmd"; $bash -c "$cmd" ) &> logs/clone.log
+	( $echo "$cmd"; $bash -c "$cmd" ) &> logs/clone.log
 }
 
 # obtain title length from lsdvd
@@ -180,8 +180,8 @@ function title_scale() {
 	local cmd="$mplayer -slave -quiet dvd://${title} -dvd-device \"$dvd_device\" -ao null -vo null -endpos 1"
 	$bash -c "$cmd" &> ${tmpdir}/title.size
 	local size=$($cat ${tmpdir}/title.size | $grep "VIDEO:" | $awk '{ print $3 }')
-	local sizex=$(echo $size | $sed 's|\(.*\)x\(.*\)|\1|g')
-	local sizey=$(echo $size | $sed 's|\(.*\)x\(.*\)|\2|g')
+	local sizex=$($echo $size | $sed 's|\(.*\)x\(.*\)|\1|g')
+	local sizey=$($echo $size | $sed 's|\(.*\)x\(.*\)|\2|g')
 	if [ "$sizex" ]; then
 		if [ "$custom_scale" ]; then
 			local nsizex=$(( $sizex * $custom_scale/$sizex ))
@@ -196,7 +196,7 @@ function title_scale() {
 	fi
 	$rm ${tmpdir}/title.size
 
-	echo $scale
+	$echo $scale
 }
 
 # get video codec options
@@ -235,7 +235,7 @@ function vcodec_opts() {
 	
 		opts="xvid -xvidencopts ${opts}bitrate=$bitrate"
 	fi
-	echo $opts
+	$echo $opts
 }
 
 # run encode and print updates
@@ -266,11 +266,11 @@ function run_encode() {
 	# Print initial status message
 	
 	local status="${pl}[$pass] Encoding, to monitor log:  tail -F $logfile    "
-	echo -en "${status}\r"
+	$echo -en "${status}\r"
 	
 	# Execute encoder in the background
 	
-	( echo "$cmd"; $bash -c "$cmd" ) &> $logfile &
+	( $echo "$cmd"; $bash -c "$cmd" ) &> $logfile &
 	local pid=$!
 	
 	# Write mencoder's ETA estimate
@@ -280,7 +280,7 @@ function run_encode() {
 		local eta=$([ -e $logfile ] && $tail -n15 $logfile | \
 			$grep "Trem:" | $tail -n1 | $sed 's|.*\( .*min\).*|\1|g' | $tr " " "-")
 		local ela=$(( ( $($date +%s) - $start_time ) / 60 ))
-		echo -ne "${status}${ye}+${ela}min${pl}  ${cy}${eta}${pl}    \r"
+		$echo -ne "${status}${ye}+${ela}min${pl}  ${cy}${eta}${pl}    \r"
 		$sleep $timer_refresh
 	done)
 	
@@ -288,9 +288,9 @@ function run_encode() {
 	
 	wait $pid
 	if [ $? = 0 ]; then
-		echo -e "${status}[ ${gr}done${pl} ]             "
+		$echo -e "${status}[ ${gr}done${pl} ]             "
 	else
-		echo -e "${status}[ ${re}failed${pl} ] ${re}check log${pl}"
+		$echo -e "${status}[ ${re}failed${pl} ] ${re}check log${pl}"
 	fi
 }
 
