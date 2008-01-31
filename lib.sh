@@ -9,12 +9,15 @@ version=0.3.1
 tmpdir="/tmp"
 
 # colors
-wh="\033[1;37m"
-pl="\033[m"
-ye="\033[1;33m"
-cy="\033[1;36m"
-gr="\033[1;32m"
-re="\033[1;31m"
+bold="\e[1m"
+bgblack="\e[40m"
+
+pl="\e[0m"
+re="${bold}\e[31m"
+gr="${bold}\e[32m"
+ye="${bold}\e[33m"
+cy="${bold}\e[36m"
+wh="${bgblack}${bold}\e[37m"
 
 # bitrates
 standard_bitrate=900
