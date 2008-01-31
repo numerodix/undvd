@@ -9,7 +9,7 @@
 # load constants and functions
 p=$(dirname $(readlink -f $0)); . $p/lib.sh
 
-$echo -e "${wh}{( --- undvd.sh $version --- )}${pl}"
+echo -e "${wh}{( --- undvd.sh $version --- )}${pl}"
 
 usage=" Usage:  ${wh}undvd.sh -t ${gr}01,02,03${wh} -a ${gr}en${wh} -s ${gr}es${wh} [-d ${gr}/dev/dvd${wh}] [more options]${pl}\n\n
 \t-t \ttitles to rip (comma separated)\n
@@ -35,7 +35,7 @@ options]${pl}\n
 
 while getopts "t:a:s:e:d:q:i:o:r:unfx12zc" opts; do
 	case $opts in
-		t ) titles=$($echo $OPTARG | $sed 's|,| |g');;
+		t ) titles=$(echo $OPTARG | $sed 's|,| |g');;
 		a ) alang=$OPTARG;;
 		s ) slang=$OPTARG;;
 		
@@ -55,8 +55,8 @@ while getopts "t:a:s:e:d:q:i:o:r:unfx12zc" opts; do
 		x ) video_codec="xvid";acodec="$lame";;
 		
 		c ) init_cmds "y"; exit;;
-		z ) $echo -e $adv_usage; exit;;
-		* ) $echo -e $usage; exit 1;;
+		z ) echo -e $adv_usage; exit;;
+		* ) echo -e $usage; exit 1;;
 	esac
 done
 
@@ -69,32 +69,32 @@ fi
 
 
 if [ ! "$titles" ]; then
-	$echo -e "${re}No titles to rip, exiting${pl}"
-	$echo -e $usage
+	echo -e "${re}No titles to rip, exiting${pl}"
+	echo -e $usage
 	exit 1
 fi
 
 if [ ! "$alang" ]; then
-	$echo -e "${re}No audio language selected, exiting${pl}"
-	$echo -e $usage
+	echo -e "${re}No audio language selected, exiting${pl}"
+	echo -e $usage
 	exit 1
 fi
 
 if [ ! "$slang" ]; then
-	$echo -e "${re}No subtitle language selected, exiting (use 'off' if you don't want any)${pl}"
-	$echo -e $usage
+	echo -e "${re}No subtitle language selected, exiting (use 'off' if you don't want any)${pl}"
+	echo -e $usage
 	exit 1
 fi
 
 
 $mkdir -p logs
 if [ $? != 0 ] ; then
-	$echo -e "${re}Could not write to $PWD, exiting${pl}"
+	echo -e "${re}Could not write to $PWD, exiting${pl}"
 	exit 1
 fi
 
 if [ ! "$dvdisdir" ] && [ ! "$skipclone" ]; then
-	$echo -en " * Cloning dvd to disk first... "
+	echo -en " * Cloning dvd to disk first... "
 	
 	if [ "$encrypted" ]; then
 		mencoder_source="disc"
@@ -104,21 +104,21 @@ if [ ! "$dvdisdir" ] && [ ! "$skipclone" ]; then
 	fi
 	
 	if [ $? != 0 ] ; then
-		$echo -e "${re}\nFailed, check log${pl}"
+		echo -e "${re}\nFailed, check log${pl}"
 		exit 1
 	fi
-	$echo -e "${gr}done${pl}"
+	echo -e "${gr}done${pl}"
 fi
 
 
 for i in $titles; do
 	title=$i
 	
-	$echo -en " * Now ripping title ${wh}$title${pl}, with audio: ${wh}$alang${pl} and subtitles: ${wh}$slang${pl}"
+	echo -en " * Now ripping title ${wh}$title${pl}, with audio: ${wh}$alang${pl} and subtitles: ${wh}$slang${pl}"
 	if [ "$end" ]; then
-		$echo -e " ${pl}(only first ${wh}${end}${pl}s)"
+		echo -e " ${pl}(only first ${wh}${end}${pl}s)"
 	else
-		$echo
+		echo
 	fi
 	
 	
