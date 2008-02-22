@@ -9,14 +9,14 @@ p=$(dirname $(readlink -f $0)); . $p/lib.sh
 
 echo -e "${wh}{( --- scandvd.sh $version --- )}${pl}"
 
-usage=" Usage:  ${wh}scandvd.sh [-d ${gr}/dev/dvd${wh} | -q ${gr}/path${wh} | -i ${gr}disc.iso ${wh}]${pl}"
+usage="Usage:  ${wh}scandvd.sh [-d ${gr}/dev/dvd${wh} | -q ${gr}/path${wh} | -i ${gr}disc.iso ${wh}]${pl}"
 
 while getopts "d:q:i:" opts; do
 	case $opts in
 		d ) dvd_device=$OPTARG;;
 		q ) dvd_device=$OPTARG;dvdisdir="-q ";;
 		i ) dvd_device=$OPTARG;dvdisdir="-q ";;
-		* ) echo -e $usage; exit 1;;
+		* ) echo -e "$usage"; exit 1;;
 	esac
 done
 
@@ -30,7 +30,7 @@ $bash -c "$cmd"
 if [ $? != 0 ]; then
 	echo -en "${re}" ; $cat "${tmpdir}/lsdisc.err"; echo -en ${pl}
 	$rm ${tmpdir}/lsdisc* &> /dev/null
-	echo -e $usage
+	echo -e "$usage"
 	exit 1
 fi
 

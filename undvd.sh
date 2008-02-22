@@ -11,27 +11,26 @@ p=$(dirname $(readlink -f $0)); . $p/lib.sh
 
 echo -e "${wh}{( --- undvd.sh $version --- )}${pl}"
 
-usage=" Usage:  ${wh}undvd.sh -t ${gr}01,02,03${wh} -a ${gr}en${wh} -s ${gr}es${wh} [-d ${gr}/dev/dvd${wh}] [more options]${pl}\n\n
-\t-t \ttitles to rip (comma separated)\n
-\t-a \taudio language (two letter code, eg. 'en')\n
-\t-s \tsubtitle language (two letter code or 'off')\n\n
-\t-d \tdvd device to rip from (default is /dev/dvd)\n
-\t-q \tdvd directory to rip from\n
-\t-i \tdvd iso image to rip from\n\n
-\t-e \texit after this many seconds (usually for testing)\n\n
-\t-c \tdo sanity check (check for missing tools)\n
-\t-z \t<show advanced options>"
+usage="Usage:  ${wh}undvd.sh -t ${gr}01,02,03${wh} -a ${gr}en${wh} -s ${gr}es${wh} [-d ${gr}/dev/dvd${wh}] [more options]${pl}\n
+  -t   titles to rip (comma separated)
+  -a   audio language (two letter code, eg. 'en')
+  -s   subtitle language (two letter code or 'off')\n
+  -d   dvd device to rip from (default is /dev/dvd)
+  -q   dvd directory to rip from
+  -i   dvd iso image to rip from\n
+  -e   exit after this many seconds (usually for testing)\n
+  -c   do sanity check (check for missing tools)
+  -z   <show advanced options>"
 
-adv_usage=" Advanced usage:  ${wh}undvd.sh [standard options] ${gr}[advanced
-options]${pl}\n
-\t-o \toutput file size in mb (integer value)\n
-\t-1 \tforce 1-pass encoding\n
-\t-2 \tforce 2-pass encoding\n
-\t-u \tdvd is encrypted (requires libdvdcss to read)\n
-\t-n \tno disc cloning (encode straight from the dvd, save diskspace)\n
-\t-r \tscale video to width (integer value)\n
-\t-f \tuse picture smoothing filter\n
-\t-x \tuse xvid compression (faster, slightly lower quality)"
+adv_usage="Advanced usage:  ${wh}undvd.sh [standard options] ${gr}[advanced options]${pl}
+  -o   output file size in mb (integer value)
+  -1   force 1-pass encoding
+  -2   force 2-pass encoding
+  -u   dvd is encrypted (requires libdvdcss to read)
+  -n   no disc cloning (encode straight from the dvd, save diskspace)
+  -r   scale video to width (integer value)
+  -f   use picture smoothing filter
+  -x   use xvid compression (faster, slightly lower quality)"
 
 while getopts "t:a:s:e:d:q:i:o:r:unfx12zc" opts; do
 	case $opts in
@@ -55,8 +54,8 @@ while getopts "t:a:s:e:d:q:i:o:r:unfx12zc" opts; do
 		x ) video_codec="xvid";acodec="$lame";;
 		
 		c ) init_cmds "y"; exit;;
-		z ) echo -e $adv_usage; exit;;
-		* ) echo -e $usage; exit 1;;
+		z ) echo -e "$adv_usage"; exit;;
+		* ) echo -e "$usage"; exit 1;;
 	esac
 done
 
@@ -70,19 +69,19 @@ fi
 
 if [ ! "$titles" ]; then
 	echo -e "${re}No titles to rip, exiting${pl}"
-	echo -e $usage
+	echo -e "$usage"
 	exit 1
 fi
 
 if [ ! "$alang" ]; then
 	echo -e "${re}No audio language selected, exiting${pl}"
-	echo -e $usage
+	echo -e "$usage"
 	exit 1
 fi
 
 if [ ! "$slang" ]; then
 	echo -e "${re}No subtitle language selected, exiting (use 'off' if you don't want any)${pl}"
-	echo -e $usage
+	echo -e "$usage"
 	exit 1
 fi
 

@@ -9,36 +9,36 @@ p=$(dirname $(readlink -f $0)); . $p/lib.sh
 
 echo -e "${wh}{( --- dumptrack.sh $version --- )}${pl}"
 
-usage=" Usage:  ${wh}dumptrack.sh -s ${gr}<file>${wh} -t ${gr}01${wh} -o ${gr}<file>${wh}\n
-\t-s \tsource file\n
-\t-t \ttitle to dump\n
-\t-o \toutput filename"
+usage="Usage:  ${wh}dumptrack.sh -s ${gr}<file>${wh} -t ${gr}01${wh} -o ${gr}<file>${wh}
+  -s   source file
+  -t   title to dump
+  -o   output filename"
 
 while getopts "s:t:o:" opts; do
         case $opts in
                 s ) src=$OPTARG;;
                 t ) track=$OPTARG;;
                 o ) output=$OPTARG;;
-                * ) echo -e $usage; exit 1;;
+                * ) echo -e "$usage"; exit 1;;
         esac
 done
 
 
 if [ "x$src" = "x" ]; then
         echo -e "${re}No source file given, exiting.${pl}"
-        echo -e $usage
+        echo -e "$usage"
         exit 1
 fi
 
 if [ "x$track" = "x" ]; then
         echo -e "${re}No track given, exiting.${pl}"
-        echo -e $usage
+        echo -e "$usage"
         exit 1
 fi
 
 if [ "x$output" = "x" ]; then
         echo -e "${re}No output file given, exiting.${pl}"
-        echo -e $usage
+        echo -e "$usage"
         exit 1
 fi
 
