@@ -7,9 +7,12 @@
 # load constants and functions
 p=$(dirname $(readlink -f $0)); . $p/lib.sh
 
-echo -e "${wh}{( --- scandvd.sh $version --- )}${pl}"
+echo -e "${h1}{( --- scandvd.sh $version --- )}${r}"
 
-usage="Usage:  ${wh}scandvd.sh [-d ${gr}/dev/dvd${wh} | -q ${gr}/path${wh} | -i ${gr}disc.iso ${wh}]${pl}"
+usage="Usage:  ${b}scandvd.sh ${r}[${b}-d ${bb}/dev/dvd${r} | ${b}-q ${bb}/path${r} | ${b}-i ${bb}disc.iso ${r}]\n
+  -d   dvd device to read from (default is ${bb}/dev/dvd${r})
+  -q   dvd directory to read from
+  -i   dvd iso image to read from"
 
 while getopts "d:q:i:" opts; do
 	case $opts in
@@ -28,7 +31,7 @@ cmd="$lsdvd -avs $dvdisdir $dvd_device > ${tmpdir}/lsdisc 2> ${tmpdir}/lsdisc.er
 
 $bash -c "$cmd"
 if [ $? != 0 ]; then
-	echo -en "${re}" ; $cat "${tmpdir}/lsdisc.err"; echo -en ${pl}
+	echo -en "${e}" ; $cat "${tmpdir}/lsdisc.err"; echo -en ${r}
 	$rm ${tmpdir}/lsdisc* &> /dev/null
 	echo -e "$usage"
 	exit 1
@@ -39,24 +42,24 @@ titles=$($cat ${tmpdir}/lsdisc | $egrep "^Title" | $awk '{ print $2 }' | $sed 's
 
 echo "Scanning DVD for titles..."
 
-for i in $titles; do
-	$cat ${tmpdir}/lsdisc | $sed -n "/^Title: $i/, /^$/p" > ${tmpdir}/lstitle
-	length=$($cat ${tmpdir}/lstitle | $egrep "^Title: $i" | $awk '{ print $4 }' | $sed 's|\(.*\)\..*|\1|g')
+for title in $titles; do
+	$cat ${tmpdir}/lsdisc | $sed -n "/^Title: $title/, /^$/p" > ${tmpdir}/lstitle
+	length=$($cat ${tmpdir}/lstitle | $egrep "^Title: $title" | $awk '{ print $4 }' | $sed 's|\(.*\)\..*|\1|g')
 #	audio=$($cat ${tmpdir}/lstitle | $egrep "Audio:" | $awk '{ printf $4 "=" $21 " " }' | $xargs)
 	audio=$($cat ${tmpdir}/lstitle | $egrep "Audio:" | $awk '{ print $4 }' | $xargs)
 	subtitles=$($cat ${tmpdir}/lstitle | $egrep "Subtitle:" | $awk '{ print $4 }' | $xargs)
 
-	echo -en   "${pl}${i}"
-	echo -en "  ${wh}length: ${gr}${length}"
-	echo -en "  ${wh}audio: ${pl}${audio}"
-	if [ "$subtitles" ]; then echo -en "  ${wh}subtitles: ${pl}${subtitles}"; fi
+	echo -en   "${b}${title}"
+	echo -en "  ${r}length: ${bb}${length}"
+	echo -en "  ${r}audio: ${bb}${audio}"
+	if [ "$subtitles" ]; then echo -en "  ${r}subtitles: ${bb}${subtitles}${r}"; fi
 	echo
 done
 
-echo -e "${pl}\nTo watch a title:"
-echo -e " ${wh}mplayer       dvd://${gr}01${wh}     -alang ${gr}en${wh}  -slang ${gr}en/off"
+echo -e "${r}\nTo watch a title:"
+echo -e " ${b}mplayer       dvd://${bb}01${b}     -alang ${bb}en${b}  -slang ${bb}en/off${r}"
 
-echo -e "${pl}To rip titles:"
-echo -e " ${wh}undvd.sh      -t ${gr}01,02,03${wh}  -a ${gr}en${wh}      -s ${gr}en/off${pl}"
+echo -e "${r}To rip titles:"
+echo -e " ${b}undvd.sh      -t ${bb}01,02,03${b}  -a ${bb}en${b}      -s ${bb}en/off${r}"
 
 $rm ${tmpdir}/lsdisc* ${tmpdir}/lstitle* &> /dev/null

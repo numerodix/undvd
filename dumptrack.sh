@@ -7,9 +7,9 @@
 # load constants and functions
 p=$(dirname $(readlink -f $0)); . $p/lib.sh
 
-echo -e "${wh}{( --- dumptrack.sh $version --- )}${pl}"
+echo -e "${h1}{( --- dumptrack.sh $version --- )}${r}"
 
-usage="Usage:  ${wh}dumptrack.sh -s ${gr}<file>${wh} -t ${gr}01${wh} -o ${gr}<file>${wh}
+usage="Usage:  ${b}dumptrack.sh -s ${bb}<file>${b} -t ${bb}01${b} -o ${bb}<file>${r}
   -s   source file
   -t   title to dump
   -o   output filename"
@@ -25,19 +25,19 @@ done
 
 
 if [ "x$src" = "x" ]; then
-        echo -e "${re}No source file given, exiting.${pl}"
+        echo -e "${e}No source file given, exiting.${r}"
         echo -e "$usage"
         exit 1
 fi
 
 if [ "x$track" = "x" ]; then
-        echo -e "${re}No track given, exiting.${pl}"
+        echo -e "${e}No track given, exiting.${r}"
         echo -e "$usage"
         exit 1
 fi
 
 if [ "x$output" = "x" ]; then
-        echo -e "${re}No output file given, exiting.${pl}"
+        echo -e "${e}No output file given, exiting.${r}"
         echo -e "$usage"
         exit 1
 fi
@@ -54,8 +54,8 @@ deinterlace,audio-sync}:std{access=file, mux=ps,url=\"$output\"}' vlc:quit"
 echo -en " * Dumping track with vlc... "
 ( echo "$cmd"; bash -c "$cmd" ) &> logs/dump${title}.log
 if [ $? != 0 ] ; then
-	echo -e "${re}\nFailed, check log:${pl} logs/dump${title}.log"
+	echo -e "${e}\nFailed, check log:${r} logs/dump${title}.log"
 	exit 1
 fi
-echo -e "${gr}done${pl}"
+echo -e "${ok}done${r}"
 

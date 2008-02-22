@@ -9,25 +9,25 @@
 # load constants and functions
 p=$(dirname $(readlink -f $0)); . $p/lib.sh
 
-echo -e "${wh}{( --- undvd.sh $version --- )}${pl}"
+echo -e "${h1}{( --- undvd.sh $version --- )}${r}"
 
-usage="Usage:  ${wh}undvd.sh -t ${gr}01,02,03${wh} -a ${gr}en${wh} -s ${gr}es${wh} [-d ${gr}/dev/dvd${wh}] [more options]${pl}\n
+usage="Usage:  ${b}undvd.sh -t ${bb}01,02,03${b} -a ${bb}en${b} -s ${bb}es${b} ${r}[${b}-d ${bb}/dev/dvd${r}] [${b}more options${r}]\n
   -t   titles to rip (comma separated)
-  -a   audio language (two letter code, eg. 'en')
-  -s   subtitle language (two letter code or 'off')\n
-  -d   dvd device to rip from (default is /dev/dvd)
+  -a   audio language (two letter code, eg. ${bb}en${r})
+  -s   subtitle language (two letter code or ${bb}off${r})\n
+  -d   dvd device to rip from (default is ${bb}/dev/dvd${r})
   -q   dvd directory to rip from
   -i   dvd iso image to rip from\n
   -e   exit after this many seconds (usually for testing)\n
   -c   do sanity check (check for missing tools)
   -z   <show advanced options>"
 
-adv_usage="Advanced usage:  ${wh}undvd.sh [standard options] ${gr}[advanced options]${pl}
+adv_usage="Advanced usage:  ${b}undvd.sh ${r}[${b}standard options${r}] [${b}advanced options${r}]
   -o   output file size in mb (integer value)
   -1   force 1-pass encoding
   -2   force 2-pass encoding
   -u   dvd is encrypted (requires libdvdcss to read)
-  -n   no disc cloning (encode straight from the dvd, save diskspace)
+  -n   no disc cloning (encode straight from the dvd, save disk space)
   -r   scale video to width (integer value)
   -f   use picture smoothing filter
   -x   use xvid compression (faster, slightly lower quality)"
@@ -68,19 +68,19 @@ fi
 
 
 if [ ! "$titles" ]; then
-	echo -e "${re}No titles to rip, exiting${pl}"
+	echo -e "${e}No titles to rip, exiting${r}"
 	echo -e "$usage"
 	exit 1
 fi
 
 if [ ! "$alang" ]; then
-	echo -e "${re}No audio language selected, exiting${pl}"
+	echo -e "${e}No audio language selected, exiting${r}"
 	echo -e "$usage"
 	exit 1
 fi
 
 if [ ! "$slang" ]; then
-	echo -e "${re}No subtitle language selected, exiting (use 'off' if you don't want any)${pl}"
+	echo -e "${e}No subtitle language selected, exiting (use 'off' if you don't want any)${r}"
 	echo -e "$usage"
 	exit 1
 fi
@@ -88,7 +88,7 @@ fi
 
 $mkdir -p logs
 if [ $? != 0 ] ; then
-	echo -e "${re}Could not write to $PWD, exiting${pl}"
+	echo -e "${e}Could not write to $PWD, exiting${r}"
 	exit 1
 fi
 
@@ -103,19 +103,18 @@ if [ ! "$dvdisdir" ] && [ ! "$skipclone" ]; then
 	fi
 	
 	if [ $? != 0 ] ; then
-		echo -e "${re}\nFailed, check log${pl}"
+		echo -e "${e}\nFailed, check log${r}"
 		exit 1
 	fi
-	echo -e "${gr}done${pl}"
+	echo -e "${ok}done${r}"
 fi
 
 
-for i in $titles; do
-	title=$i
+for title in $titles; do
 	
-	echo -en " * Now ripping title ${wh}$title${pl}, with audio: ${wh}$alang${pl} and subtitles: ${wh}$slang${pl}"
+	echo -en " * Now ripping title ${b}$title${r}, with audio ${b}$alang${r} and subtitles ${b}$slang${r}"
 	if [ "$end" ]; then
-		echo -e " ${pl}(only first ${wh}${end}${pl}s)"
+		echo -e " ${r}(only first ${b}${end}${r}s)"
 	else
 		echo
 	fi

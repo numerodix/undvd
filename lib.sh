@@ -8,16 +8,10 @@ version=0.3.1
 
 tmpdir="/tmp"
 
-# colors
-bold="\e[1m"
-bgblack="\e[40m"
-
-pl="\e[0m"
-re="${bold}\e[31m"
-gr="${bold}\e[32m"
-ye="${bold}\e[33m"
-cy="${bold}\e[36m"
-wh="${bgblack}${bold}\e[37m"
+# initialize colors if the terminal can support them
+if [ "$TERM" != "dumb" ]; then
+	p=$(dirname $(readlink -f $0)); . $p/colors.sh
+fi
 
 # bitrates
 standard_bitrate=900
@@ -67,14 +61,14 @@ function init_cmds() {
 	local verbose="$1"
 	
 	[ $verbose ] && echo -e " * Checking for tool support... "
-	for i in $coreutils $shellutils $videoutils; do
-		local p=$(which $i 2>/dev/null)
-		if [ $? -gt 0 ] && [ $verbose ]; then
-			echo -e "   ${ye}*${pl} $i missing"
+	for tool in $coreutils $shellutils $videoutils; do
+		local path=$(which $tool 2>/dev/null)
+		if [ ! "$path" ] && [ $verbose ]; then
+			echo -e "   ${wa}*${r} $tool missing"
 		elif [ $verbose ]; then
-			echo -e "   ${gr}*${pl} $p"
+			echo -e "   ${ok}*${r} $path"
 		fi
-		eval "$i=$p"
+		eval "$tool=$path"
 	done
 	
 	if [ $verbose ]; then
@@ -93,12 +87,12 @@ function codec_check() {
 	local codecs="$4"
 
 	echo -e " * Checking for $cmd $type codec support... "
-	for i in $codecs; do
-		local c=$($cmd $arg 2>/dev/null | $grep -i $i)
+	for codec in $codecs; do
+		local c=$($cmd $arg 2>/dev/null | $grep -i $codec)
 		if [ ! "$c" ]; then
-			echo -e "   ${ye}*${pl} $i missing"
+			echo -e "   ${wa}*${r} $codec missing"
 		elif [ $verbose ]; then
-			echo -e "   ${gr}*${pl} $i"
+			echo -e "   ${ok}*${r} $codec"
 		fi
 	done
 }
@@ -123,10 +117,10 @@ function clone_vobcopy() {
 	mnt_point=$($mount | $grep $dvd_device | $awk '{ print $3 }')
 
 	if [ ! "$mnt_point" ]; then
-		echo -e "\n${ye}=>${pl} Your dvd device $dvd_device has to be mounted for this."
-		echo -e "${ye}=>${pl} Mount the dvd and supply the device to undvd, eg:"
-		echo -e "    ${wh}sudo mount ${gr}${dvd_device}${wh} /mnt/dvd -t iso9660${pl}"
-		echo -e "    ${wh}undvd.sh -d ${gr}${dvd_device}${wh} [other options]${pl}"
+		echo -e "\n${wa}=>${r} Your dvd device $dvd_device has to be mounted for this."
+		echo -e "${wa}=>${r} Mount the dvd and supply the device to undvd, eg:"
+		echo -e "    ${b}sudo mount ${bb}${dvd_device}${b} /mnt/dvd -t iso9660${r}"
+		echo -e "    ${b}undvd.sh -d ${bb}${dvd_device}${r} [${b}other options${r}]"
 	fi
 	
 	[ -d "$dir" ] && rm -rf $dir
@@ -268,7 +262,7 @@ function run_encode() {
 	
 	# Print initial status message
 	
-	local status="${pl}[$pass] Encoding, to monitor log:  tail -F $logfile    "
+	local status="${r}[$pass] Encoding, to monitor log:  tail -F $logfile    "
 	echo -en "${status}\r"
 	
 	# Execute encoder in the background
@@ -283,7 +277,7 @@ function run_encode() {
 		local eta=$([ -e $logfile ] && $tail -n15 $logfile | \
 			$grep "Trem:" | $tail -n1 | $sed 's|.*\( .*min\).*|\1|g' | $tr " " "-")
 		local ela=$(( ( $($date +%s) - $start_time ) / 60 ))
-		echo -ne "${status}${ye}+${ela}min${pl}  ${cy}${eta}${pl}    \r"
+		echo -ne "${status}${cela}+${ela}min${r}  ${ceta}${eta}${r}    \r"
 		$sleep $timer_refresh
 	done)
 	
@@ -291,9 +285,9 @@ function run_encode() {
 	
 	wait $pid
 	if [ $? = 0 ]; then
-		echo -e "${status}[ ${gr}done${pl} ]             "
+		echo -e "${status}[ ${ok}done${r} ]             "
 	else
-		echo -e "${status}[ ${re}failed${pl} ] ${re}check log${pl}"
+		echo -e "${status}[ ${e}failed${r} ] check log"
 	fi
 }
 
