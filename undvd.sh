@@ -112,9 +112,9 @@ fi
 
 for title in $titles; do
 	
-	echo -en " * Now ripping title ${b}$title${r}, with audio ${b}$alang${r} and subtitles ${b}$slang${r}"
+	echo -en " * Now ripping title ${bb}$title${r}, with audio ${bb}$alang${r} and subtitles ${bb}$slang${r}"
 	if [ "$end" ]; then
-		echo -e " ${r}(only first ${b}${end}${r}s)"
+		echo -e " ${r}(only first ${bb}${end}${r}s)"
 	else
 		echo
 	fi
