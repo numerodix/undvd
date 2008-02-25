@@ -61,7 +61,7 @@ pkg_setup() {
 
 src_unpack() {
 	unpack ${A}
-	cd ${WORKDIR}
+	cd "${WORKDIR}"
 }
 
 src_install() {
