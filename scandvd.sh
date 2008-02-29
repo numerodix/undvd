@@ -24,32 +24,31 @@ while getopts "d:q:i:" opts; do
 done
 
 if [ "$dvd_device" ]; then
-	dvd_device="\"$dvd_device\""
+	dvd_device="'$dvd_device'"
 fi
 
-cmd="$lsdvd -avs $dvdisdir $dvd_device > ${tmpdir}/lsdisc 2> ${tmpdir}/lsdisc.err"
+cmd="$lsdvd -avs $dvdisdir $dvd_device 2>&1"
+lsdvd_output=$(bash -c "$cmd")
 
-$bash -c "$cmd"
 if [ $? != 0 ]; then
-	echo -en "${e}" ; $cat "${tmpdir}/lsdisc.err"; echo -en ${r}
-	$rm ${tmpdir}/lsdisc* &> /dev/null
+	echo -en "${e}" ; echo "$lsdvd_output"; echo -en ${r}
 	echo -e "$usage"
 	exit 1
 fi
 
 
-titles=$($cat ${tmpdir}/lsdisc | $egrep "^Title" | $awk '{ print $2 }' | $sed 's|,||g')
+titlenos=$(echo "$lsdvd_output" | $egrep "^Title" | $awk '{ print $2 }' | $sed 's|,||g')
 
 echo "Scanning DVD for titles..."
 
-for title in $titles; do
-	$cat ${tmpdir}/lsdisc | $sed -n "/^Title: $title/, /^$/p" > ${tmpdir}/lstitle
-	length=$($cat ${tmpdir}/lstitle | $egrep "^Title: $title" | $awk '{ print $4 }' | $sed 's|\(.*\)\..*|\1|g')
-#	audio=$($cat ${tmpdir}/lstitle | $egrep "Audio:" | $awk '{ printf $4 "=" $21 " " }' | $xargs)
-	audio=$($cat ${tmpdir}/lstitle | $egrep "Audio:" | $awk '{ print $4 }' | $xargs)
-	subtitles=$($cat ${tmpdir}/lstitle | $egrep "Subtitle:" | $awk '{ print $4 }' | $xargs)
+for titleno in $titlenos; do
+	title=$(echo "$lsdvd_output" | $sed -n "/^Title: $titleno/, /^$/p")
+	length=$(echo "$title" | $egrep "^Title: $titleno" | $awk '{ print $4 }' | $sed 's|\(.*\)\..*|\1|g')
+#	audio=$(echo "$title" | $egrep "Audio:" | $awk '{ printf $4 "=" $21 " " }' | $xargs)
+	audio=$(echo "$title" | $egrep "Audio:" | $awk '{ print $4 }' | $xargs)
+	subtitles=$(echo "$title" | $egrep "Subtitle:" | $awk '{ print $4 }' | $xargs)
 
-	echo -en   "${b}${title}"
+	echo -en   "${b}${titleno}"
 	echo -en "  ${r}length: ${bb}${length}"
 	echo -en "  ${r}audio: ${bb}${audio}"
 	if [ "$subtitles" ]; then echo -en "  ${r}subtitles: ${bb}${subtitles}${r}"; fi
@@ -61,5 +60,3 @@ echo -e " ${b}mplayer       dvd://${bb}01${b}     -alang ${bb}en${b}  -slang ${b
 
 echo -e "${r}To rip titles:"
 echo -e " ${b}undvd.sh      -t ${bb}01,02,03${b}  -a ${bb}en${b}      -s ${bb}en/off${r}"
-
-$rm ${tmpdir}/lsdisc* ${tmpdir}/lstitle* &> /dev/null
