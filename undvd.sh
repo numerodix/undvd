@@ -129,13 +129,13 @@ for title in $titles; do
 	
 	# Find out how to scale the dimensions
 	
-	scale=$(title_scale ${title} "$mencoder_source" $tmpdir "$custom_scale")
+	scale=$(title_scale ${title} "$mencoder_source" "$custom_scale")
 	
 	
 	# User set bitrate
 
 	if [ "$output_filesize" ]; then
-		len=$(title_length ${title} "$mencoder_source" $tmpdir)
+		len=$(title_length ${title} "$mencoder_source")
 		bitrate=$(compute_bitrate $len $output_filesize)
 	fi
 	

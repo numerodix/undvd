@@ -6,8 +6,6 @@
 # undvd version
 version=0.3.2
 
-tmpdir="/tmp"
-
 # initialize colors if the terminal can support them
 if [ "$TERM" != "dumb" ]; then
 	p=$(dirname $(readlink -f $0)); . $p/colors.sh
@@ -134,7 +132,6 @@ function clone_vobcopy() {
 function title_length() {
 	local title_no="$1"
 	local dvd_device="$2"
-	local tmpdir="$3"
 
 	local cmd="$lsdvd -avs '$dvd_device' 2>&1"
 	local lsdvd_output=$($bash -c "$cmd")
@@ -170,12 +167,11 @@ function compute_bitrate() {
 function title_scale() {
 	local title="$1"
 	local dvd_device="$2"
-	local tmpdir="$3"
-	local custom_scale="$4"
+	local custom_scale="$3"
 
-	local cmd="$mplayer -slave -quiet dvd://${title} -dvd-device \"$dvd_device\" -ao null -vo null -endpos 1"
-	$bash -c "$cmd" &> ${tmpdir}/title.size
-	local size=$($cat ${tmpdir}/title.size | $grep "VIDEO:" | $awk '{ print $3 }')
+	local cmd="$mplayer -slave -quiet dvd://${title} -dvd-device '$dvd_device' -ao null -vo null -endpos 1 2>&1"
+	local mplayer_output=$($bash -c "$cmd")
+	local size=$(echo "$mplayer_output" | $grep "VIDEO:" | $awk '{ print $3 }')
 	local sizex=$(echo $size | $sed 's|\(.*\)x\(.*\)|\1|g')
 	local sizey=$(echo $size | $sed 's|\(.*\)x\(.*\)|\2|g')
 	if [ "$sizex" ]; then
@@ -190,7 +186,6 @@ function title_scale() {
 	else
 		local scale="scale"
 	fi
-	$rm ${tmpdir}/title.size
 
 	echo $scale
 }
