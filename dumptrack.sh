@@ -15,31 +15,31 @@ usage="Usage:  ${b}dumptrack.sh -s ${bb}<file>${b} -t ${bb}01${b} -o ${bb}<file>
   -o   output filename"
 
 while getopts "s:t:o:" opts; do
-        case $opts in
-                s ) src=$OPTARG;;
-                t ) track=$OPTARG;;
-                o ) output=$OPTARG;;
-                * ) echo -e "$usage"; exit 1;;
-        esac
+	case $opts in
+		s ) src=$OPTARG;;
+		t ) track=$OPTARG;;
+		o ) output=$OPTARG;;
+		* ) echo -e "$usage"; exit 1;;
+	esac
 done
 
 
 if [ "x$src" = "x" ]; then
-        echo -e "${e}No source file given, exiting.${r}"
-        echo -e "$usage"
-        exit 1
+	echo -e "${e}No source file given, exiting.${r}"
+	echo -e "$usage"
+	exit 1
 fi
 
 if [ "x$track" = "x" ]; then
-        echo -e "${e}No track given, exiting.${r}"
-        echo -e "$usage"
-        exit 1
+	echo -e "${e}No track given, exiting.${r}"
+	echo -e "$usage"
+	exit 1
 fi
 
 if [ "x$output" = "x" ]; then
-        echo -e "${e}No output file given, exiting.${r}"
-        echo -e "$usage"
-        exit 1
+	echo -e "${e}No output file given, exiting.${r}"
+	echo -e "$usage"
+	exit 1
 fi
 
 mkdir -p logs
