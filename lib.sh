@@ -136,16 +136,15 @@ function title_length() {
 	local dvd_device="$2"
 	local tmpdir="$3"
 
-	local cmd="$lsdvd -avs \"$dvd_device\" > ${tmpdir}/lsdisc 2> ${tmpdir}/lsdisc.err"
-	$bash -c "$cmd"
-	local titles=$($cat ${tmpdir}/lsdisc | $egrep "^Title" | $awk '{ print $2 }' | $sed 's|,||g')
+	local cmd="$lsdvd -avs '$dvd_device' 2>&1"
+	local lsdvd_output=$($bash -c "$cmd")
+	local titles=$(echo "$lsdvd_output" | $egrep "^Title" | $awk '{ print $2 }' | $sed 's|,||g')
 
 	for t in $titles; do
 		if [ $t -eq $title_no ]; then
-			local title_length=$($cat ${tmpdir}/lsdisc | $egrep "^Title: $t" | $awk '{ print $4 }' | $sed 's|\(.*\)\..*|\1|g')
+			local title_length=$(echo "$lsdvd_output" | $egrep "^Title: $t" | $awk '{ print $4 }' | $sed 's|\(.*\)\..*|\1|g')
 		fi
 	done
-	$rm ${tmpdir}/lsdisc* &> /dev/null
 
 	local hours=${title_length:0:2}
 	local min=${title_length:3:2}
