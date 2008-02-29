@@ -4,7 +4,7 @@
 ### DECLARATIONS
 
 # undvd version
-version=0.3.2
+version=0.3.3
 
 # initialize colors if the terminal can support them
 if [ "$TERM" != "dumb" ]; then
