@@ -174,7 +174,7 @@ function title_scale() {
 	local size=$(echo "$mplayer_output" | $grep "VIDEO:" | $awk '{ print $3 }')
 	local sizex=$(echo $size | $sed 's|\(.*\)x\(.*\)|\1|g')
 	local sizey=$(echo $size | $sed 's|\(.*\)x\(.*\)|\2|g')
-	if [ "$sizex" ]; then
+	if [ "$sizex" -a "$custom_scale" != "0" ]; then
 		if [ "$custom_scale" ]; then
 			local nsizex=$(( $sizex * $custom_scale/$sizex ))
 			local nsizey=$(( $sizey * $custom_scale/$sizex ))

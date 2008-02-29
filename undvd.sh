@@ -28,7 +28,7 @@ adv_usage="Advanced usage:  ${b}undvd.sh ${r}[${b}standard options${r}] [${b}adv
   -2   force 2-pass encoding
   -u   dvd is encrypted (requires libdvdcss to read)
   -n   no disc cloning (encode straight from the dvd, save disk space)
-  -r   scale video to width (integer value)
+  -r   scale video to width (integer value), ${bb}0${r} for no scaling
   -f   use picture smoothing filter
   -x   use xvid compression (faster, slightly lower quality)"
 

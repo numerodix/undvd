@@ -159,7 +159,7 @@ The above options are sufficient to get a good quality rip, but if you need more
 <tr><td><c>-2<c></td><td>force 2-pass encoding</td></tr>
 <tr><td><c>-u<c></td><td>dvd is encrypted (requires libdvdcss to read)</td></tr>
 <tr><td><c>-n<c></td><td>no disc cloning (encode straight from the dvd, save diskspace)</td></tr>
-<tr><td><c>-r<c></td><td>scale video to width (integer value)</td></tr>
+<tr><td><c>-r<c></td><td>scale video to width (integer value), <h>0</h> for no scaling</td></tr>
 <tr><td><c>-f<c></td><td>use picture smoothing filter (not recommended for top quality source content)</td></tr>
 <tr><td><c>-x<c></td><td>use xvid compression (faster, slightly lower quality)</td></tr>
 </table>
@@ -197,6 +197,9 @@ The above options are sufficient to get a good quality rip, but if you need more
 <h2>Problems?</h2>
 
 <dl>
+<dt>Q. How do I make a high quality rip without down scaling the image?
+<dd>A. By default, undvd.sh scales the image to 2/3 of the original dimensions, in order to produce a reasonable file size without sacrificing quality. Even though video players scale the image to fullscreen, the quality typically remains high. You can override the scaling by setting -r 0, which will preserve the original video dimensions. In this case you probably want to set the output size with -o as well, to force a higher bitrate.
+
 <dt>Q. When I preview a file in progress, the video is out of sync with the audio.
 <dd>A. Wait until it's finished, then it should be fine.
 
