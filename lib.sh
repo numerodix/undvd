@@ -169,22 +169,23 @@ function title_scale() {
 	local dvd_device="$2"
 	local custom_scale="$3"
 
-	local cmd="$mplayer -slave -quiet dvd://${title} -dvd-device '$dvd_device' -ao null -vo null -endpos 1 2>&1"
-	local mplayer_output=$($bash -c "$cmd")
-	local size=$(echo "$mplayer_output" | $grep "VIDEO:" | $awk '{ print $3 }')
-	local sizex=$(echo $size | $sed 's|\(.*\)x\(.*\)|\1|g')
-	local sizey=$(echo $size | $sed 's|\(.*\)x\(.*\)|\2|g')
-	if [ "$sizex" -a "$custom_scale" != "0" ]; then
-		if [ "$custom_scale" ]; then
-			local nsizex=$(( $sizex * $custom_scale/$sizex ))
-			local nsizey=$(( $sizey * $custom_scale/$sizex ))
-		else
-			local nsizex=$(( $sizex * 2/3 ))
-			local nsizey=$(( $sizey * 2/3 ))
+	local scale="scale"
+	if [ "$custom_scale" != "0" ]; then
+		local cmd="$mplayer -slave -quiet dvd://${title} -dvd-device '$dvd_device' -ao null -vo null -endpos 1 2>&1"
+		local mplayer_output=$($bash -c "$cmd")
+		local size=$(echo "$mplayer_output" | $grep "VIDEO:" | $awk '{ print $3 }')
+		local sizex=$(echo $size | $sed 's|\(.*\)x\(.*\)|\1|g')
+		local sizey=$(echo $size | $sed 's|\(.*\)x\(.*\)|\2|g')
+		if [ "$sizex" -a "$custom_scale" != "0" ]; then
+			if [ "$custom_scale" ]; then
+				local nsizex=$(( $sizex * $custom_scale/$sizex ))
+				local nsizey=$(( $sizey * $custom_scale/$sizex ))
+			else
+				local nsizex=$(( $sizex * 2/3 ))
+				local nsizey=$(( $sizey * 2/3 ))
+			fi
+			local scale="scale=$nsizex:$nsizey"
 		fi
-		local scale="scale=$nsizex:$nsizey"
-	else
-		local scale="scale"
 	fi
 
 	echo $scale
