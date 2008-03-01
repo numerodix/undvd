@@ -9,7 +9,7 @@ p=$(dirname $(readlink -f $0)); . $p/lib.sh
 
 echo -e "${h1}{( --- scandvd.sh $version --- )}${r}"
 
-usage="Usage:  ${b}scandvd.sh ${r}[${b}-d ${bb}/dev/dvd${r} | ${b}-q ${bb}/path${r} | ${b}-i ${bb}disc.iso${r}]\n
+usage="Usage:  ${b}scandvd.sh ${r}[${b}-d ${bb}/dev/dvd${r} | ${b}-q ${bb}/path${r} | ${b}-i ${bb}disc.iso${r}]
   -d   dvd device to read from (default is ${bb}/dev/dvd${r})
   -q   dvd directory to read from
   -i   dvd iso image to read from"
