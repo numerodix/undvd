@@ -31,7 +31,7 @@ if [ "x$src" = "x" ]; then
 fi
 
 if [ "x$track" = "x" ]; then
-	echo -e "${e}No track given, exiting.${r}"
+	echo -e "${e}No title given, exiting.${r}"
 	echo -e "$usage"
 	exit 1
 fi
