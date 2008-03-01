@@ -2,19 +2,19 @@
 # Licensed under the GNU Public License, version 3.
 
 # regular colors
-black="\e[0;30m"    # black
-red="\e[0;31m"    # red
-green="\e[0;32m"    # green
-yellow="\e[0;33m"    # yellow
-blue="\e[0;34m"    # blue
-magenta="\e[0;35m"    # magenta
-cyan="\e[0;36m"    # cyan
-white="\e[0;37m"    # white
+black="\e[0;30m"
+red="\e[0;31m"
+green="\e[0;32m"
+yellow="\e[0;33m"
+blue="\e[0;34m"
+magenta="\e[0;35m"
+cyan="\e[0;36m"
+white="\e[0;37m"
 
 reverse="\e[7m"
 
 if [ "$TERM" = "xterm" ]; then
-	red="\e[0;91m"    # red
+	red="\e[0;91m"
 fi
 
 
