@@ -13,6 +13,7 @@ fi
 
 # bitrates
 standard_bitrate=900
+standard_bitrate=575
 bitrate="$standard_bitrate"
 standard_audio_bitrate=160
 
@@ -42,7 +43,7 @@ timer_refresh=5
 
 # tools we need
 videoutils="lsdvd mencoder mplayer vobcopy"
-shellutils="awk bash grep egrep mount ps sed xargs"
+shellutils="awk bash bc grep egrep mount ps sed xargs"
 coreutils="cat date dd dirname mkdir mv nice readlink rm seq sleep tail tr"
 
 mencoder_acodecs="mp3lame"
@@ -151,16 +152,90 @@ function title_length() {
 	echo $title_length
 }
 
+function examine_title() {
+	local file="$1"
+
+	cmd="mplayer -ao null -vo null -frames 0 -identify '$file' 2>&1"
+	local mplayer_output=$($bash -c "$cmd")
+	local width=$( echo "$mplayer_output" | $grep ID_VIDEO_WIDTH | $sed "s|ID_VIDEO_WIDTH=\(.*\)|\1|g" )
+	local height=$( echo "$mplayer_output" | $grep ID_VIDEO_HEIGHT | $sed "s|ID_VIDEO_HEIGHT=\(.*\)|\1|g" )
+	local fps=$( echo "$mplayer_output" | $grep ID_VIDEO_FPS | $sed "s|ID_VIDEO_FPS=\(.*\)|\1|g" )
+	local length=$( echo "$mplayer_output" | $grep ID_LENGTH | $sed "s|ID_LENGTH=\(.*\)|\1|g" )
+	local bitrate=$( echo "$mplayer_output" | $grep ID_VIDEO_BITRATE | $sed "s|ID_VIDEO_BITRATE=\(.*\)|\1|g" )
+	local format=$( echo "$mplayer_output" | $grep ID_VIDEO_FORMAT | $sed "s|ID_VIDEO_FORMAT=\(.*\)|\1|g" )
+
+	format=$( echo $format | $tr "[:upper:]" "[:lower:]" )
+	echo "$width $height $fps $length $bitrate $format"
+}
+
+# compute bits per pixel per second
+function compute_bpp() {
+	local width="$1"
+	local height="$2"
+	local fps="$3"
+	local length="$4"
+	local video_size="$5"
+
+	local bpp=$( echo "scale=3; (8*$video_size)/($width*$height*$fps*$length)" | $bc )
+
+	echo $bpp
+}
+
 # compute video bitrate based on title length
 function compute_bitrate() {
-	local title_length="$1"
-	local output_size=$(( $2 * 1024 ))
-	local audio_bitrate="$standard_audio_bitrate"
+	local width="$1"
+	local height="$2"
+	local fps="$3"
+	local length=$(( $4 * 60 ))  # in minutes
+	local bpp="$5"
+	local output_size="$6"  # in mb
+	local audio_bitrate=$(( $standard_audio_bitrate * 1024 ))  # kbps
 
-	local audio_size=$(( $title_length * ($audio_bitrate / 8)  ))
-	local bitrate=$(( ( ($output_size - $audio_size) * 8 ) / $title_length ))
+	if [ "$output_size" ]; then
+		output_size=$(( $output_size * 1024*1024 ))
+		local audio_size=$( echo "scale=0; $length*($audio_bitrate/8.)" | $bc )
+		local video_size=$(( $output_size - $audio_size ))
+		bpp=$(compute_bpp "$width" "$height" "$fps" "$length" "$video_size")
+	fi
+	local bitrate=$( echo "scale=0; ($width*$height*$fps*$bpp)/1024." | $bc )
 
 	echo $bitrate
+}
+
+function display_title() {
+	local width="$1"
+	local height="$2"
+	local fps="$3"
+	local length=$( echo "scale=0; $4/60" | $bc )  # in seconds
+	local bpp="$5"
+	local bitrate=$( echo "scale=0; $6/(1024)" | $bc )  # bps
+	local format="$7"
+	local filesize=$( echo "scale=0; $8/(1024*1024)" | $bc )  # in bytes
+	local filename="$9"
+	
+	display_title_line "${width}x${height}" $fps $length $bpp $bitrate $format $filesize "$filename"
+}
+
+function fill() {
+	str=${1:0:$2}
+	local f=$(( $2-${#1} ))
+	pad=""
+	for i in $($seq 1 $f); do
+		pad=" $pad"
+	done
+	echo "$pad$str"
+}
+
+function display_title_line() {
+	local dimensions=$(fill "$1" 9)
+	local fps=$(fill "$2" 6)
+	local length=$(fill "$3" 3)
+	local bpp=$(fill "$4" 4)
+	local bitrate=$(fill "$5" 4)
+	local format=$(fill "$6" 4)
+	local filesize=$(fill "$7" 4)
+	local filename="$8"
+	echo "$dimensions  $fps  $length  $bpp  $bitrate  $format  $filesize  $filename"
 }
 
 # compute title scaling with mplayer
