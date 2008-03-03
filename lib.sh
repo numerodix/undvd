@@ -241,15 +241,8 @@ function compute_bitrate() {
 	local output_size="$6"  # in mb
 	local audio_bitrate=$(( $standard_audio_bitrate * 1024 ))  # kbps
 
-	if [ "$output_size" ]; then
-		output_size=$(( $output_size * 1024*1024 ))
-		local audio_size=$( echo "scale=0; $length*($audio_bitrate/8.)" | $bc )
-		local video_size=$(( $output_size - $audio_size ))
-		bpp=$(compute_bpp "$width" "$height" "$fps" "$length" "$video_size")
-	fi
 	local bitrate=$( echo "scale=0; ($width*$height*$fps*$bpp)/1024." | $bc )
 
-	#echo "$width $height $fps $length $bpp $output_size $bitrate"
 	echo $bitrate
 }
 
