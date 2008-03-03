@@ -30,7 +30,8 @@ adv_usage="Advanced usage:  ${b}undvd.sh ${r}[${b}standard options${r}] [${b}adv
   -n   no disc cloning (encode straight from the dvd, save disk space)
   -r   scale video to width (integer value), ${bb}0${r} for no scaling
   -f   use picture smoothing filter
-  -x   use xvid compression (faster, slightly lower quality)"
+  -x   use xvid compression (faster, slightly lower quality)
+  -D   dry run (display encoding parameters without encoding)"
 
 while getopts "t:a:s:e:d:q:i:o:r:12unfxDcz" opts; do
 	case $opts in
