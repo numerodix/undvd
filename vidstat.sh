@@ -9,6 +9,14 @@ p=$(dirname $(readlink -f $0)); . $p/lib.sh
 
 display_tool_banner
 
+usage="Usage:  ${b}vidstat.sh ${r} ${bb}<file>${r} [ ${bb}<files>${r} ]"
+
+if [ ! "$@" ]; then
+	echo -e "$usage"
+	exit 1
+fi
+
+
 display_title_line "header"
 for file in "$@"; do
 	if [ ! -e "$file" ]; then 
