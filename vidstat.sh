@@ -11,6 +11,11 @@ display_tool_banner
 
 display_title_line "header"
 for file in "$@"; do
+	if [ ! -e "$file" ]; then 
+		echo -e "${e}File $file does not exist"
+		exit 1
+	fi
+
 	filename=$(basename "$file")
 
 	filesize=$(stat "$file" | $grep "Size:" | $sed "s|.*Size: \([0-9]*\).*|\1|g")

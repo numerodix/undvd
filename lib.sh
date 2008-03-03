@@ -277,6 +277,33 @@ function fill() {
 	echo "$pad$str"
 }
 
+function format_bpp() {
+	local bpp="$1"
+	local video_codec="$2"
+
+	if [[ "$video_codec" = "x264" || "$video_codec" = "h264" ]]; then
+		if [[ "$bpp" < "$x264_2pass_bpp" ]]; then
+			bpp="${e}$bpp${r}"
+		elif [[ "$bpp" > "$x264_1pass_bpp" ]]; then 
+			bpp="${wa}$bpp${r}"
+		else
+			bpp="${bb}$bpp${r}"
+		fi
+	elif [ "$video_codec" = "xvid" ]; then
+		if [[ "$bpp" < "$xvid_2pass_bpp" ]]; then
+			bpp="${e}$bpp${r}"
+		elif [[ "$bpp" > "$xvid_1pass_bpp" ]]; then 
+			bpp="${wa}$bpp${r}"
+		else
+			bpp="${bb}$bpp${r}"
+		fi
+	else
+		bpp="${b}$bpp${r}"
+	fi
+	
+	echo "$bpp"
+}
+
 function display_title_line() {
 	local header="$1"
 	local dimensions="$2"
@@ -301,14 +328,14 @@ function display_title_line() {
 		filename="title"
 	fi
 
-	local dimensions=$(fill "$dimensions" 9)
-	local fps=$(fill "$fps" 6)
-	local length=$(fill "$length" 3)
-	local bpp=$(fill "$bpp" 4)
-	local bitrate=$(fill "$bitrate" 4)
-	local passes=$(fill "$passes" 1)
-	local format=$(fill "$format" 4)
-	local filesize=$(fill "$filesize" 4)
+	dimensions=$(fill "$dimensions" 9)
+	fps=$(fill "$fps" 6)
+	length=$(fill "$length" 3)
+	bpp=$(fill "$bpp" 4)
+	bitrate=$(fill "$bitrate" 4)
+	passes=$(fill "$passes" 1)
+	format=$(fill "$format" 4)
+	filesize=$(fill "$filesize" 4)
 
 	pre=
 	post=
@@ -316,7 +343,7 @@ function display_title_line() {
 		pre="${b}"
 		post="${r}"
 	else
-		bpp="${bb}$bpp${r}"
+		bpp=$(format_bpp "$bpp" "$8")
 	fi
 	echo -e "${pre}$dimensions  $fps  $length  $bpp  $bitrate  $passes $format  $filesize  $filename${post}"
 }
