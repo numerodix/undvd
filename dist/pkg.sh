@@ -39,10 +39,10 @@ rpm_lic="GPL"
 deb_arch="all"
 rpm_arch="noarch"
 
-deb_deps="mencoder, mplayer, lsdvd, coreutils, bash, findutils, gawk, grep, procps, sed"
+deb_deps="mencoder, mplayer, lsdvd, coreutils, bash, bc, findutils, gawk, grep, procps, sed"
 deb_suggests="libdvdcss2, mount, vobcopy"
 
-rpm_deps="mencoder, mplayer, lsdvd, coreutils, bash, findutils, gawk, grep, procps, sed"
+rpm_deps="mencoder, mplayer, lsdvd, coreutils, bash, bc, findutils, gawk, grep, procps, sed"
 
 deb_section="multiverse/graphics"
 rpm_group="Applications/Multimedia"

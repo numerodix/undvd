@@ -20,6 +20,7 @@ DEPEND="sys-apps/coreutils
 	sys-apps/grep
 	sys-process/procps
 	sys-apps/sed
+	sys-devel/bc
 	media-video/lsdvd
 	media-video/mplayer
 	css? (
