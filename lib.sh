@@ -99,6 +99,10 @@ function codec_check() {
 	done
 }
 
+function display_tool_banner() {
+	echo -e "${h1}{( --- $(basename $0) $version --- )}${r}"
+}
+
 # clone disc to iso image
 function clone_dd() {
 	local dvd_device="$1"
@@ -137,9 +141,9 @@ function examine_title() {
 	local mencoder_source="$2"
 	local title="$3"
 
-	local src="'$file'"
+	local src="\"$file\""
 	if [ "$mencoder_source" -a "$title" ]; then
-		src="-dvd-device '$mencoder_source' dvd://$title"
+		src="-dvd-device \"$mencoder_source\" dvd://$title"
 	fi
 	cmd="mplayer -ao null -vo null -frames 0 -identify $src 2>&1"
 	local mplayer_output=$($bash -c "$cmd")
@@ -150,6 +154,8 @@ function examine_title() {
 	local bitrate=$( echo "$mplayer_output" | $grep ID_VIDEO_BITRATE | $sed "s|ID_VIDEO_BITRATE=\(.*\)|\1|g" )
 	local format=$( echo "$mplayer_output" | $grep ID_VIDEO_FORMAT | $sed "s|ID_VIDEO_FORMAT=\(.*\)|\1|g" )
 
+	length=$( echo "scale=0; $length/1"| $bc )
+	bitrate=$( echo "scale=0; $bitrate/1"| $bc )
 	format=$( echo $format | $tr "[:upper:]" "[:lower:]" )
 	echo "$width $height $fps $length $bitrate $format"
 }
@@ -160,9 +166,16 @@ function compute_bpp() {
 	local height="$2"
 	local fps="$3"
 	local length="$4"
-	local video_size=$(( $5 *1024*1024 ))  # in mb
+	local video_size="$5"  # in mb
+	local bitrate="$6"  # kbps
 
-	local bpp=$( echo "scale=3; (8*$video_size)/($width*$height*$fps*$length)" | $bc )
+	if [ "$bitrate" ]; then
+		bitrate=$( echo "scale=5; $bitrate*1024" | $bc )
+	else
+		video_size=$(( $video_size *1024*1024 ))  # in mb
+		bitrate=$( echo "scale=5; (8*$video_size)/$length" | $bc )
+	fi
+	local bpp=$( echo "scale=3; ($bitrate)/($width*$height*$fps)" | $bc )
 
 	echo $bpp
 }
@@ -232,12 +245,12 @@ function display_title() {
 	local length=$( echo "scale=0; $4/60" | $bc )  # in seconds
 	local bpp=$( echo "scale=3; $5/(1)" | $bc )
 	local bitrate=$( echo "scale=0; $6/(1)" | $bc )  # kbps
-	local passes=$( echo "scale=0; $7/(1)" | $bc )  # kbps
+	local passes="$7"
 	local format="$8"
 	local filesize=$( echo "scale=0; $9/(1)" | $bc )  # in mb
 	local filename="${10}"
 	
-	display_title_line "${width}x${height}" $fps $length $bpp $bitrate $passes $format $filesize "$filename"
+	display_title_line "" "${width}x${height}" "$fps" "$length" "$bpp" "$bitrate" "$passes" "$format" "$filesize" "$filename"
 }
 
 function fill() {
@@ -251,16 +264,37 @@ function fill() {
 }
 
 function display_title_line() {
-	local dimensions=$(fill "$1" 9)
-	local fps=$(fill "$2" 6)
-	local length=$(fill "$3" 3)
-	local bpp=$(fill "$4" 4)
-	local bitrate=$(fill "$5" 4)
-	local passes=$(fill "$6" 1)
-	local format=$(fill "$7" 4)
-	local filesize=$(fill "$8" 4)
-	local filename="$9"
-	local header="${10}"
+	local header="$1"
+	local dimensions="$2"
+	local fps="$3"
+	local length="$4"
+	local bpp="$5"
+	local bitrate="$6"
+	local passes="$7"
+	local format="$8"
+	local filesize="$9"
+	local filename="${10}"
+
+	if [ "$header" ]; then
+		dimensions="dim"
+		fps="fps"
+		length="len"
+		bpp="bpp"
+		bitrate="bitrate"
+		passes="p"
+		format="codec"
+		filesize="size"
+		filename="title"
+	fi
+
+	local dimensions=$(fill "$dimensions" 9)
+	local fps=$(fill "$fps" 6)
+	local length=$(fill "$length" 3)
+	local bpp=$(fill "$bpp" 4)
+	local bitrate=$(fill "$bitrate" 4)
+	local passes=$(fill "$passes" 1)
+	local format=$(fill "$format" 4)
+	local filesize=$(fill "$filesize" 4)
 
 	pre=
 	post=

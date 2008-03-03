@@ -7,7 +7,7 @@
 # load constants and functions
 p=$(dirname $(readlink -f $0)); . $p/lib.sh
 
-echo -e "${h1}{( --- dumptrack.sh $version --- )}${r}"
+display_tool_banner
 
 usage="Usage:  ${b}dumptrack.sh -s ${bb}<file>${b} -t ${bb}01${b} -o ${bb}<file>${r}
   -s   source file

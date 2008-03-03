@@ -9,7 +9,7 @@
 # load constants and functions
 p=$(dirname $(readlink -f $0)); . $p/lib.sh
 
-echo -e "${h1}{( --- undvd.sh $version --- )}${r}"
+display_tool_banner
 
 usage="Usage:  ${b}undvd.sh -t ${bb}01,02,03${b} -a ${bb}en${b} -s ${bb}es${b} ${r}[${b}-d ${bb}/dev/dvd${r}] [${b}more options${r}]\n
   -t   titles to rip (comma separated)
@@ -81,7 +81,7 @@ if [ ! "$alang" ]; then
 fi
 
 if [ ! "$slang" ]; then
-	echo -e "${e}No subtitle language selected, exiting (use 'off' if you don't want any)${r}"
+	echo -e "${e}No subtitle language selected, exiting (use ${bb}off${e} if you don't want any)${r}"
 	echo -e "$usage"
 	exit 1
 fi
@@ -115,7 +115,7 @@ fi
 
 if [ "$dry_run" ]; then
 	echo -e " * Performing dry-run on title(s) ${bb}$titles${r}"
-	display_title_line "dims" "fps" "len" "bpp" "bitrate" "p" "codec" "size" "title" "header"
+	display_title_line "header"
 fi
 
 for title in $titles; do
@@ -193,7 +193,7 @@ for title in $titles; do
 
 		filesize="$output_size"
 		format="$video_codec"
-		display_title $width $height $fps $length $bpp $bitrate $passes $format $filesize $title
+		display_title "$width" "$height" "$fps" "$length" "$bpp" "$bitrate" "$passes" "$format" "$filesize" "$title"
 
 	else
 	
@@ -209,7 +209,7 @@ for title in $titles; do
 			$nice -n20 \
 			$mencoder -v \
 			dvd://${title} \
-			-dvd-device '$mencoder_source' \
+			-dvd-device \"$mencoder_source\" \
 			-alang ${alang} \
 			-slang ${slang} \
 			${crop} \
