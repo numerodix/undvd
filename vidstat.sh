@@ -11,7 +11,7 @@ display_tool_banner
 
 usage="Usage:  ${b}vidstat.sh ${r} ${bb}<file>${r} [ ${bb}<files>${r} ]"
 
-if [ ! "$@" ]; then
+if [[ ! "$@" ]]; then
 	echo -e "$usage"
 	exit 1
 fi
