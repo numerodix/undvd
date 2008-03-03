@@ -147,16 +147,37 @@ function examine_title() {
 	fi
 	cmd="mplayer -ao null -vo null -frames 0 -identify $src 2>&1"
 	local mplayer_output=$($bash -c "$cmd")
-	local width=$( echo "$mplayer_output" | $grep ID_VIDEO_WIDTH | $sed "s|ID_VIDEO_WIDTH=\(.*\)|\1|g" )
-	local height=$( echo "$mplayer_output" | $grep ID_VIDEO_HEIGHT | $sed "s|ID_VIDEO_HEIGHT=\(.*\)|\1|g" )
-	local fps=$( echo "$mplayer_output" | $grep ID_VIDEO_FPS | $sed "s|ID_VIDEO_FPS=\(.*\)|\1|g" )
-	local length=$( echo "$mplayer_output" | $grep ID_LENGTH | $sed "s|ID_LENGTH=\(.*\)|\1|g" )
-	local bitrate=$( echo "$mplayer_output" | $grep ID_VIDEO_BITRATE | $sed "s|ID_VIDEO_BITRATE=\(.*\)|\1|g" )
-	local format=$( echo "$mplayer_output" | $grep ID_VIDEO_FORMAT | $sed "s|ID_VIDEO_FORMAT=\(.*\)|\1|g" )
 
-	length=$( echo "scale=0; $length/1"| $bc )
-	bitrate=$( echo "scale=0; $bitrate/1"| $bc )
-	format=$( echo $format | $tr "[:upper:]" "[:lower:]" )
+	local width=$( echo "$mplayer_output" | $grep ID_VIDEO_WIDTH | $sed "s|ID_VIDEO_WIDTH=\(.*\)|\1|g" )
+	[[ $? != 0 || ! "$width" ]] && width=1
+
+	local height=$( echo "$mplayer_output" | $grep ID_VIDEO_HEIGHT | $sed "s|ID_VIDEO_HEIGHT=\(.*\)|\1|g" )
+	[[ $? != 0 || ! "$height" ]] && height=1
+
+	local fps=$( echo "$mplayer_output" | $grep ID_VIDEO_FPS | $sed "s|ID_VIDEO_FPS=\(.*\)|\1|g" )
+	[[ $? != 0 || ! "$fps" ]] && fps=1
+
+	local length=$( echo "$mplayer_output" | $grep ID_LENGTH | $sed "s|ID_LENGTH=\(.*\)|\1|g" )
+	if [[ $? != 0 || ! "$length" ]]; then
+		length=1
+	else
+		length=$( echo "scale=0; $length/1"| $bc )
+	fi
+		
+	local bitrate=$( echo "$mplayer_output" | $grep ID_VIDEO_BITRATE | $sed "s|ID_VIDEO_BITRATE=\(.*\)|\1|g" )
+	if [[ $? != 0 || ! "$bitrate" ]]; then
+		bitrate=1
+	else
+		bitrate=$( echo "scale=0; $bitrate/1"| $bc )
+	fi
+
+	local format=$( echo "$mplayer_output" | $grep ID_VIDEO_FORMAT | $sed "s|ID_VIDEO_FORMAT=\(.*\)|\1|g" )
+	if [[ $? != 0 || ! "$format" ]]; then
+		format="____"
+	else
+		format=$( echo $format | $tr "[:upper:]" "[:lower:]" )
+	fi
+
 	echo "$width $height $fps $length $bitrate $format"
 }
 
