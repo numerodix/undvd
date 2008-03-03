@@ -5,6 +5,8 @@
 
 # undvd version
 version=0.3.3
+author="Martin Matusiak"
+email="<numerodix@gmail.com>"
 
 # initialize colors if the terminal can support them
 if [ "$TERM" != "dumb" ]; then
@@ -12,16 +14,16 @@ if [ "$TERM" != "dumb" ]; then
 fi
 
 # constants
-x264_1pass_bpp=.195
-x264_2pass_bpp=.150
+h264_1pass_bpp=.195
+h264_2pass_bpp=.150
 
 xvid_1pass_bpp=.250
 xvid_2pass_bpp=.200
 
 standard_audio_bitrate=160
 
-# x264 encoding options
-#x264="x264 -x264encopts subq=5:frameref=2:partitions=all:weight_b:bitrate=$bitrate:threads=auto"
+# h264 encoding options
+#h264="x264 -x264encopts subq=5:frameref=2:partitions=all:weight_b:bitrate=$bitrate:threads=auto"
 #faac="faac -faacopts object=1:tns:quality=100"
 
 # xvid encoding options
@@ -29,7 +31,7 @@ standard_audio_bitrate=160
 lame="mp3lame -lameopts vbr=2:q=3"
 
 # codec defaults
-video_codec="x264"
+video_codec="h264"
 acodec="$lame"
 
 # mplayer filters
@@ -57,6 +59,11 @@ mplayer_vcodecs="mpeg-2"
 
 
 ### FUNCTIONS
+
+function display_tool_banner() {
+	#echo -e "${h1}{( --- $(basename $0) $version --- )}${r}"
+	echo -e "${h1}$(basename $0) $version (C) $author $email${r}"
+}
 
 # check for missing dependencies
 function init_cmds() {
@@ -97,10 +104,6 @@ function codec_check() {
 			echo -e "   ${ok}*${r} $codec"
 		fi
 	done
-}
-
-function display_tool_banner() {
-	echo -e "${h1}{( --- $(basename $0) $version --- )}${r}"
 }
 
 # clone disc to iso image
@@ -205,9 +208,9 @@ function set_bpp() {
 	local video_codec="$1"
 	local twopass="$2"
 
-	if [ "$video_codec" = "x264" ]; then
-		local bpp="$x264_1pass_bpp"
-		[ "$twopass" ] && bpp="$x264_2pass_bpp"
+	if [ "$video_codec" = "h264" ]; then
+		local bpp="$h264_1pass_bpp"
+		[ "$twopass" ] && bpp="$h264_2pass_bpp"
 	else
 		local bpp="$xvid_1pass_bpp"
 		[ "$twopass" ] && bpp="$xvid_2pass_bpp"
@@ -222,8 +225,8 @@ function set_passes() {
 
 	local passes=1
 	
-	if [ "$video_codec" = "x264" ]; then
-		[[ "$bpp" < "$x264_1pass_bpp" ]] && passes=2
+	if [ "$video_codec" = "h264" ]; then
+		[[ "$bpp" < "$h264_1pass_bpp" ]] && passes=2
 	else
 		[[ "$bpp" < "$xvid_1pass_bpp" ]] && passes=2
 	fi
@@ -281,10 +284,10 @@ function format_bpp() {
 	local bpp="$1"
 	local video_codec="$2"
 
-	if [[ "$video_codec" = "x264" || "$video_codec" = "h264" ]]; then
-		if [[ "$bpp" < "$x264_2pass_bpp" ]]; then
+	if [[ "$video_codec" = "h264" ]]; then
+		if [[ "$bpp" < "$h264_2pass_bpp" ]]; then
 			bpp="${e}$bpp${r}"
-		elif [[ "$bpp" > "$x264_1pass_bpp" ]]; then 
+		elif [[ "$bpp" > "$h264_1pass_bpp" ]]; then 
 			bpp="${wa}$bpp${r}"
 		else
 			bpp="${bb}$bpp${r}"
@@ -395,7 +398,7 @@ function vcodec_opts() {
 	local pass="$3"
 	local bitrate="$4"
 	
-	if [ "$codec" = "x264" ]; then
+	if [ "$codec" = "h264" ]; then
 		local opts="subq=5:frameref=2"
 		
 		if [ "$twopass" ]; then

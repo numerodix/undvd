@@ -39,7 +39,7 @@ fi
 
 titlenos=$(echo "$lsdvd_output" | $egrep "^Title" | $awk '{ print $2 }' | $sed 's|,||g')
 
-echo "Scanning DVD for titles..."
+echo -e " * Scanning DVD for titles..."
 
 for titleno in $titlenos; do
 	title=$(echo "$lsdvd_output" | $sed -n "/^Title: $titleno/, /^$/p")
