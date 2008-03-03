@@ -32,7 +32,7 @@ adv_usage="Advanced usage:  ${b}undvd.sh ${r}[${b}standard options${r}] [${b}adv
   -f   use picture smoothing filter
   -x   use xvid compression (faster, slightly lower quality)"
 
-while getopts "t:a:s:e:d:q:i:o:r:unfx12zc" opts; do
+while getopts "t:a:s:e:d:q:i:o:r:12unfxDcz" opts; do
 	case $opts in
 		t ) titles=$(echo $OPTARG | $sed 's|,| |g');;
 		a ) alang=$OPTARG;;
@@ -44,14 +44,15 @@ while getopts "t:a:s:e:d:q:i:o:r:unfx12zc" opts; do
 		
 		e ) end=$OPTARG;;
 		
-		o ) output_filesize="$OPTARG";;
-		1 ) passes="1";;
-		2 ) twopass=y;passes="2";;
+		o ) target_size="$OPTARG";;
+		1 ) target_passes="1";;
+		2 ) target_twopass=y;target_passes="2";;
 		u ) encrypted="y";;
 		n ) skipclone="y";mencoder_source="$dvd_device";;
 		r ) custom_scale="$OPTARG";;
 		f ) prescale="spp,";postscale=",hqdn3d";;
 		x ) video_codec="xvid";acodec="$lame";;
+		D ) dry_run="y";;
 		
 		c ) init_cmds "y"; exit;;
 		z ) echo -e "$adv_usage"; exit;;
@@ -110,32 +111,26 @@ if [ ! "$dvdisdir" ] && [ ! "$skipclone" ]; then
 fi
 
 
+# Display dry-run status
+
+if [ "$dry_run" ]; then
+	echo -e " * Performing dry-run on title(s) ${bb}$titles${r}"
+	display_title_line "dims" "fps" "len" "bpp" "bitrate" "p" "codec" "size" "title" "header"
+fi
+
 for title in $titles; do
 	
-	echo -en " * Now ripping title ${bb}$title${r}, with audio ${bb}$alang${r} and subtitles ${bb}$slang${r}"
-	if [ "$end" ]; then
-		echo -e " ${r}(only first ${bb}${end}${r}s)"
-	else
-		echo
-	fi
-	
-	
-	# Find out how much to crop, very buggy
-	
-	#mplayer ${title}.vob -quiet -slave -vo null -ao null -ss 30 -endpos 1 -vf cropdetect > crop.file
-	#crop=$(cat crop.file | awk '/CROP/ { print $8 " " $9 }' | tail -n1 | sed 's|(\(.*\))\.|\1|g')
-	#echo $crop
-	
-	# Determine the number of passes
-	
-	if [ ! "$passes" ]; then
-		if [ $bitrate -lt $standard_bitrate ]; then
-			twopass=y
-			passes=2
+	# Display encode status
+
+	if [ ! "$dry_run" ]; then
+		echo -en " * Now ripping title ${bb}$title${r}, with audio ${bb}$alang${r} and subtitles ${bb}$slang${r}"
+		if [ "$end" ]; then
+			echo -e " ${r}(only first ${bb}${end}${r}s)"
 		else
-			passes=1
+			echo
 		fi
 	fi
+	
 	
 	# Extract information from the title
 	
@@ -159,52 +154,75 @@ for title in $titles; do
 
 	# Decide bpp
 
-	if [ "$output_filesize" ]; then
-		video_size=$(( $output_filesize - $audio_size ))
+	if [ "$target_size" ]; then
+		video_size=$(( $target_size - $audio_size ))
+		[[ "0" > "$video_size" ]] && video_size=1
 		bpp=$(compute_bpp "$width" "$height" "$fps" "$length" "$video_size")	
 	else
-		bpp=$(set_bpp "$video_codec" "$twopass")
+		bpp=$(set_bpp "$video_codec" "$target_twopass")
 	fi
 	
+	# Reset the number of passes based on the bpp
+	
+	unset twopass
+	if [ "$target_passes" ]; then
+		passes="$target_passes"
+	else
+		passes=$(set_passes "$video_codec" "$bpp")
+	fi
+	[ "$passes" = "2" ] && twopass=y
+
 	# Compute bitrate
 	
 	bitrate=$(compute_bitrate "$width" "$height" "$fps" "$length" "$bpp")
 
 	# Estimate output size
-	if [ ! "$output_filesize" ]; then
+	unset output_size
+	if [ "$target_size" ]; then
+		output_size="$target_size"
+	else
 		video_size=$(compute_media_size "$length" "$bitrate")
-		output_filesize=$(( $video_size+$audio_size ))
+		output_size=$(( $video_size+$audio_size ))
 	fi
 
-	filesize=$output_filesize
-	format="$video_codec"
-	display_title $width $height $fps $length $bpp $bitrate $passes $format $filesize
+
+
+	if [ "$dry_run" ]; then
+
+		# Dry run
+
+		filesize="$output_size"
+		format="$video_codec"
+		display_title $width $height $fps $length $bpp $bitrate $passes $format $filesize $title
+
+	else
 	
-	
-	# Encode video
-	
-	pass=0
-	for p in $($seq $passes); do
-		pass=$(( $pass + 1 ))
-	
-		vcodec=$(vcodec_opts "$video_codec" "$twopass" "$pass" "$bitrate")
+		# Encode video
 		
-		cmd="time \
-$nice -n20 \
-$mencoder -v \
-dvd://${title} \
--dvd-device \"$mencoder_source\" \
--alang ${alang} \
--slang ${slang} \
-${crop} \
-${endpos} \
--vf ${prescale}${scale}${postscale} \
--ovc ${vcodec} \
--oac ${acodec}"
-		run_encode "$cmd" "$title" "$twopass" "$pass"
-	done
-	
-	$mv ${title}.avi.partial ${title}.avi
-	$rm crop.file divx2pass* 2> /dev/null
+		pass=0
+		for p in $($seq $passes); do
+			pass=$(( $pass + 1 ))
+		
+			vcodec=$(vcodec_opts "$video_codec" "$twopass" "$pass" "$bitrate")
+			
+			cmd="time \
+			$nice -n20 \
+			$mencoder -v \
+			dvd://${title} \
+			-dvd-device '$mencoder_source' \
+			-alang ${alang} \
+			-slang ${slang} \
+			${crop} \
+			${endpos} \
+			-vf ${prescale}${scale}${postscale} \
+			-ovc ${vcodec} \
+			-oac ${acodec}"
+			run_encode "$cmd" "$title" "$twopass" "$pass"
+		done
+		
+		[ -f ${title}.avi.partial ] && $mv ${title}.avi.partial ${title}.avi
+		$rm divx2pass* 2> /dev/null
+
+	fi
 
 done

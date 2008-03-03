@@ -11,10 +11,13 @@ if [ "$TERM" != "dumb" ]; then
 	p=$(dirname $(readlink -f $0)); . $p/colors.sh
 fi
 
-# bitrates
-standard_bitrate=900
-standard_bitrate=575
-bitrate="$standard_bitrate"
+# constants
+x264_1pass_bpp=.195
+x264_2pass_bpp=.150
+
+xvid_1pass_bpp=.250
+xvid_2pass_bpp=.200
+
 standard_audio_bitrate=160
 
 # x264 encoding options
@@ -129,29 +132,6 @@ function clone_vobcopy() {
 	( echo "$cmd"; $bash -c "$cmd" ) &> logs/clone.log
 }
 
-# obtain title length from lsdvd
-function title_length() {
-	local title_no="$1"
-	local dvd_device="$2"
-
-	local cmd="$lsdvd -avs '$dvd_device' 2>&1"
-	local lsdvd_output=$($bash -c "$cmd")
-	local titles=$(echo "$lsdvd_output" | $egrep "^Title" | $awk '{ print $2 }' | $sed 's|,||g')
-
-	for t in $titles; do
-		if [ $t -eq $title_no ]; then
-			local title_length=$(echo "$lsdvd_output" | $egrep "^Title: $t" | $awk '{ print $4 }' | $sed 's|\(.*\)\..*|\1|g')
-		fi
-	done
-
-	local hours=${title_length:0:2}
-	local min=${title_length:3:2}
-	local sec=${title_length:6:2}
-	local title_length=$(( ($hours*3600) + ($min*60) + $sec ))
-
-	echo $title_length
-}
-
 function examine_title() {
 	local file="$1"
 	local mencoder_source="$2"
@@ -192,14 +172,29 @@ function set_bpp() {
 	local twopass="$2"
 
 	if [ "$video_codec" = "x264" ]; then
-		local bpp=0.195
-		[ "$twopass" ] && bpp=0.150
+		local bpp="$x264_1pass_bpp"
+		[ "$twopass" ] && bpp="$x264_2pass_bpp"
 	else
-		local bpp=0.250
-		[ "$twopass" ] && bpp=0.200
+		local bpp="$xvid_1pass_bpp"
+		[ "$twopass" ] && bpp="$xvid_2pass_bpp"
 	fi
 
 	echo $bpp
+}
+
+function set_passes() {
+	local video_codec="$1"
+	local bpp="$2"
+
+	local passes=1
+	
+	if [ "$video_codec" = "x264" ]; then
+		[[ "$bpp" < "$x264_1pass_bpp" ]] && passes=2
+	else
+		[[ "$bpp" < "$xvid_1pass_bpp" ]] && passes=2
+	fi
+
+	echo $passes
 }
 
 # compute video bitrate based on title length
@@ -265,7 +260,17 @@ function display_title_line() {
 	local format=$(fill "$7" 4)
 	local filesize=$(fill "$8" 4)
 	local filename="$9"
-	echo "$dimensions  $fps  $length  $bpp  $bitrate  $passes  $format  $filesize  $filename"
+	local header="${10}"
+
+	pre=
+	post=
+	if [ "$header" ]; then 
+		pre="${b}"
+		post="${r}"
+	else
+		bpp="${bb}$bpp${r}"
+	fi
+	echo -e "${pre}$dimensions  $fps  $length  $bpp  $bitrate  $passes $format  $filesize  $filename${post}"
 }
 
 # compute title scaling with mplayer
@@ -313,11 +318,7 @@ function vcodec_opts() {
 	local codec="$1"
 	local twopass="$2"
 	local pass="$3"
-	local custom_bitrate="$4"
-	
-	if [ "$custom_bitrate" ]; then
-		local bitrate=$custom_bitrate
-	fi
+	local bitrate="$4"
 	
 	if [ "$codec" = "x264" ]; then
 		local opts="subq=5:frameref=2"
@@ -379,7 +380,7 @@ function run_encode() {
 	
 	# Execute encoder in the background
 	
-	( echo "$cmd"; $bash -c "$cmd" ) &> $logfile &
+	( echo $cmd; $bash -c "$cmd" ) &> $logfile &
 	local pid=$!
 	
 	# Write mencoder's ETA estimate
