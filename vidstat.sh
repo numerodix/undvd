@@ -9,13 +9,29 @@ p=$(dirname $(readlink -f $0)); . $p/lib.sh
 
 display_tool_banner
 
-usage="Usage:  ${b}vidstat.sh ${r} ${bb}<file>${r} [ ${bb}<files>${r} ]"
+usage="Usage:  ${b}vidstat.sh ${r}[${bb}<file>${r} | ${b}-d ${bb}/dev/dvd${r} | ${b}-q ${bb}/path${r} | ${b}-i ${bb}disc.iso${r}]
+  <fs> files to read
+  -d   dvd device to read from (default is ${bb}/dev/dvd${r})
+  -q   dvd directory to read from
+  -i   dvd iso image to read from"
+
+while getopts "d:q:i:" opts; do
+	case $opts in
+		d ) input_dvd_device=$OPTARG;;
+		q ) input_dvd_device=$OPTARG;dvdisdir="-q ";;
+		i ) input_dvd_device=$OPTARG;dvdisdir="-q ";;
+		* ) echo -e "$usage"; exit 1;;
+	esac
+done
 
 if [[ ! "$@" ]]; then
 	echo -e "$usage"
 	exit 1
 fi
 
+if [ "$input_dvd_device" ]; then
+	echo $dvd_device
+fi
 
 display_title_line "header"
 for file in "$@"; do

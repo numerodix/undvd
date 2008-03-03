@@ -184,7 +184,7 @@ function examine_title() {
 	echo "$width $height $fps $length $bitrate $format"
 }
 
-# compute bits per pixel per second
+# compute bits per pixel
 function compute_bpp() {
 	local width="$1"
 	local height="$2"
