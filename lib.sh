@@ -154,8 +154,14 @@ function title_length() {
 
 function examine_title() {
 	local file="$1"
+	local mencoder_source="$2"
+	local title="$3"
 
-	cmd="mplayer -ao null -vo null -frames 0 -identify '$file' 2>&1"
+	local src="'$file'"
+	if [ "$mencoder_source" -a "$title" ]; then
+		src="-dvd-device '$mencoder_source' dvd://$title"
+	fi
+	cmd="mplayer -ao null -vo null -frames 0 -identify $src 2>&1"
 	local mplayer_output=$($bash -c "$cmd")
 	local width=$( echo "$mplayer_output" | $grep ID_VIDEO_WIDTH | $sed "s|ID_VIDEO_WIDTH=\(.*\)|\1|g" )
 	local height=$( echo "$mplayer_output" | $grep ID_VIDEO_HEIGHT | $sed "s|ID_VIDEO_HEIGHT=\(.*\)|\1|g" )
@@ -174,9 +180,24 @@ function compute_bpp() {
 	local height="$2"
 	local fps="$3"
 	local length="$4"
-	local video_size="$5"
+	local video_size=$(( $5 *1024*1024 ))  # in mb
 
 	local bpp=$( echo "scale=3; (8*$video_size)/($width*$height*$fps*$length)" | $bc )
+
+	echo $bpp
+}
+
+function set_bpp() {
+	local video_codec="$1"
+	local twopass="$2"
+
+	if [ "$video_codec" = "x264" ]; then
+		local bpp=0.195
+		[ "$twopass" ] && bpp=0.150
+	else
+		local bpp=0.250
+		[ "$twopass" ] && bpp=0.200
+	fi
 
 	echo $bpp
 }
@@ -186,7 +207,7 @@ function compute_bitrate() {
 	local width="$1"
 	local height="$2"
 	local fps="$3"
-	local length=$(( $4 * 60 ))  # in minutes
+	local length="$4"  # in seconds
 	local bpp="$5"
 	local output_size="$6"  # in mb
 	local audio_bitrate=$(( $standard_audio_bitrate * 1024 ))  # kbps
@@ -199,7 +220,14 @@ function compute_bitrate() {
 	fi
 	local bitrate=$( echo "scale=0; ($width*$height*$fps*$bpp)/1024." | $bc )
 
+	#echo "$width $height $fps $length $bpp $output_size $bitrate"
 	echo $bitrate
+}
+
+function compute_media_size() {
+	local length="$1"  # in seconds
+	local bitrate="$2"  # kbps
+	echo $( echo "scale=0; ($bitrate/8)*$length/1024" | $bc )
 }
 
 function display_title() {
@@ -207,13 +235,14 @@ function display_title() {
 	local height="$2"
 	local fps="$3"
 	local length=$( echo "scale=0; $4/60" | $bc )  # in seconds
-	local bpp="$5"
-	local bitrate=$( echo "scale=0; $6/(1024)" | $bc )  # bps
-	local format="$7"
-	local filesize=$( echo "scale=0; $8/(1024*1024)" | $bc )  # in bytes
-	local filename="$9"
+	local bpp=$( echo "scale=3; $5/(1)" | $bc )
+	local bitrate=$( echo "scale=0; $6/(1)" | $bc )  # kbps
+	local passes=$( echo "scale=0; $7/(1)" | $bc )  # kbps
+	local format="$8"
+	local filesize=$( echo "scale=0; $9/(1)" | $bc )  # in mb
+	local filename="${10}"
 	
-	display_title_line "${width}x${height}" $fps $length $bpp $bitrate $format $filesize "$filename"
+	display_title_line "${width}x${height}" $fps $length $bpp $bitrate $passes $format $filesize "$filename"
 }
 
 function fill() {
@@ -232,38 +261,51 @@ function display_title_line() {
 	local length=$(fill "$3" 3)
 	local bpp=$(fill "$4" 4)
 	local bitrate=$(fill "$5" 4)
-	local format=$(fill "$6" 4)
-	local filesize=$(fill "$7" 4)
-	local filename="$8"
-	echo "$dimensions  $fps  $length  $bpp  $bitrate  $format  $filesize  $filename"
+	local passes=$(fill "$6" 1)
+	local format=$(fill "$7" 4)
+	local filesize=$(fill "$8" 4)
+	local filename="$9"
+	echo "$dimensions  $fps  $length  $bpp  $bitrate  $passes  $format  $filesize  $filename"
 }
 
 # compute title scaling with mplayer
 function title_scale() {
-	local title="$1"
-	local dvd_device="$2"
+	local width="$1"
+	local height="$2"
 	local custom_scale="$3"
 
-	local scale="scale"
+	local nwidth="$width"
+	local nheight="$height"
 	if [ "$custom_scale" != "0" ]; then
-		local cmd="$mplayer -slave -quiet dvd://${title} -dvd-device '$dvd_device' -ao null -vo null -endpos 1 2>&1"
-		local mplayer_output=$($bash -c "$cmd")
-		local size=$(echo "$mplayer_output" | $grep "VIDEO:" | $awk '{ print $3 }')
-		local sizex=$(echo $size | $sed 's|\(.*\)x\(.*\)|\1|g')
-		local sizey=$(echo $size | $sed 's|\(.*\)x\(.*\)|\2|g')
-		if [ "$sizex" -a "$custom_scale" != "0" ]; then
-			if [ "$custom_scale" ]; then
-				local nsizex=$(( $sizex * $custom_scale/$sizex ))
-				local nsizey=$(( $sizey * $custom_scale/$sizex ))
-			else
-				local nsizex=$(( $sizex * 2/3 ))
-				local nsizey=$(( $sizey * 2/3 ))
-			fi
-			local scale="scale=$nsizex:$nsizey"
+		if [ "$custom_scale" ]; then
+			nwidth=$(( $width * $custom_scale/$width ))
+			nheight=$(( $height * $custom_scale/$width ))
+		else
+			nwidth=$(( $width * 2/3 ))
+			nheight=$(( $height * 2/3 ))
 		fi
 	fi
 
-	echo $scale
+	#echo $(scale16 "$nwidth" "$nheight")
+	echo "$nwidth" "$nheight"
+}
+
+function scale16() {
+	local width="$1"
+	local height="$2"
+	local divisor=16
+
+	ratio=$( echo "scale=5; $height/$width" | $bc )
+	while (( $width+$height % $divisor > 0 )); do
+		div=$(( $width%$divisor ))
+		#echo "div=$(( $width%$divisor ))"
+		#echo "$width $height"
+		width=$(( $width - $div ))
+		height=$( echo "scale=0; $width*$ratio/1" | $bc )
+	done
+
+	echo "$width $height"
+	#echo "$ratio"
 }
 
 # get video codec options

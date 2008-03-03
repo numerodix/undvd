@@ -126,20 +126,6 @@ for title in $titles; do
 	#crop=$(cat crop.file | awk '/CROP/ { print $8 " " $9 }' | tail -n1 | sed 's|(\(.*\))\.|\1|g')
 	#echo $crop
 	
-	
-	# Find out how to scale the dimensions
-	
-	scale=$(title_scale ${title} "$mencoder_source" "$custom_scale")
-	
-	
-	# User set bitrate
-
-	if [ "$output_filesize" ]; then
-		len=$(title_length ${title} "$mencoder_source")
-		bitrate=$(compute_bitrate $len $output_filesize)
-	fi
-	
-	
 	# Determine the number of passes
 	
 	if [ ! "$passes" ]; then
@@ -150,6 +136,49 @@ for title in $titles; do
 			passes=1
 		fi
 	fi
+	
+	# Extract information from the title
+	
+	info=($(examine_title "" "$mencoder_source" "$title"))
+	width=${info[0]}
+	height=${info[1]}
+	fps=${info[2]}
+	length=${info[3]}
+	#bitrate=${info[4]}
+
+	# Find out how to scale the dimensions
+	
+	scale_info=($(title_scale "$width" "$height" "$custom_scale"))
+	width=${scale_info[0]}
+	height=${scale_info[1]}
+	scale="scale=$width:$height"
+
+	# Estimate filesize of audio
+
+	audio_size=$(compute_media_size "$length" "$standard_audio_bitrate")
+
+	# Decide bpp
+
+	if [ "$output_filesize" ]; then
+		video_size=$(( $output_filesize - $audio_size ))
+		bpp=$(compute_bpp "$width" "$height" "$fps" "$length" "$video_size")	
+	else
+		bpp=$(set_bpp "$video_codec" "$twopass")
+	fi
+	
+	# Compute bitrate
+	
+	bitrate=$(compute_bitrate "$width" "$height" "$fps" "$length" "$bpp")
+
+	# Estimate output size
+	if [ ! "$output_filesize" ]; then
+		video_size=$(compute_media_size "$length" "$bitrate")
+		output_filesize=$(( $video_size+$audio_size ))
+	fi
+
+	filesize=$output_filesize
+	format="$video_codec"
+	display_title $width $height $fps $length $bpp $bitrate $passes $format $filesize
 	
 	
 	# Encode video
