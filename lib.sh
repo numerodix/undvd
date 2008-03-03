@@ -173,7 +173,7 @@ function examine_title() {
 
 	local format=$( echo "$mplayer_output" | $grep ID_VIDEO_FORMAT | $sed "s|ID_VIDEO_FORMAT=\(.*\)|\1|g" )
 	if [[ $? != 0 || ! "$format" ]]; then
-		format="____"
+		format=0
 	else
 		format=$( echo $format | $tr "[:upper:]" "[:lower:]" )
 	fi

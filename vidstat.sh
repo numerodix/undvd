@@ -32,6 +32,7 @@ for file in "$@"; do
 	fi
 
 	format=${info[5]}
+	[ "$format" = "0" ] && format="???"
 
 	passes="?"
 
