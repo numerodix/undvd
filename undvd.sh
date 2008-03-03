@@ -62,9 +62,8 @@ while getopts "t:a:s:e:d:q:i:o:r:12unfxDcz" opts; do
 done
 
 
-if [ ! "$end" ]; then
-	endpos=""
-else
+endpos=""
+if [ "$end" ]; then
 	endpos="-endpos $end"
 fi
 
