@@ -18,8 +18,8 @@ usage="Usage:  ${b}vidstat.sh ${r}[${bb}<file(s)>${r} | ${b}-d ${bb}/dev/dvd${r}
 while getopts "d:q:i:" opts; do
 	case $opts in
 		d ) input_dvd_device=$OPTARG;;
-		q ) input_dvd_device=$OPTARG;dvdisdir="-q ";;
-		i ) input_dvd_device=$OPTARG;dvdisdir="-q ";;
+		q ) input_dvd_device=$OPTARG;;
+		i ) input_dvd_device=$OPTARG;;
 		* ) echo -e "$usage"; exit 1;;
 	esac
 done
