@@ -21,6 +21,7 @@ install:
 
 	mkdir -p ${DOC_CHROOT}
 	install -m644 userguide.html ${DOC_CHROOT}
+	install -m644 Changelog ${DOC_CHROOT}
 
 	mkdir -p ${BIN_CHROOT}
 	ln -s ${SHARED}/scandvd.sh ${BIN_CHROOT}

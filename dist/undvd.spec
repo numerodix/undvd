@@ -35,6 +35,7 @@ rm -rf $RPM_BUILD_ROOT
 /usr/share/undvd/undvd.sh
 /usr/share/undvd/vidstat.sh
 /usr/share/doc/undvd/userguide.html
+/usr/share/doc/undvd/Changelog
 /usr/bin/scandvd.sh
 /usr/bin/undvd.sh
 /usr/bin/vidstat.sh
