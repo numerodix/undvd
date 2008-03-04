@@ -338,7 +338,7 @@ function display_title_line() {
 	[ "$length" = "-1" ] && unset length
 	[ "$bpp" = "0" ] && unset bpp
 	[ "$bitrate" = "0" ] && unset bitrate
-	[ "$filesize" = "0" ] && unset filesize
+	[ "$filesize" = "-1" ] && unset filesize
 	[ "$format" = "0" ] && unset format
 	[ "$passes" = "0" ] && unset passes
 

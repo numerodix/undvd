@@ -63,7 +63,7 @@ for file in "${files[@]}"; do
 
 	if [ "$input_dvd_device" ]; then
 		filename="$file"
-		filesize="0"
+		filesize="-1"
 		info=($(examine_title "" "$input_dvd_device" "$file"))
 	else
 		filename=$(basename "$file")

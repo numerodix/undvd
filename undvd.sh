@@ -139,7 +139,6 @@ for title in $titles; do
 	height=${info[1]}
 	fps=${info[2]}
 	length=${info[3]}
-	#bitrate=${info[4]}
 
 	# Find out how to scale the dimensions
 	
