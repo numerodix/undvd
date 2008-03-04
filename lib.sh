@@ -162,7 +162,7 @@ function examine_title() {
 
 	local length=$( echo "$mplayer_output" | $grep ID_LENGTH | $sed "s|ID_LENGTH=\(.*\)|\1|g" )
 	if [[ $? != 0 || ! "$length" || "$length" = "0.00" ]]; then
-		length=1
+		length=-1
 	else
 		length=$( echo "scale=0; $length/1"| $bc )
 	fi
@@ -259,13 +259,15 @@ function display_title() {
 	local width="$1"
 	local height="$2"
 	local fps="$3"
-	local length=$( echo "scale=0; $4/60" | $bc )  # in seconds
+	local length="$4"  # in seconds
 	local bpp=$( echo "scale=3; $5/(1)" | $bc )
 	local bitrate=$( echo "scale=0; $6/(1)" | $bc )  # kbps
 	local passes="$7"
 	local format="$8"
 	local filesize=$( echo "scale=0; $9/(1)" | $bc )  # in mb
 	local filename="${10}"
+
+	[ "$length" != "-1" ] && length=$( echo "scale=0; $length/60" | $bc )
 	
 	display_title_line "" "${width}x${height}" "$fps" "$length" "$bpp" "$bitrate" "$passes" "$format" "$filesize" "$filename"
 }
@@ -333,7 +335,7 @@ function display_title_line() {
 
 	[ "$dimensions" = "1x1" ] && unset dimensions
 	[ "$fps" = "1" ] && unset fps
-	[ "$length" = "0" ] && unset length
+	[ "$length" = "-1" ] && unset length
 	[ "$bpp" = "0" ] && unset bpp
 	[ "$bitrate" = "0" ] && unset bitrate
 	[ "$filesize" = "0" ] && unset filesize
