@@ -88,9 +88,8 @@ for file in "${files[@]}"; do
 	fi
 
 	format=${info[5]}
-	[ "$format" = "0" ] && format="???"
 
-	passes="?"
+	passes="0"
 
 	display_title "$width" "$height" "$fps" "$length" "$bpp" "$bitrate" "$passes" "$format" "$filesize" "$filename"
 done

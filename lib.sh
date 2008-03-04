@@ -152,23 +152,23 @@ function examine_title() {
 	local mplayer_output=$($bash -c "$cmd")
 
 	local width=$( echo "$mplayer_output" | $grep ID_VIDEO_WIDTH | $sed "s|ID_VIDEO_WIDTH=\(.*\)|\1|g" )
-	[[ $? != 0 || ! "$width" ]] && width=1
+	[[ $? != 0 || ! "$width" || "$width" = "0" ]] && width=1
 
 	local height=$( echo "$mplayer_output" | $grep ID_VIDEO_HEIGHT | $sed "s|ID_VIDEO_HEIGHT=\(.*\)|\1|g" )
-	[[ $? != 0 || ! "$height" ]] && height=1
+	[[ $? != 0 || ! "$height" || "$height" = "0" ]] && height=1
 
 	local fps=$( echo "$mplayer_output" | $grep ID_VIDEO_FPS | $sed "s|ID_VIDEO_FPS=\(.*\)|\1|g" )
-	[[ $? != 0 || ! "$fps" ]] && fps=1
+	[[ $? != 0 || ! "$fps" || "$fps" = "0.000" ]] && fps=1
 
 	local length=$( echo "$mplayer_output" | $grep ID_LENGTH | $sed "s|ID_LENGTH=\(.*\)|\1|g" )
-	if [[ $? != 0 || ! "$length" ]]; then
+	if [[ $? != 0 || ! "$length" || "$length" = "0.00" ]]; then
 		length=1
 	else
 		length=$( echo "scale=0; $length/1"| $bc )
 	fi
 		
 	local bitrate=$( echo "$mplayer_output" | $grep ID_VIDEO_BITRATE | $sed "s|ID_VIDEO_BITRATE=\(.*\)|\1|g" )
-	if [[ $? != 0 || ! "$bitrate" ]]; then
+	if [[ $? != 0 || ! "$bitrate" || "$bitrate" = "0" ]]; then
 		bitrate=1
 	else
 		bitrate=$( echo "scale=0; $bitrate/1"| $bc )
@@ -330,6 +330,15 @@ function display_title_line() {
 		filesize="size"
 		filename="title"
 	fi
+
+	[ "$dimensions" = "1x1" ] && unset dimensions
+	[ "$fps" = "1" ] && unset fps
+	[ "$length" = "0" ] && unset length
+	[ "$bpp" = "0" ] && unset bpp
+	[ "$bitrate" = "0" ] && unset bitrate
+	[ "$filesize" = "0" ] && unset filesize
+	[ "$format" = "0" ] && unset format
+	[ "$passes" = "0" ] && unset passes
 
 	dimensions=$(fill "$dimensions" 9)
 	fps=$(fill "$fps" 6)
