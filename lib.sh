@@ -139,6 +139,7 @@ function clone_vobcopy() {
 	( echo "$cmd"; $bash -c "$cmd" ) &> logs/clone.log
 }
 
+# extract information from file or dvd
 function examine_title() {
 	local file="$1"
 	local mencoder_source="$2"
@@ -204,6 +205,7 @@ function compute_bpp() {
 	echo $bpp
 }
 
+# set bpp based on the codec and number of passes
 function set_bpp() {
 	local video_codec="$1"
 	local twopass="$2"
@@ -219,6 +221,7 @@ function set_bpp() {
 	echo $bpp
 }
 
+# set the number of passes based on codec and bpp
 function set_passes() {
 	local video_codec="$1"
 	local bpp="$2"
@@ -249,12 +252,14 @@ function compute_bitrate() {
 	echo $bitrate
 }
 
+# compute size of media given length and bitrate
 function compute_media_size() {
 	local length="$1"  # in seconds
 	local bitrate="$2"  # kbps
 	echo $( echo "scale=0; ($bitrate/8)*$length/1024" | $bc )
 }
 
+# display a title
 function display_title() {
 	local width="$1"
 	local height="$2"
@@ -272,6 +277,7 @@ function display_title() {
 	display_title_line "" "${width}x${height}" "$fps" "$length" "$bpp" "$bitrate" "$passes" "$format" "$filesize" "$filename"
 }
 
+# truncate string and pad with whitespace to fit the desired length
 function fill() {
 	str=${1:0:$2}
 	local f=$(( $2-${#1} ))
@@ -282,6 +288,7 @@ function fill() {
 	echo "$pad$str"
 }
 
+# set formatting of bpp output depending on value
 function format_bpp() {
 	local bpp="$1"
 	local video_codec="$2"
@@ -309,6 +316,7 @@ function format_bpp() {
 	echo "$bpp"
 }
 
+# print one line of title display, whether header or not
 function display_title_line() {
 	local header="$1"
 	local dimensions="$2"
@@ -383,6 +391,7 @@ function title_scale() {
 	echo $(scale16 "$height/$width" "$nwidth" "$nheight")
 }
 
+# scale dimensions to nearest lower multiple of 16
 function scale16() {
 	local ratio="$1"
 	local width="$2"
