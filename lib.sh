@@ -380,26 +380,23 @@ function title_scale() {
 		fi
 	fi
 
-	#echo $(scale16 "$nwidth" "$nheight")
-	echo "$nwidth" "$nheight"
+	echo $(scale16 "$height/$width" "$nwidth" "$nheight")
 }
 
 function scale16() {
-	local width="$1"
-	local height="$2"
+	local ratio="$1"
+	local width="$2"
+	local height="$3"
 	local divisor=16
 
-	ratio=$( echo "scale=5; $height/$width" | $bc )
-	while (( $width+$height % $divisor > 0 )); do
-		div=$(( $width%$divisor ))
-		#echo "div=$(( $width%$divisor ))"
-		#echo "$width $height"
-		width=$(( $width - $div ))
+	while (( ($width+$height) % $divisor > 0 )); do
+		step=$(( $width%$divisor ))
+		(( $step == 0 )) && step=$divisor
+		width=$(( $width - $step ))
 		height=$( echo "scale=0; $width*$ratio/1" | $bc )
 	done
 
 	echo "$width $height"
-	#echo "$ratio"
 }
 
 # get video codec options
