@@ -431,8 +431,6 @@ function scale16() {
 	local height="$4"
 	local divisor=16
 
-	local pixels=$(( $width * $height ))
-
 	# if the original dimensions are not multiples of 16, no amount of scaling
 	# will bring us to an aspect ratio where the smaller dimensions are
 	if (( ($orig_width%$divisor) + ($orig_height%$divisor) != 0 )); then
