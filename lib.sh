@@ -373,8 +373,6 @@ function display_title_line() {
 function title_scale() {
 	local width="$1"
 	local height="$2"
-	local width=720
-	local height=624
 	local custom_scale="$3"
 
 	local nwidth="$width"
@@ -413,33 +411,21 @@ function title_scale() {
 		scale_info=( $(scale16 "$width" "$height" "$nwidth" "$nheight") )
 		nwidth=${scale_info[0]}
 		nheight=${scale_info[1]}
-
-		# we have downscaled dimensions and processed with scale16. make sure
-		# the result is closer to the desired pixel amount than our starting point
-		# was, otherwise discard it
-		if [[ ! "$custom_scale" && "$need_scaling" ]]; then
-			local pre_distance=$( echo "scale=40; ($width*$height)-($sbaseline)" | $bc )
-			pre_distance=$( echo "scale=0; $pre_distance/1" | $bc )
-			local post_distance=$( echo "scale=40; ($sbaseline)-($nwidth*$nheight)" | $bc )
-			post_distance=$( echo "scale=0; $post_distance/1" | $bc )
-			if (( $post_distance > $pre_distance )); then
-				nwidth="$width"
-				nheight="$height"
-			fi
-		fi
 	fi
 
 	echo "$nwidth $nheight"
 
 }
 
-# scale dimensions to nearest lower multiple of 16
+# scale dimensions to nearest (lower/upper) multiple of 16
 function scale16() {
 	local orig_width="$1"
 	local orig_height="$2"
 	local width="$3"
 	local height="$4"
 	local divisor=16
+
+	local pixels=$(( $width * $height ))
 
 	# if the original dimensions are not multiples of 16, no amount of scaling
 	# will bring us to an aspect ratio where the smaller dimensions are
@@ -448,11 +434,29 @@ function scale16() {
 		height="$orig_height"
 	else
 		local ratio="$orig_height/$orig_width"
-		while (( ($width%$divisor) + ($height%$divisor) > 0 )); do
-			local step=$(( $width%$divisor ))
-			(( $step == 0 )) && step=$divisor
-			width=$(( $width - $step ))
-			height=$( echo "scale=0; $width*$ratio/1" | $bc )
+
+		step=0
+		unset completed
+		while [ ! "$completed" ]; do
+			local up_step=$(( $width + ($step * $divisor) ))
+			local up_width=$(( $up_step - ($up_step % $divisor) ))
+			local up_height=$( echo "scale=0; $up_width*$ratio/1" | $bc )
+			if (( ($up_width % $divisor) + ($up_height % $divisor) == 0 )); then
+				completed="y"
+				width=$up_width
+				height=$up_height
+			fi
+
+			local down_step=$(( $width - ($step * $divisor) ))
+			local down_width=$(( $down_step - ($down_step % $divisor) ))
+			local down_height=$( echo "scale=0; $down_width*$ratio/1" | $bc )
+			if (( ($down_width % $divisor) + ($down_height % $divisor) == 0 )); then
+				completed="y"
+				width=$down_width
+				height=$down_height
+			fi
+
+			step=$(( $step + 1 ))
 		done
 	fi
 
