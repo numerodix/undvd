@@ -411,6 +411,12 @@ function title_scale() {
 		scale_info=( $(scale16 "$width" "$height" "$nwidth" "$nheight") )
 		nwidth=${scale_info[0]}
 		nheight=${scale_info[1]}
+
+		# make sure the new dimensions are sane
+		if (( $nwidth * $nheight <= 0 )); then
+			local nwidth="$width"
+			local nheight="$height"
+		fi
 	fi
 
 	echo "$nwidth $nheight"
@@ -435,28 +441,22 @@ function scale16() {
 	else
 		local ratio="$orig_height/$orig_width"
 
-		step=0
+		step=-1
 		unset completed
 		while [ ! "$completed" ]; do
-			local up_step=$(( $width + ($step * $divisor) ))
-			local up_width=$(( $up_step - ($up_step % $divisor) ))
-			local up_height=$( echo "scale=0; $up_width*$ratio/1" | $bc )
-			if (( ($up_width % $divisor) + ($up_height % $divisor) == 0 )); then
-				completed="y"
-				width=$up_width
-				height=$up_height
-			fi
-
-			local down_step=$(( $width - ($step * $divisor) ))
-			local down_width=$(( $down_step - ($down_step % $divisor) ))
-			local down_height=$( echo "scale=0; $down_width*$ratio/1" | $bc )
-			if (( ($down_width % $divisor) + ($down_height % $divisor) == 0 )); then
-				completed="y"
-				width=$down_width
-				height=$down_height
-			fi
-
 			step=$(( $step + 1 ))
+
+			local up_step=$(( $width + ($step * $divisor) ))
+			local down_step=$(( $width - ($step * $divisor) ))
+			for x_step in $down_step $up_step; do
+				local x_width=$(( $x_step - ($x_step % $divisor) ))
+				local x_height=$( echo "scale=0; $x_width*$ratio/1" | $bc )
+				if (( ($x_width % $divisor) + ($x_height % $divisor) == 0 )); then
+					completed="y"
+					width=$x_width
+					height=$x_height
+				fi
+			done
 		done
 	fi
 
