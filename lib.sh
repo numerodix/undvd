@@ -14,6 +14,11 @@ if [ "$TERM" != "dumb" ]; then
 fi
 
 # constants
+nominal_width="720"
+nominal_height="576"
+standard_ratio="2/3"
+scale_baseline="$nominal_width*$nominal_height*($standard_ratio)^2"  # in pixels
+
 h264_1pass_bpp=.195
 h264_2pass_bpp=.150
 
@@ -387,7 +392,7 @@ function title_scale() {
 		# apply default scaling heuristic
 		else
 			# compute scaling factor based on baseline value
-			local sbaseline="720*576*(2/3)^2"
+			local sbaseline="$scale_baseline"
 			local scurrent="$width*$height"
 			local sfactor="sqrt($sbaseline/($scurrent))"
 
