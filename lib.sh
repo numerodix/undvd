@@ -61,8 +61,7 @@ mplayer_vcodecs="mpeg-2"
 ### FUNCTIONS
 
 function display_tool_banner() {
-	#echo -e "${h1}{( --- $(basename $0) $version --- )}${r}"
-	echo -e "${h1}$(basename $0) $version (C) $author $email${r}"
+	echo -e "${h1}{( --- $(basename $0) $version --- )}${r}"
 }
 
 # check for missing dependencies
@@ -370,40 +369,92 @@ function display_title_line() {
 	echo -e "${pre}$dimensions  $fps  $length  $bpp  $bitrate  $passes $format  $filesize  $filename${post}"
 }
 
-# compute title scaling with mplayer
+# compute title scaling
 function title_scale() {
 	local width="$1"
 	local height="$2"
+	local width=720
+	local height=624
 	local custom_scale="$3"
 
 	local nwidth="$width"
 	local nheight="$height"
-	if [ "$custom_scale" != "0" ]; then
+	if [ "$custom_scale" != "0" ]; then  # scaling isn't disabled
+		
+		# scale to the width given by user (upscaling permitted)
 		if [ "$custom_scale" ]; then
 			nwidth=$(( $width * $custom_scale/$width ))
 			nheight=$(( $height * $custom_scale/$width ))
+
+		# apply default scaling heuristic
 		else
-			nwidth=$(( $width * 2/3 ))
-			nheight=$(( $height * 2/3 ))
+			# compute scaling factor based on baseline value
+			local sbaseline="720*576*(2/3)^2"
+			local scurrent="$width*$height"
+			local sfactor="sqrt($sbaseline/($scurrent))"
+
+			# evaluate factor*1000 to integer value
+			local factor=$( echo "scale=40; $sfactor*1000/1" | $bc )
+			local factor=$( echo "scale=0; $factor/1" | $bc )
+
+			# if multiplier is less than 1 we will downscale
+			(( $factor < 1000 )) && local need_scaling="y"
+	
+			# scale by factor
+			if [ "$need_scaling" ]; then
+				nwidth=$( echo "scale=40; $width*$sfactor" | $bc )
+				nwidth=$( echo "scale=0; ($nwidth+1)/1" | $bc )
+				nheight=$( echo "scale=40; $height*$sfactor" | $bc )
+				nheight=$( echo "scale=0; ($nheight+1)/1" | $bc )
+			fi
+		fi
+
+		# dimensions have been changed, make sure they are multiples of 16
+		scale_info=( $(scale16 "$width" "$height" "$nwidth" "$nheight") )
+		nwidth=${scale_info[0]}
+		nheight=${scale_info[1]}
+
+		# we have downscaled dimensions and processed with scale16. make sure
+		# the result is closer to the desired pixel amount than our starting point
+		# was, otherwise discard it
+		if [[ ! "$custom_scale" && "$need_scaling" ]]; then
+			local pre_distance=$( echo "scale=40; ($width*$height)-($sbaseline)" | $bc )
+			pre_distance=$( echo "scale=0; $pre_distance/1" | $bc )
+			local post_distance=$( echo "scale=40; ($sbaseline)-($nwidth*$nheight)" | $bc )
+			post_distance=$( echo "scale=0; $post_distance/1" | $bc )
+			if (( $post_distance > $pre_distance )); then
+				nwidth="$width"
+				nheight="$height"
+			fi
 		fi
 	fi
 
-	echo $(scale16 "$height/$width" "$nwidth" "$nheight")
+	echo "$nwidth $nheight"
+
 }
 
 # scale dimensions to nearest lower multiple of 16
 function scale16() {
-	local ratio="$1"
-	local width="$2"
-	local height="$3"
+	local orig_width="$1"
+	local orig_height="$2"
+	local width="$3"
+	local height="$4"
 	local divisor=16
 
-	while (( ($width+$height) % $divisor > 0 )); do
-		step=$(( $width%$divisor ))
-		(( $step == 0 )) && step=$divisor
-		width=$(( $width - $step ))
-		height=$( echo "scale=0; $width*$ratio/1" | $bc )
-	done
+	# if the original dimensions are not multiples of 16, no amount of scaling
+	# will bring us to an aspect ratio where the smaller dimensions are
+	if (( ($orig_width%$divisor) + ($orig_height%$divisor) != 0 )); then
+		width="$orig_width"
+		height="$orig_height"
+	else
+		local ratio="$orig_height/$orig_width"
+		while (( ($width%$divisor) + ($height%$divisor) > 0 )); do
+			local step=$(( $width%$divisor ))
+			(( $step == 0 )) && step=$divisor
+			width=$(( $width - $step ))
+			height=$( echo "scale=0; $width*$ratio/1" | $bc )
+		done
+	fi
 
 	echo "$width $height"
 }
