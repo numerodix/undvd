@@ -5,8 +5,6 @@
 
 # undvd version
 version=0.4.0
-author="Martin Matusiak"
-email="<numerodix@gmail.com>"
 
 # initialize colors if the terminal can support them
 if [ "$TERM" != "dumb" ]; then
@@ -27,12 +25,7 @@ xvid_2pass_bpp=.200
 
 standard_audio_bitrate=160
 
-# h264 encoding options
-#h264="x264 -x264encopts subq=5:frameref=2:partitions=all:weight_b:bitrate=$bitrate:threads=auto"
-#faac="faac -faacopts object=1:tns:quality=100"
-
-# xvid encoding options
-#xvid="xvid -xvidencopts bitrate=$bitrate"
+# audio encoding options
 lame="mp3lame -lameopts vbr=2:q=3"
 
 # codec defaults
