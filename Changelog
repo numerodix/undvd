@@ -1,3 +1,10 @@
+0.4.1:
+* Smarter scaling based on a sensible constant for the number of pixels in a
+frame of video instead of constant scaling along the width.
+* Scaling enforces a target framesize of an even number of 16x16 pixel blocks.
+* Make vidstat more resistant to bad input from video files and omit output of
+unknown values.
+
 0.4.0:
 * Bitrate is now set dynamically based on bpp.
 * New dry-run option -D for undvd to examine encoding parameters.
