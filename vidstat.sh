@@ -9,7 +9,7 @@ p=$(dirname $(readlink -f $0)); . $p/lib.sh
 
 display_tool_banner
 
-usage="Usage:  ${b}vidstat.sh ${r}[${bb}<file(s)>${r} | ${b}-d ${bb}/dev/dvd${r} | ${b}-q ${bb}/path${r} | ${b}-i ${bb}disc.iso${r}]
+usage="Usage:  ${b}$(basename $0) ${r}[${bb}<file(s)>${r} | ${b}-d ${bb}/dev/dvd${r} | ${b}-q ${bb}/path${r} | ${b}-i ${bb}disc.iso${r}]
   <fs> files to read
   -d   dvd device to read from (default is ${bb}/dev/dvd${r})
   -q   dvd directory to read from

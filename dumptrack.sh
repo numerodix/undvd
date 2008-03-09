@@ -9,7 +9,7 @@ p=$(dirname $(readlink -f $0)); . $p/lib.sh
 
 display_tool_banner
 
-usage="Usage:  ${b}dumptrack.sh -s ${bb}<file>${b} -t ${bb}01${b} -o ${bb}<file>${r}
+usage="Usage:  ${b}$(basename $0) -s ${bb}<file>${b} -t ${bb}01${b} -o ${bb}<file>${r}
   -s   source file
   -t   title to dump
   -o   output filename"

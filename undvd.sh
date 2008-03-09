@@ -11,7 +11,7 @@ p=$(dirname $(readlink -f $0)); . $p/lib.sh
 
 display_tool_banner
 
-usage="Usage:  ${b}undvd.sh -t ${bb}01,02,03${b} -a ${bb}en${b} -s ${bb}es${b} ${r}[${b}-d ${bb}/dev/dvd${r}] [${b}more options${r}]\n
+usage="Usage:  ${b}$(basename $0) -t ${bb}01,02,03${b} -a ${bb}en${b} -s ${bb}es${b} ${r}[${b}-d ${bb}/dev/dvd${r}] [${b}more options${r}]\n
   -t   titles to rip (comma separated)
   -a   audio language (two letter code, eg. ${bb}en${r})
   -s   subtitle language (two letter code or ${bb}off${r})\n
