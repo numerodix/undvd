@@ -47,9 +47,13 @@ rpm_deps="mencoder, mplayer, lsdvd, coreutils, bash, bc, findutils, gawk, grep, 
 deb_section="multiverse/graphics"
 rpm_group="Applications/Multimedia"
 
+ubuntu_version=$(cat /etc/lsb-release | grep DISTRIB_CODENAME | sed "s/DISTRIB_CODENAME=//g")
+
 myname=$(git-config user.name)
 myemail=$(git-config user.email)
 
+ubuntu_ppa="my-ppa"
+gpg_keyid=$(gpg --list-keys $myemail | grep pub | awk '{ print $2 }' | sed "s%.*\/%%g")
 
 
 function tarball() {
@@ -116,6 +120,7 @@ function ubuntu() {
 	
 	# patch changelog file
 	sed -i "s|$v-1|$v-0ubuntu$r|g" changelog ;
+	sed -i "s|unstable|$ubuntu_version|g" changelog ;
 	sed -i "s|* Initial release.*|* New upstream release|g" changelog ;
 	
 	# patch copyright file
@@ -238,8 +243,16 @@ elif [ "$action" = "sf" ]; then
 	fedora pub
 	gentoo pub
 	ubuntu pub
-	cd pub
-	ftp-upload -h upload.sourceforge.net -d incoming *
+	( cd pub ;
+	ftp-upload -h upload.sourceforge.net -d incoming * )
+elif [ "$action" = "ppa" ]; then
+	rm -rf pub
+	DEBUG=1	 # can't remove builddir for this operation
+	ubuntu pub
+	( cd pub/debtmp/$proj-$v ;
+	debuild -S -sa -k$gpg_keyid ;
+	cd .. ;
+	dput $ubuntu_ppa ${proj}_$v-0ubuntu${r}_source.changes )
 else
 	package pub
 fi
