@@ -52,8 +52,12 @@ ubuntu_version=$(cat /etc/lsb-release | grep DISTRIB_CODENAME | sed "s/DISTRIB_C
 myname=$(git-config user.name)
 myemail=$(git-config user.email)
 
-ubuntu_ppa="my-ppa"
+ubuntu_ppa_name="my-ppa"
 gpg_keyid=$(gpg --list-keys $myemail | grep pub | awk '{ print $2 }' | sed "s%.*\/%%g")
+
+debtag="0ubuntu"
+#ppa_revision="~ppa1"
+ubuntu_revision="${debtag}${r}${ppa_revision}"
 
 
 function tarball() {
@@ -119,7 +123,7 @@ function ubuntu() {
 	sed -i "s|<insert long.*|$desc_long|g" control ;
 	
 	# patch changelog file
-	sed -i "s|$v-1|$v-0ubuntu$r|g" changelog ;
+	sed -i "s|$v-1|$v-$ubuntu_revision|g" changelog ;
 	sed -i "s|unstable|$ubuntu_version|g" changelog ;
 	sed -i "s|* Initial release.*|* New upstream release|g" changelog ;
 	
@@ -133,9 +137,43 @@ function ubuntu() {
 	cd .. ;
 	dpkg-buildpackage -rfakeroot )
 	
-	cp $tmp/${proj}_$v-0ubuntu1_$deb_arch.deb $dest
+	cp $tmp/${proj}_$v-${ubuntu_revision}_${deb_arch}.deb $dest
 	
 	[ $DEBUG ] || rm -rf $tmp
+}
+
+function ubuntu_ppa() {
+	rm -rf pub
+
+	# set ubuntu_revision to ppa friendly mode
+	touch dist/ppa_version_cache
+	next_pparev=$(grep "$v" dist/ppa_version_cache | sed "s%$v \(.*\)%\1%g")
+	[ ! "$next_pparev" ] && next_pparev="1"
+	ppa_revision="~ppa$next_pparev"
+	ubuntu_revision="${debtag}${r}${ppa_revision}"
+
+	# build the package
+	DEBUG=1	 # can't remove builddir for this operation
+	ubuntu pub
+
+	# push to ppa
+	unset GPG_AGENT_INFO
+	( cd pub/debtmp/$proj-$v ;
+	debuild -S -sa -k$gpg_keyid )
+	dput $ubuntu_ppa_name \
+		pub/debtmp/${proj}_$v-${ubuntu_revision}_source.changes && ok=y 
+
+	# upload succeeded, increment ppa version cache
+	if [ "$ok" ]; then
+		( cd dist ;
+		if grep $v ppa_version_cache; then
+			prev=$(grep "$v" ppa_version_cache | sed "s%$v \(.*\)%\1%g")
+			next=$(( $prev+1 ))
+			sed -i "s%$v \(.*\)%$v $next%g" ppa_version_cache
+		else
+			echo "$v 2" >> ppa_version_cache
+		fi )
+	fi
 }
 
 function fedora() {
@@ -246,13 +284,7 @@ elif [ "$action" = "sf" ]; then
 	( cd pub ;
 	ftp-upload -h upload.sourceforge.net -d incoming * )
 elif [ "$action" = "ppa" ]; then
-	rm -rf pub
-	DEBUG=1	 # can't remove builddir for this operation
-	ubuntu pub
-	( cd pub/debtmp/$proj-$v ;
-	debuild -S -sa -k$gpg_keyid ;
-	cd .. ;
-	dput $ubuntu_ppa ${proj}_$v-0ubuntu${r}_source.changes )
+	ubuntu_ppa
 else
 	package pub
 fi
