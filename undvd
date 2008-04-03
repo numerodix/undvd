@@ -22,7 +22,7 @@ usage="Usage:  ${b}$(basename $0) -t ${bb}01,02,03${b} -a ${bb}en${b} -s ${bb}es
   -C   do sanity check (check for missing tools)
   -z   <show advanced options>"
 
-adv_usage="Advanced usage:  ${b}undvd.sh ${r}[${b}standard options${r}] [${b}advanced options${r}]
+adv_usage="Advanced usage:  ${b}$(basename $0) ${r}[${b}standard options${r}] [${b}advanced options${r}]
   -o   output file size in mb (integer value)
   -1   force 1-pass encoding
   -2   force 2-pass encoding

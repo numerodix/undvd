@@ -61,9 +61,9 @@ color: green; }
 <h2>Quick start</h2>
 
 <ol>
-<li>Run <c>scandvd.sh</c> to list all the titles on the disc.
+<li>Run <c>scandvd</c> to list all the titles on the disc.
 <li>If in doubt about what the titles are, play with mplayer: <c>mplayer dvd://01</c>
-<li>Run <c>undvd.sh -t <h>01</h> -a <h>en</h> -s <h>es</h></c> to rip only the <e>first</e> title, with <e>English</e> audio and <e>Spanish</e> subtitles.
+<li>Run <c>undvd -t <h>01</h> -a <h>en</h> -s <h>es</h></c> to rip only the <e>first</e> title, with <e>English</e> audio and <e>Spanish</e> subtitles.
 </ol>
 
 
@@ -99,7 +99,7 @@ And these are special video tools we need:
 
 <h3>Find out which title(s) to rip</h3>
 
-<p><c>scandvd.sh</c> uses <e>lsdvd</e> to print a list of titles on the disc. Each line in the output looks like this:</p>
+<p><c>scandvd</c> uses <e>lsdvd</e> to print a list of titles on the disc. Each line in the output looks like this:</p>
 
 <table><tr>
 <td>03</td>
@@ -108,24 +108,24 @@ And these are special video tools we need:
 <td><c>subtitles:</c> en es nl</td>
 </tr></table>
 
-<p>This particular title has two audio tracks and three subtitles. You can also tell <c>scandvd.sh</c> which device to scan:</p>
+<p>This particular title has two audio tracks and three subtitles. You can also tell <c>scandvd</c> which device to scan:</p>
 
-<code>scandvd.sh -d <h>/dev/dvd</h></code>
+<code>scandvd -d <h>/dev/dvd</h></code>
 
 <p>Or, if you already have the dvd mounted, you can give it a path:</p>
 
-<code>scandvd.sh -q <h>/path</h></code>
+<code>scandvd -q <h>/path</h></code>
 
 <p>Or, if you have an iso image you want to rip from:</p>
 
-<code>scandvd.sh -i <h>disc.iso</h></code>
+<code>scandvd -i <h>disc.iso</h></code>
 
 
 <h3>Rip titles</h3>
 
-<p>Once you know which titles to rip, run <c>undvd.sh</c>, where the first argument is the title(s), the second is the audio, the third is the subtitles (the rest are optional):</p>
+<p>Once you know which titles to rip, run <c>undvd</c>, where the first argument is the title(s), the second is the audio, the third is the subtitles (the rest are optional):</p>
 
-<p><c>undvd.sh -t <h>01,02,03</h> -a <h>en</h> -s <h>es</h> [-e <h>200</h>] [-d <h>/dev/dvd</h>] [more options]</c></p>
+<p><c>undvd -t <h>01,02,03</h> -a <h>en</h> -s <h>es</h> [-e <h>200</h>] [-d <h>/dev/dvd</h>] [more options]</c></p>
 
 <table>
 <tr><td><c>-t<c></td><td>titles to rip (comma separated)</td></tr>
@@ -141,18 +141,18 @@ And these are special video tools we need:
 
 <p>So to rip the <i>first</i> title with <i>English</i> audio and no subtitles from a dvd (assuming your dvd device is called /dev/dvd) you would run:</p>
 
-<code>undvd.sh -t <h>01</h> -a <h>en</h> -s <h>off</h> -d <h>/dev/dvd</h></code>
+<code>undvd -t <h>01</h> -a <h>en</h> -s <h>off</h> -d <h>/dev/dvd</h></code>
 
 <p>Normally, you omit the <c>-e</c> parameter, but it's useful if you want to just rip a small part of the title to see that it works and that it looks good.</p>
 
-<p><c>undvd.sh</c> first copies the entire disc to the harddisk with <e>dd</e>. It then encodes the title(s) with <e>mencoder</e>, part of <e>mplayer</e>. The output format uses <a href="http://en.wikipedia.org/wiki/H264">x264</a> compression (optionally xvid) for the video and mp3 for the audio.</p>
+<p><c>undvd</c> first copies the entire disc to the harddisk with <e>dd</e>. It then encodes the title(s) with <e>mencoder</e>, part of <e>mplayer</e>. The output format uses <a href="http://en.wikipedia.org/wiki/H264">x264</a> compression (optionally xvid) for the video and mp3 for the audio.</p>
 
 
 <h3>Advanced options</h3>
 
 The above options are sufficient to get a good quality rip, but if you need more control over the process, there are some extra options you can set.
 
-<p><c>undvd.sh -t <h>01,02,03</h> -a <h>en</h> -s <h>es</h> [-e <h>200</h>] [-d <h>/dev/dvd</h>] [more options]</c></p>
+<p><c>undvd -t <h>01,02,03</h> -a <h>en</h> -s <h>es</h> [-e <h>200</h>] [-d <h>/dev/dvd</h>] [more options]</c></p>
 
 <table>
 <tr><td><c>-o<c></td><td>output file size in mb (integer value)</td></tr>
@@ -160,6 +160,7 @@ The above options are sufficient to get a good quality rip, but if you need more
 <tr><td><c>-2<c></td><td>force 2-pass encoding</td></tr>
 <tr><td><c>-u<c></td><td>dvd is encrypted (requires libdvdcss to read)</td></tr>
 <tr><td><c>-n<c></td><td>no disc cloning (encode straight from the dvd, save diskspace)</td></tr>
+<tr><td><c>-c<c></td><td>autocrop video</td></tr>
 <tr><td><c>-r<c></td><td>scale video to width (integer value), <h>0</h> for no scaling</td></tr>
 <tr><td><c>-f<c></td><td>use picture smoothing filter (not recommended for top quality source content)</td></tr>
 <tr><td><c>-x<c></td><td>use xvid compression (faster, slightly lower quality)</td></tr>
@@ -171,7 +172,7 @@ The above options are sufficient to get a good quality rip, but if you need more
 
 <p>This depends mostly on your cpu. Copying the dvd to disk can take about <e>10-15 minutes</e>. Encoding the video can take about <e>2-5 minutes per minute of video</e> (so for a 2 hour movie - 4h-10h).</p>
 
-<p><c>undvd.sh</c> uses <e>mencoder</e>'s estimate to give you an idea of how long it takes. For every title it displays a line like this:</p>
+<p><c>undvd</c> uses <e>mencoder</e>'s estimate to give you an idea of how long it takes. For every title it displays a line like this:</p>
 
 <table><tr>
 <td><h>[-]</h></td>
@@ -193,14 +194,14 @@ The above options are sufficient to get a good quality rip, but if you need more
 
 <p>At this point, 54.5 seconds of video have been processed, which is 3% of the title. The current rate is 13 frames/second (normally there are about 25 fps in a movie), and the time remaining is estimated to 44 minutes. The output file is estimated at 277mb.</p>
 
-<p><b>Note:</b> <c>undvd.sh</c> runs at the lowest priority, so it should not interfere with use of your computer, it just runs in the background. (The less you use computer the faster it will run :-)</p>
+<p><b>Note:</b> <c>undvd</c> runs at the lowest priority, so it should not interfere with use of your computer, it just runs in the background. (The less you use computer the faster it will run :-)</p>
 
 
 <h2>Problems?</h2>
 
 <dl>
 <dt>Q. How do I make a high quality rip without down scaling the image?
-<dd>A. By default, undvd.sh scales the image to 2/3 of the original dimensions, in order to produce a reasonable file size without sacrificing quality. Even though video players scale the image to fullscreen, the quality typically remains high. You can override the scaling by setting -r 0, which will preserve the original video dimensions. In this case you probably want to set the output size with -o as well, to force a higher bitrate.
+<dd>A. By default, undvd scales the image to 2/3 of the original dimensions, in order to produce a reasonable file size without sacrificing quality. Even though video players scale the image to fullscreen, the quality typically remains high. You can override the scaling by setting -r 0, which will preserve the original video dimensions. In this case you probably want to set the output size with -o as well, to force a higher bitrate.
 
 <dt>Q. When I preview a file in progress, the video is out of sync with the audio.
 <dd>A. Wait until it's finished, then it should be fine.
