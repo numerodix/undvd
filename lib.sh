@@ -146,7 +146,7 @@ function examine_title() {
 	if [ "$mencoder_source" -a "$title" ]; then
 		src="-dvd-device \"$mencoder_source\" dvd://$title"
 	fi
-	cmd="mplayer -ao null -vo null -frames 0 -identify $src 2>&1"
+	local cmd="mplayer -ao null -vo null -frames 0 -identify $src 2>&1"
 	local mplayer_output=$($bash -c "$cmd")
 
 	local width=$( echo "$mplayer_output" | $grep ID_VIDEO_WIDTH | $sed "s|ID_VIDEO_WIDTH=\(.*\)|\1|g" )
@@ -180,6 +180,29 @@ function examine_title() {
 	fi
 
 	echo "$width $height $fps $length $bitrate $format"
+}
+
+# extract information from file or dvd
+function crop_title() {
+	local mencoder_source="$1"
+	local title="$2"
+
+	local src="-dvd-device \"$mencoder_source\" dvd://$title"
+	local cmd="mplayer -ao null -vo null -fps 10000 -vf cropdetect $src 2>&1"
+	local mplayer_output=$($bash -c "$cmd")
+
+	local crop_filter=$(echo "$mplayer_output" |\
+		 awk '/CROP/' | tail -n1 | sed 's|.*(-vf crop=\(.*\)).*|\1|g')
+
+	local w=$(echo "$crop_filter" | sed "s|\(.*\):.*:.*:.*|\1|g")
+	local h=$(echo "$crop_filter" | sed "s|.*:\(.*\):.*:.*|\1|g")
+	local x=$(echo "$crop_filter" | sed "s|.*:.*:\(.*\):.*|\1|g")
+	local y=$(echo "$crop_filter" | sed "s|.*:.*:.*:\(.*\)|\1|g")
+
+	local width=$(( $w-$x ))
+	local height=$(( $h-$y ))
+
+	echo "$width $height $crop_filter"
 }
 
 # compute bits per pixel

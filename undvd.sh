@@ -19,7 +19,7 @@ usage="Usage:  ${b}$(basename $0) -t ${bb}01,02,03${b} -a ${bb}en${b} -s ${bb}es
   -q   dvd directory to rip from
   -i   dvd iso image to rip from\n
   -e   exit after this many seconds (usually for testing)\n
-  -c   do sanity check (check for missing tools)
+  -C   do sanity check (check for missing tools)
   -z   <show advanced options>"
 
 adv_usage="Advanced usage:  ${b}undvd.sh ${r}[${b}standard options${r}] [${b}advanced options${r}]
@@ -28,12 +28,13 @@ adv_usage="Advanced usage:  ${b}undvd.sh ${r}[${b}standard options${r}] [${b}adv
   -2   force 2-pass encoding
   -u   dvd is encrypted (requires libdvdcss to read)
   -n   no disc cloning (encode straight from the dvd, save disk space)
+  -c   autocrop video
   -r   scale video to width (integer value), ${bb}0${r} for no scaling
   -f   use picture smoothing filter
   -x   use xvid compression (faster, slightly lower quality)
   -D   dry run (display encoding parameters without encoding)"
 
-while getopts "t:a:s:e:d:q:i:o:r:12unfxDcz" opts; do
+while getopts "t:a:s:e:d:q:i:o:r:12uncfxDCz" opts; do
 	case $opts in
 		t ) titles=$(echo $OPTARG | $sed 's|,| |g');;
 		a ) alang=$OPTARG;;
@@ -50,12 +51,13 @@ while getopts "t:a:s:e:d:q:i:o:r:12unfxDcz" opts; do
 		2 ) target_twopass=y;target_passes="2";;
 		u ) encrypted="y";;
 		n ) skipclone="y";mencoder_source="$dvd_device";;
+		c ) autocrop=y;;
 		r ) custom_scale="$OPTARG";;
 		f ) prescale="spp,";postscale=",hqdn3d";;
 		x ) video_codec="xvid";acodec="$lame";;
 		D ) dry_run="y";;
 		
-		c ) init_cmds "y"; exit;;
+		C ) init_cmds "y"; exit;;
 		z ) echo -e "$adv_usage"; exit;;
 		* ) echo -e "$usage"; exit 1;;
 	esac
@@ -139,6 +141,16 @@ for title in $titles; do
 	height=${info[1]}
 	fps=${info[2]}
 	length=${info[3]}
+	
+	# Do we need to crop?
+
+	if [ "$autocrop" ]; then
+		echo -en " + Finding out how much to crop...\r"
+		info=($(crop_title "$mencoder_source" "$title"))
+		width=${info[0]}
+		height=${info[1]}
+		crop_filter="crop=${info[2]},"
+	fi
 
 	# Find out how to scale the dimensions
 	
@@ -211,9 +223,8 @@ for title in $titles; do
 			-dvd-device \"$mencoder_source\" \
 			-alang ${alang} \
 			-slang ${slang} \
-			${crop} \
 			${endpos} \
-			-vf ${prescale}${scale}${postscale} \
+			-vf ${crop_filter}${prescale}${scale}${postscale} \
 			-ovc ${vcodec} \
 			-oac ${acodec}"
 			run_encode "$cmd" "$title" "$twopass" "$pass"
