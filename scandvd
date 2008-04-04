@@ -59,4 +59,4 @@ echo -e "${r}\nTo watch a title:"
 echo -e " ${b}mplayer       dvd://${bb}01${b}     -alang ${bb}en${b}  -slang ${bb}en/off${r}"
 
 echo -e "${r}To rip titles:"
-echo -e " ${b}undvd.sh      -t ${bb}01,02,03${b}  -a ${bb}en${b}      -s ${bb}en/off${r}"
+echo -e " ${b}undvd         -t ${bb}01,02,03${b}  -a ${bb}en${b}      -s ${bb}en/off${r}"
