@@ -67,7 +67,6 @@ if [ "$opt_noclone" ]; then
 	mencoder_source="$dvd_device"
 fi
 
-endpos=""
 if [ "$end" ]; then
 	endpos="-endpos $end"
 fi
