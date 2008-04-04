@@ -194,13 +194,8 @@ function crop_title() {
 	local crop_filter=$(echo "$mplayer_output" |\
 		 awk '/CROP/' | tail -n1 | sed 's|.*(-vf crop=\(.*\)).*|\1|g')
 
-	local w=$(echo "$crop_filter" | sed "s|\(.*\):.*:.*:.*|\1|g")
-	local h=$(echo "$crop_filter" | sed "s|.*:\(.*\):.*:.*|\1|g")
-	local x=$(echo "$crop_filter" | sed "s|.*:.*:\(.*\):.*|\1|g")
-	local y=$(echo "$crop_filter" | sed "s|.*:.*:.*:\(.*\)|\1|g")
-
-	local width=$(( $w-$x ))
-	local height=$(( $h-$y ))
+	local width=$(echo "$crop_filter" | sed "s|\(.*\):.*:.*:.*|\1|g")
+	local height=$(echo "$crop_filter" | sed "s|.*:\(.*\):.*:.*|\1|g")
 
 	echo "$width $height $crop_filter"
 }
