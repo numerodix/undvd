@@ -50,7 +50,7 @@ while getopts "t:a:s:e:d:q:i:o:r:12uncfxDCz" opts; do
 		1 ) target_passes="1";;
 		2 ) target_twopass=y;target_passes="2";;
 		u ) encrypted="y";;
-		n ) skipclone="y";mencoder_source="$dvd_device";;
+		n ) skipclone="y";opt_noclone="y";;
 		c ) autocrop=y;;
 		r ) custom_scale="$OPTARG";;
 		f ) prescale="spp,";postscale=",hqdn3d";;
@@ -63,6 +63,9 @@ while getopts "t:a:s:e:d:q:i:o:r:12uncfxDCz" opts; do
 	esac
 done
 
+if [ "$opt_noclone" ]; then
+	mencoder_source="$dvd_device"
+fi
 
 endpos=""
 if [ "$end" ]; then
