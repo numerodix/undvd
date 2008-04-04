@@ -1,6 +1,7 @@
 0.4.2:
 * New switch -c enables autocropping.
 * Get rid of .sh suffix for executable scripts.
+* Fix long suspected misbehavior due to non deterministic option parsing.
 * Add packaging option: publish to ubuntu ppa.
 
 0.4.1:
