@@ -1,3 +1,8 @@
+0.4.2:
+* New switch -c enables autocropping.
+* Get rid of .sh suffix for executable scripts.
+* Add packaging option: publish to ubuntu ppa.
+
 0.4.1:
 * Smarter scaling based on a sensible constant for the number of pixels in a
 frame of video instead of constant scaling along the width.
