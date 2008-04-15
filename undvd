@@ -42,7 +42,7 @@ while getopts "t:a:s:e:d:q:i:o:r:12uncfxDCz" opts; do
 		
 		d ) dvd_device=$OPTARG;;
 		q ) dvdisdir="y";mencoder_source="$OPTARG";;
-		i ) skipclone="y";mencoder_source="$OPTARG";;
+		i ) dvdisiso="y";skipclone="y";mencoder_source="$OPTARG";;
 		
 		e ) end=$OPTARG;;
 		
@@ -64,7 +64,9 @@ while getopts "t:a:s:e:d:q:i:o:r:12uncfxDCz" opts; do
 done
 
 if [ "$opt_noclone" ]; then
-	mencoder_source="$dvd_device"
+	if [[ ! "$dvdisdir" && ! "$dvdisiso" ]]; then
+		mencoder_source="$dvd_device"
+	fi
 fi
 
 if [ "$end" ]; then
