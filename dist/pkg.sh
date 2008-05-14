@@ -129,7 +129,7 @@ function ubuntu() {
 	
 	# patch copyright file
 	sed -i "s|It was downloaded from .*|It was downloaded from $proj_url|g" copyright ;
-	sed -i "s|.*<put author|\t$myname <$myemail>|g" copyright ;
+	sed -i "s|.*<put author.*|\t$myname <$myemail>|g" copyright ;
 	sed -i "s|.*<likewise for another author.*||g" copyright ;
 	sed -i "s|.*<Copyright (C) .*|\tCopyright (C) $(date +%Y) $myname|g" copyright ;
 	
