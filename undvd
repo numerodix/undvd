@@ -87,9 +87,7 @@ if [ ! "$alang" ]; then
 fi
 
 if [ ! "$slang" ]; then
-	echo -e "${e}No subtitle language selected, exiting (use ${bb}off${e} if you don't want any)${r}"
-	echo -e "$usage"
-	exit 1
+	slang="off"
 fi
 
 
