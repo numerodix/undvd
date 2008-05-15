@@ -158,6 +158,10 @@ for title in $titles; do
 		width=${info[0]}
 		height=${info[1]}
 		crop_filter="crop=${info[2]},"
+		if [[ ! "$width" || ! "$height" || ! "$crop_filter" ]]; then
+			echo "${e}Crop detection failed${r}"
+			exit 1
+		fi
 	fi
 
 	# Find out how to scale the dimensions
