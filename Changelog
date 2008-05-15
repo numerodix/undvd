@@ -1,6 +1,8 @@
 0.4.3:
-* Fix unpredictable behavior when both -n and -i or -q are set.
 * Make subtitle selection optional (off by default).
+* Fix unpredictable behavior when both -n and -i or -q are set.
+* Fix cryptic bug when dvd device is set incorrectly.
+* Fix bug that occurs when crop detection fails. New behavior is to halt.
 
 0.4.2:
 * New switch -c enables autocropping.
