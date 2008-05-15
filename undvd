@@ -54,7 +54,7 @@ while getopts "t:a:s:e:d:q:i:o:r:12uncfxDCz" opts; do
 		c ) autocrop=y;;
 		r ) custom_scale="$OPTARG";;
 		f ) prescale="spp,";postscale=",hqdn3d";;
-		x ) video_codec="xvid";acodec="$lame";;
+		x ) video_codec="xvid";;
 		D ) dry_run="y";;
 		
 		C ) init_cmds "y"; exit;;

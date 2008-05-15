@@ -123,10 +123,10 @@ function clone_vobcopy() {
 	mnt_point=$($mount | $grep $dvd_device | $awk '{ print $3 }')
 
 	if [ ! "$mnt_point" ]; then
-		echo -e "\n${wa}=>${r} Your dvd device $dvd_device has to be mounted for this."
-		echo -e "${wa}=>${r} Mount the dvd and supply the device to undvd, eg:"
+		echo -e "\n${wa}=>${r} Your dvd device ${bb}$dvd_device${r} has to be mounted for this."
+		echo -e "${wa}=>${r} Mount the dvd and supply the device to $(basename $0), eg:"
 		echo -e "    ${b}sudo mount ${bb}${dvd_device}${b} /mnt/dvd -t iso9660${r}"
-		echo -e "    ${b}undvd.sh -d ${bb}${dvd_device}${r} [${b}other options${r}]"
+		echo -e "    ${b}$(basename $0) -d ${bb}${dvd_device}${r} [${b}other options${r}]"
 	fi
 	
 	[ -d "$dir" ] && rm -rf $dir
