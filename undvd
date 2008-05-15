@@ -159,7 +159,7 @@ for title in $titles; do
 		height=${info[1]}
 		crop_filter="crop=${info[2]},"
 		if [[ ! "$width" || ! "$height" || ! "$crop_filter" ]]; then
-			echo -e "${e}Crop detection failed${r}"
+			echo -e "${e}Crop detection failed${r}         "
 			exit 1
 		fi
 	fi
