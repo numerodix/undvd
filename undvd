@@ -63,6 +63,12 @@ while getopts "t:a:s:e:d:q:i:o:r:12uncfxDCz" opts; do
 	esac
 done
 
+if [ ! -e "$dvd_device" ]; then
+	echo -e "${wa}=>${r} The dvd device ${bb}$dvd_device${r} does not exist."
+	echo -e "${wa}=>${r} Supply the right dvd device to $(basename $0), eg:"
+	echo -e "    ${b}$(basename $0) -d ${bb}${dvd_device}${r} [${b}other options${r}]"
+fi
+
 if [ "$opt_noclone" ]; then
 	if [[ ! "$dvdisdir" && ! "$dvdisiso" ]]; then
 		mencoder_source="$dvd_device"
