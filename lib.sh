@@ -46,7 +46,7 @@ timer_refresh=5
 
 # tools we need
 videoutils="lsdvd mencoder mplayer vobcopy"
-shellutils="awk bash bc grep egrep mount ps sed xargs"
+shellutils="awk bash bc grep egrep getopt mount ps sed xargs"
 coreutils="cat date dd dirname mkdir mv nice readlink rm seq sleep tail tr"
 
 mencoder_acodecs="mp3lame"
@@ -58,8 +58,10 @@ mplayer_vcodecs="mpeg-2"
 
 ### FUNCTIONS
 
+tool_name=$(basename $0)
+
 function display_tool_banner() {
-	echo -e "${h1}{( --- $(basename $0) $version --- )}${r}"
+	echo -e "${h1}{( --- ${tool_name} $version --- )}${r}"
 }
 
 # check for missing dependencies
@@ -101,6 +103,26 @@ function codec_check() {
 			echo -e "   ${ok}*${r} $codec"
 		fi
 	done
+}
+
+# generate parse command to execute in caller
+# note: $usage and $@ variables evaluated in calling context!
+function get_parsecmd() {
+	local tool_name="$1"; shift;
+	local shorts="$1"; shift;
+	local longs="$1"; shift;
+
+	echo "
+		echo -en \${e};
+		opts=\`\$getopt -o \"$shorts\" --long \"$longs\" -n \"$tool_name\" -- \"\$@\"\`;
+		if [ \$? != 0 ]; then
+			echo -en \${r};
+			echo -e \"\$usage\";
+			exit 1;
+		else
+			echo -en \${r};
+		fi;
+		eval set -- \$opts"
 }
 
 # clone disc to iso image

@@ -9,17 +9,21 @@ p=$(dirname $(readlink -f $0)); . $p/lib.sh
 
 display_tool_banner
 
-usage="Usage:  ${b}$(basename $0) ${r}[${b}-d ${bb}/dev/dvd${r} | ${b}-q ${bb}/path${r} | ${b}-i ${bb}disc.iso${r}]
-  -d   dvd device to read from (default is ${bb}/dev/dvd${r})
-  -q   dvd directory to read from
-  -i   dvd iso image to read from"
+usage="Usage:  ${b}${tool_name} ${r}[${b}--dev ${bb}/dev/dvd${r} | ${b}--dir ${bb}/path${r} | ${b}--iso ${bb}disc.iso${r}]
+  -d --dev      dvd device to read from (default is ${bb}/dev/dvd${r})
+  -q --dir      dvd directory to read from
+  -i --iso      dvd iso image to read from"
 
-while getopts "d:q:i:" opts; do
-	case $opts in
-		d ) dvd_device=$OPTARG;;
-		q ) dvd_device=$OPTARG;dvdisdir="-q ";;
-		i ) dvd_device=$OPTARG;dvdisdir="-q ";;
-		* ) echo -e "$usage"; exit 1;;
+shorts="d:q:i:"
+longs="dev:,dir:,iso:"
+eval $(get_parsecmd "$tool_name" "$shorts" "$longs")
+
+while true; do
+	case "$1" in
+		-d|--dev ) dvd_device="$2"; shift 2;;
+		-q|--dir ) dvd_device="$2";dvdisdir="-q "; shift 2;;
+		-i|--iso ) dvd_device="$2";dvdisdir="-q "; shift 2;;
+		--) shift ; break ;;
 	esac
 done
 

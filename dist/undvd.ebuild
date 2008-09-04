@@ -23,10 +23,10 @@ DEPEND="sys-apps/coreutils
 	sys-devel/bc
 	media-video/lsdvd
 	media-video/mplayer
+	sys-apps/util-linux
 	css? (
 		media-libs/libdvdcss
 		media-video/vobcopy
-		sys-apps/util-linux
 	)"
 RDEPEND="${DEPEND}"
 
