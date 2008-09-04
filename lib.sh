@@ -97,7 +97,7 @@ function codec_check() {
 		local c=$($cmd $arg 2>/dev/null | $grep -i $codec)
 		if [[ ! "$c" ]]; then
 			echo -e "   ${wa}*${r} $codec missing"
-		elif [[ $verbose ]]; then
+		else
 			echo -e "   ${ok}*${r} $codec"
 		fi
 	done
