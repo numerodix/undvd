@@ -10,7 +10,7 @@ p=$(dirname $(readlink -f $0)); . $p/lib.sh
 display_tool_banner
 
 usage="Usage:  ${b}${tool_name} ${r}[${bb}<file(s)>${r} | ${b}--dev ${bb}/dev/dvd${r} | ${b}--dir ${bb}/path${r} | ${b}--iso ${bb}disc.iso${r}]
-  <file(s)> files to read
+  <file(s)>     files to read
   -d --dev      dvd device to read from (default is ${bb}/dev/dvd${r})
   -q --dir      dvd directory to read from
   -i --iso      dvd iso image to read from"
