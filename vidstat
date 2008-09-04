@@ -33,11 +33,11 @@ fi
 # Build array either of dvd titles or files given as input
 
 files=() ; i=0
-if [ "$input_dvd_device" ]; then
+if [[ "$input_dvd_device" ]]; then
 	cmd="mplayer -ao null -vo null -frames 0 -identify -dvd-device \"$input_dvd_device\" dvd:// 2>&1"
 	mplayer_output=$($bash -c "$cmd")
 	titles=$( echo "$mplayer_output" | $grep "ID_DVD_TITLES" | $sed "s|ID_DVD_TITLES=\(.*\)|\1|g" )
-	if [ "$titles" ]; then
+	if [[ "$titles" ]]; then
 		for f in $($seq 1 $titles); do
 			files[$i]="$f"
 			i=$(( $i+1 ))
@@ -56,12 +56,12 @@ fi
 
 display_title_line "header"
 for file in "${files[@]}"; do
-	if [ ! "$input_dvd_device" -a ! -e "$file" ]; then 
+	if [[ ! "$input_dvd_device" && ! -e "$file" ]]; then
 		echo -e "${e}File $file does not exist"
 		exit 1
 	fi
 
-	if [ "$input_dvd_device" ]; then
+	if [[ "$input_dvd_device" ]]; then
 		filename="$file"
 		filesize="-1"
 		info=($(examine_title "" "$input_dvd_device" "$file"))
@@ -69,7 +69,7 @@ for file in "${files[@]}"; do
 		filename=$(basename "$file")
 
 		filesize=$(stat "$file" | $grep "Size:" | $sed "s|.*Size: \([0-9]*\).*|\1|g")
-		filesize=$( echo "scale=0; $filesize/1024/1024" | $bc )  # convert to mb
+		filesize=$(echo "scale=0; $filesize/1024/1024" | $bc)  # convert to mb
 
 		info=($(examine_title "$file"))
 	fi
@@ -83,7 +83,7 @@ for file in "${files[@]}"; do
 	length=${info[3]}
 	
 	bitrate=$( echo "scale=0; ${info[4]}/1024" | $bc )  # convert to kbps
-	if [ "$bitrate" ]; then
+	if [[ "$bitrate" ]]; then
 		bpp=$(compute_bpp "$width" "$height" "$fps" "$length" "" "$bitrate")
 	fi
 

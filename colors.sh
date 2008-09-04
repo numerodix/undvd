@@ -13,7 +13,7 @@ white="\e[0;37m"
 
 reverse="\e[7m"
 
-if [ "$TERM" = "xterm" ]; then
+if [[ "$TERM" = "xterm" ]]; then
 	red="\e[0;91m"
 fi
 

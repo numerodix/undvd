@@ -7,7 +7,7 @@
 version=0.4.3
 
 # initialize colors if the terminal can support them
-if [ "$TERM" != "dumb" ]; then
+if [[ "$TERM" != "dumb" ]]; then
 	p=$(dirname $(readlink -f $0)); . $p/colors.sh
 fi
 
@@ -66,18 +66,18 @@ function display_tool_banner() {
 function init_cmds() {
 	local verbose="$1"
 	
-	[ $verbose ] && echo -e " * Checking for tool support... "
+	[[ $verbose ]] && echo -e " * Checking for tool support... "
 	for tool in $coreutils $shellutils $videoutils; do
 		local path=$(which $tool 2>/dev/null)
-		if [ ! "$path" ] && [ $verbose ]; then
+		if [[ ! "$path" && $verbose ]]; then
 			echo -e "   ${wa}*${r} $tool missing"
-		elif [ $verbose ]; then
+		elif [[ $verbose ]]; then
 			echo -e "   ${ok}*${r} $path"
 		fi
 		eval "$tool=$path"
 	done
 	
-	if [ $verbose ]; then
+	if [[ $verbose ]]; then
 		codec_check "audio" "mencoder" "-oac help" "$mencoder_acodecs"
 		codec_check "video" "mencoder" "-ovc help" "$mencoder_vcodecs"
 		codec_check "audio" "mplayer" "-ac help" "$mplayer_acodecs"
@@ -95,9 +95,9 @@ function codec_check() {
 	echo -e " * Checking for $cmd $type codec support... "
 	for codec in $codecs; do
 		local c=$($cmd $arg 2>/dev/null | $grep -i $codec)
-		if [ ! "$c" ]; then
+		if [[ ! "$c" ]]; then
 			echo -e "   ${wa}*${r} $codec missing"
-		elif [ $verbose ]; then
+		elif [[ $verbose ]]; then
 			echo -e "   ${ok}*${r} $codec"
 		fi
 	done
@@ -122,14 +122,14 @@ function clone_vobcopy() {
 	
 	mnt_point=$($mount | $grep $dvd_device | $awk '{ print $3 }')
 
-	if [ ! "$mnt_point" ]; then
+	if [[ ! "$mnt_point" ]]; then
 		echo -e "\n${wa}=>${r} Your dvd device ${bb}$dvd_device${r} has to be mounted for this."
 		echo -e "${wa}=>${r} Mount the dvd and supply the device to $(basename $0), eg:"
 		echo -e "    ${b}sudo mount ${bb}${dvd_device}${b} /mnt/dvd -t iso9660${r}"
 		echo -e "    ${b}$(basename $0) -d ${bb}${dvd_device}${r} [${b}other options${r}]"
 	fi
 	
-	[ -d "$dir" ] && rm -rf $dir
+	[[ -d "$dir" ]] && rm -rf $dir
 	cmd="time \
 	$nice -n20 \
 	$vobcopy -f -l -m -F 64 -i $mnt_point -t $dir"
@@ -143,7 +143,7 @@ function examine_title() {
 	local title="$3"
 
 	local src="\"$file\""
-	if [ "$mencoder_source" -a "$title" ]; then
+	if [[ "$mencoder_source" && "$title" ]]; then
 		src="-dvd-device \"$mencoder_source\" dvd://$title"
 	fi
 	local cmd="mplayer -ao null -vo null -frames 0 -identify $src 2>&1"
@@ -209,7 +209,7 @@ function compute_bpp() {
 	local video_size="$5"  # in mb
 	local bitrate="$6"  # kbps
 
-	if [ "$bitrate" ]; then
+	if [[ "$bitrate" ]]; then
 		bitrate=$( echo "scale=5; $bitrate*1024" | $bc )
 	else
 		video_size=$(( $video_size *1024*1024 ))  # in mb
@@ -225,12 +225,12 @@ function set_bpp() {
 	local video_codec="$1"
 	local twopass="$2"
 
-	if [ "$video_codec" = "h264" ]; then
+	if [[ "$video_codec" = "h264" ]]; then
 		local bpp="$h264_1pass_bpp"
-		[ "$twopass" ] && bpp="$h264_2pass_bpp"
+		[[ "$twopass" ]] && bpp="$h264_2pass_bpp"
 	else
 		local bpp="$xvid_1pass_bpp"
-		[ "$twopass" ] && bpp="$xvid_2pass_bpp"
+		[[ "$twopass" ]] && bpp="$xvid_2pass_bpp"
 	fi
 
 	echo $bpp
@@ -243,7 +243,7 @@ function set_passes() {
 
 	local passes=1
 	
-	if [ "$video_codec" = "h264" ]; then
+	if [[ "$video_codec" = "h264" ]]; then
 		[[ "$bpp" < "$h264_1pass_bpp" ]] && passes=2
 	else
 		[[ "$bpp" < "$xvid_1pass_bpp" ]] && passes=2
@@ -287,7 +287,7 @@ function display_title() {
 	local filesize=$( echo "scale=0; $9/(1)" | $bc )  # in mb
 	local filename="${10}"
 
-	[ "$length" != "-1" ] && length=$( echo "scale=0; $length/60" | $bc )
+	[[ "$length" != "-1" ]] && length=$( echo "scale=0; $length/60" | $bc )
 	
 	display_title_line "" "${width}x${height}" "$fps" "$length" "$bpp" "$bitrate" "$passes" "$format" "$filesize" "$filename"
 }
@@ -316,7 +316,7 @@ function format_bpp() {
 		else
 			bpp="${bb}$bpp${r}"
 		fi
-	elif [ "$video_codec" = "xvid" ]; then
+	elif [[ "$video_codec" = "xvid" ]]; then
 		if [[ "$bpp" < "$xvid_2pass_bpp" ]]; then
 			bpp="${e}$bpp${r}"
 		elif [[ "$bpp" > "$xvid_1pass_bpp" ]]; then 
@@ -344,7 +344,7 @@ function display_title_line() {
 	local filesize="$9"
 	local filename="${10}"
 
-	if [ "$header" ]; then
+	if [[ "$header" ]]; then
 		dimensions="dim"
 		fps="fps"
 		length="len"
@@ -356,14 +356,14 @@ function display_title_line() {
 		filename="title"
 	fi
 
-	[ "$dimensions" = "1x1" ] && unset dimensions
-	[ "$fps" = "1" ] && unset fps
-	[ "$length" = "-1" ] && unset length
-	[ "$bpp" = "0" ] && unset bpp
-	[ "$bitrate" = "0" ] && unset bitrate
-	[ "$filesize" = "-1" ] && unset filesize
-	[ "$format" = "0" ] && unset format
-	[ "$passes" = "0" ] && unset passes
+	[[ "$dimensions" = "1x1" ]] && unset dimensions
+	[[ "$fps" = "1"          ]] && unset fps
+	[[ "$length" = "-1"      ]] && unset length
+	[[ "$bpp" = "0"          ]] && unset bpp
+	[[ "$bitrate" = "0"      ]] && unset bitrate
+	[[ "$filesize" = "-1"    ]] && unset filesize
+	[[ "$format" = "0"       ]] && unset format
+	[[ "$passes" = "0"       ]] && unset passes
 
 	dimensions=$(fill "$dimensions" 9)
 	fps=$(fill "$fps" 6)
@@ -376,7 +376,7 @@ function display_title_line() {
 
 	pre=
 	post=
-	if [ "$header" ]; then 
+	if [[ "$header" ]]; then
 		pre="${b}"
 		post="${r}"
 	else
@@ -393,10 +393,10 @@ function title_scale() {
 
 	local nwidth="$width"
 	local nheight="$height"
-	if [ "$custom_scale" != "0" ]; then  # scaling isn't disabled
+	if [[ "$custom_scale" != "0" ]]; then  # scaling isn't disabled
 		
 		# scale to the width given by user (upscaling permitted)
-		if [ "$custom_scale" ]; then
+		if [[ "$custom_scale" ]]; then
 			nwidth=$(( $width * $custom_scale/$width ))
 			nheight=$(( $height * $custom_scale/$width ))
 
@@ -415,7 +415,7 @@ function title_scale() {
 			(( $factor < 1000 )) && local need_scaling="y"
 	
 			# scale by factor
-			if [ "$need_scaling" ]; then
+			if [[ "$need_scaling" ]]; then
 				nwidth=$( echo "scale=40; $width*$sfactor" | $bc )
 				nwidth=$( echo "scale=0; ($nwidth+1)/1" | $bc )
 				nheight=$( echo "scale=40; $height*$sfactor" | $bc )
@@ -457,7 +457,7 @@ function scale16() {
 
 		step=-1
 		unset completed
-		while [ ! "$completed" ]; do
+		while [[ ! "$completed" ]]; do
 			step=$(( $step + 1 ))
 
 			local up_step=$(( $width + ($step * $divisor) ))
@@ -484,25 +484,25 @@ function vcodec_opts() {
 	local pass="$3"
 	local bitrate="$4"
 	
-	if [ "$codec" = "h264" ]; then
+	if [[ "$codec" = "h264" ]]; then
 		local opts="subq=5:frameref=2"
 		
-		if [ "$twopass" ]; then
-			if [ $pass -eq 1 ]; then
+		if [[ "$twopass" ]]; then
+			if [[ $pass -eq 1 ]]; then
 				opts="pass=1:subq=1:frameref=1"
-			elif [ $pass -eq 2 ]; then
+			elif [[ $pass -eq 2 ]]; then
 				opts="pass=2:$opts"
 			fi
 		fi
 		
 		opts="x264 -x264encopts $opts:partitions=all:weight_b:bitrate=$bitrate:threads=auto"
-	elif [ "$codec" = "xvid" ]; then
+	elif [[ "$codec" = "xvid" ]]; then
 		local opts=
 	
-		if [ "$twopass" ]; then
-			if [ $pass -eq 1 ]; then
+		if [[ "$twopass" ]]; then
+			if [[ $pass -eq 1 ]]; then
 				opts="pass=1:"
-			elif [ $pass -eq 2 ]; then
+			elif [[ $pass -eq 2 ]]; then
 				opts="pass=2:"
 			fi
 		fi
@@ -524,11 +524,11 @@ function run_encode() {
 	local output_file="${title}.avi.partial"
 	local logfile="logs/${title}.log"
 	
-	if [ "$twopass" ]; then
-		if [ $pass -eq 1 ]; then
+	if [[ "$twopass" ]]; then
+		if [[ $pass -eq 1 ]]; then
 			output_file="/dev/null"
 			logfile="$logfile.pass1"
-		elif [ $pass -eq 2 ]; then
+		elif [[ $pass -eq 2 ]]; then
 			logfile="$logfile.pass2"
 		fi
 	else
@@ -551,7 +551,7 @@ function run_encode() {
 	
 	local start_time=$($date +%s)
 	(while $ps $pid &> /dev/null; do
-		local eta=$([ -e $logfile ] && $tail -n15 $logfile | \
+		local eta=$([[ -e $logfile ]] && $tail -n15 $logfile | \
 			$grep "Trem:" | $tail -n1 | $sed 's|.*\( .*min\).*|\1|g' | $tr " " "-")
 		local ela=$(( ( $($date +%s) - $start_time ) / 60 ))
 		echo -ne "${status}${cela}+${ela}min${r}  ${ceta}${eta}${r}    \r"
@@ -561,7 +561,7 @@ function run_encode() {
 	# Report exit code
 	
 	wait $pid
-	if [ $? = 0 ]; then
+	if [[ $? = 0 ]]; then
 		echo -e "${status}[ ${ok}done${r} ]             "
 	else
 		echo -e "${status}[ ${e}failed${r} ] check log"

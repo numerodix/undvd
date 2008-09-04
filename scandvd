@@ -23,14 +23,14 @@ while getopts "d:q:i:" opts; do
 	esac
 done
 
-if [ "$dvd_device" ]; then
+if [[ "$dvd_device" ]]; then
 	dvd_device="\"$dvd_device\""
 fi
 
 cmd="$lsdvd -avs $dvdisdir $dvd_device 2>&1"
 lsdvd_output=$(bash -c "$cmd")
 
-if [ $? != 0 ]; then
+if [[ $? != 0 ]]; then
 	echo -en "${e}" ; echo "$lsdvd_output"; echo -en ${r}
 	echo -e "$usage"
 	exit 1
@@ -51,7 +51,7 @@ for titleno in $titlenos; do
 	echo -en   "${b}${titleno}"
 	echo -en "  ${r}length: ${bb}${length}"
 	echo -en "  ${r}audio: ${bb}${audio}"
-	if [ "$subtitles" ]; then echo -en "  ${r}subtitles: ${bb}${subtitles}${r}"; fi
+	if [[ "$subtitles" ]]; then echo -en "  ${r}subtitles: ${bb}${subtitles}${r}"; fi
 	echo
 done
 
