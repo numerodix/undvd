@@ -7,7 +7,7 @@
 version=0.4.3
 
 # initialize colors if the terminal can support them
-if [[ "$TERM" != "dumb" ]]; then
+if [[ "$TERM" && "$TERM" != "dumb" ]]; then
 	p=$(dirname $(readlink -f $0)); . $p/colors.sh
 fi
 
