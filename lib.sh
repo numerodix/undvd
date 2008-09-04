@@ -125,6 +125,18 @@ function get_parsecmd() {
 		eval set -- \$opts"
 }
 
+function ternary_int_str() {
+	local value="$1"; shift;
+	local int_key="$1"; shift;
+	local str_key="$1"; shift;
+
+	if [[ "$value" =~ ^[0-9]+$ ]]; then
+		echo "$int_key $value"
+	else
+		echo "$str_key $value"
+	fi
+}
+
 # clone disc to iso image
 function clone_dd() {
 	local dvd_device="$1"

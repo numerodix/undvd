@@ -11,8 +11,8 @@ display_tool_banner
 
 usage="Usage:  ${b}${tool_name} -t ${bb}01,02,03${b} -a ${bb}en${b} -s ${bb}es${b} ${r}[${b}-d ${bb}/dev/dvd${r}] [${b}more options${r}]\n
   -t --title    titles to rip (comma separated)
-  -a --audio    audio language (two letter code, eg. ${bb}en${r})
-  -s --subs     subtitle language (two letter code or ${bb}off${r})\n
+  -a --audio    audio language (two letter code, eg. ${bb}en${r}, or integer id)
+  -s --subs     subtitle language (two letter code or ${bb}off${r}, or integer id)\n
   -d --dev      dvd device to rip from (default is ${bb}/dev/dvd${r})
   -q --dir      dvd directory to rip from
   -i --iso      dvd iso image to rip from\n
@@ -93,10 +93,14 @@ if [[ ! "$alang" ]]; then
 	echo -e "${e}No audio language selected, exiting${r}"
 	echo -e "$usage"
 	exit 1
+else
+	audio=$(ternary_int_str "$alang" "-aid" "-alang")
 fi
 
 if [[ ! "$slang" ]]; then
 	slang="off"
+else
+	subs=$(ternary_int_str "$slang" "-sid" "-slang")
 fi
 
 
@@ -236,8 +240,8 @@ for title in $titles; do
 			$mencoder -v \
 			dvd://${title} \
 			-dvd-device \"$mencoder_source\" \
-			-alang ${alang} \
-			-slang ${slang} \
+			${audio} \
+			${subs} \
 			${endpos} \
 			-vf ${crop_filter}${prescale}${scale}${postscale} \
 			-ovc ${vcodec} \
