@@ -587,7 +587,7 @@ function run_encode() {
 	local start_time=$($date +%s)
 	(while $ps $pid &> /dev/null; do
 		local eta=$([[ -e $logfile ]] && $tail -n15 $logfile | \
-			$grep "Trem:" | $tail -n1 | $sed 's|.*\( .*min\).*|\1|g' | $tr " " "-")
+			$grep -a "Trem:" | $tail -n1 | $sed 's|.*\( .*min\).*|\1|g' | $tr " " "-")
 		local ela=$(( ( $($date +%s) - $start_time ) / 60 ))
 		echo -ne "${status}${cela}+${ela}min${r}  ${ceta}${eta}${r}    \r"
 		$sleep $timer_refresh
