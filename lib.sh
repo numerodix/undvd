@@ -25,9 +25,7 @@ xvid_2pass_bpp=.200
 
 # codec defaults
 video_codec="h264"
-video_codec="mpeg4"
 audio_codec="mp3"
-audio_codec="vorbis"
 
 # mplayer filters
 prescale=
@@ -520,7 +518,6 @@ function acodec_opts() {
 
 	if [[ "$codec" = "mp3" ]]; then
 		local bitrate=160
-#		local opts="mp3lame -lameopts vbr=2:q=3"
 		local opts="mp3lame -lameopts vbr=3:abr=$bitrate:q=3"
 	elif [[ "$codec" = "aac" ]]; then
 		local bitrate=192
@@ -583,7 +580,7 @@ function vcodec_opts() {
 			fi
 		fi
 
-		$(echo $codec | $egrep '(flv|mpeg4|snow)' &>/dev/null)
+		$(echo $codec | $egrep '(flv|libtheora|mpeg4|snow)' &>/dev/null)
 		if [[ $? == 0 ]]; then
 			opts="lavc -lavcopts ${opts}vbitrate=$bitrate:vcodec=$codec"
 
