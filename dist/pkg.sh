@@ -52,6 +52,8 @@ ubuntu_version=$(cat /etc/lsb-release 2>/dev/null | grep DISTRIB_CODENAME | sed 
 myname=$(git-config user.name)
 myemail=$(git-config user.email)
 
+sf_user="numerodix"
+
 ubuntu_ppa_name="my-ppa"
 gpg_keyid=$(gpg --list-keys $myemail 2>/dev/null | grep pub | awk '{ print $2 }' | sed "s%.*\/%%g")
 
@@ -282,7 +284,7 @@ elif [ "$action" = "sf" ]; then
 	gentoo pub
 	ubuntu pub
 	( cd pub ;
-	ftp-upload -h upload.sourceforge.net -d incoming * )
+	rsync -avP -e ssh * $sf_user@frs.sourceforge.net:uploads/ )
 elif [ "$action" = "ppa" ]; then
 	ubuntu_ppa
 else
