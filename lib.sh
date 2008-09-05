@@ -25,6 +25,7 @@ xvid_2pass_bpp=.200
 
 # codec defaults
 video_codec="h264"
+video_codec="mpeg4"
 audio_codec="mp3"
 audio_codec="vorbis"
 
@@ -517,7 +518,6 @@ function acodec_opts() {
 	local codec="$1"; shift;
 	local get_bitrate="$1"; shift
 
-	local bitrate=224	# mencoder manpage default
 	if [[ "$codec" = "mp3" ]]; then
 		local bitrate=160
 #		local opts="mp3lame -lameopts vbr=2:q=3"
@@ -525,12 +525,17 @@ function acodec_opts() {
 	elif [[ "$codec" = "aac" ]]; then
 		local bitrate=192
 		local opts="faac -faacopts br=$bitrate:mpeg=4:object=2 -channels 2 -srate 48000"
-	elif [[ "$codec" = "vorbis" ]]; then
-		local opts="lavc -lavcopts acodec=vorbis:abitrate=$bitrate"
-	elif [[ "$codec" = "ac3" ]]; then
-		local opts="lavc -lavcopts acodec=ac3:abitrate=$bitrate"
+
+	# use lavc codec
 	else
-		fatal "Unrecognized audio codec: $codec"
+		local bitrate=224	# mencoder manpage default
+		$(echo $codec | $egrep '(ac3|vorbis)' &>/dev/null)
+		if [[ $? == 0 ]]; then
+			local opts="lavc -lavcopts abitrate=$bitrate:acodec=$codec"
+
+		else
+			fatal "Unrecognized audio codec: $codec"
+		fi
 	fi
 
 	if [[ "$get_bitrate" = "y" ]]; then
@@ -547,9 +552,9 @@ function vcodec_opts() {
 	local pass="$3"
 	local bitrate="$4"
 	
+	local opts=
 	if [[ "$codec" = "h264" ]]; then
-		local opts="subq=5:frameref=2"
-		
+		opts="subq=5:frameref=2"
 		if [[ "$twopass" ]]; then
 			if [[ $pass -eq 1 ]]; then
 				opts="pass=1:subq=1:frameref=1"
@@ -557,11 +562,8 @@ function vcodec_opts() {
 				opts="pass=2:$opts"
 			fi
 		fi
-		
 		opts="x264 -x264encopts $opts:partitions=all:weight_b:bitrate=$bitrate:threads=auto"
 	elif [[ "$codec" = "xvid" ]]; then
-		local opts=
-	
 		if [[ "$twopass" ]]; then
 			if [[ $pass -eq 1 ]]; then
 				opts="pass=1:"
@@ -569,11 +571,27 @@ function vcodec_opts() {
 				opts="pass=2:"
 			fi
 		fi
-	
 		opts="xvid -xvidencopts ${opts}bitrate=$bitrate"
+
+	# use lavc codec
 	else
-		fatal "Unrecognized video codec: $codec"
+		if [[ "$twopass" ]]; then
+			if [[ $pass -eq 1 ]]; then
+				opts="vpass=1:"
+			elif [[ $pass -eq 2 ]]; then
+				opts="vpass=2:"
+			fi
+		fi
+
+		$(echo $codec | $egrep '(flv|mpeg4|snow)' &>/dev/null)
+		if [[ $? == 0 ]]; then
+			opts="lavc -lavcopts ${opts}vbitrate=$bitrate:vcodec=$codec"
+
+		else
+			fatal "Unrecognized video codec: $codec"
+		fi
 	fi
+
 	echo $opts
 }
 
