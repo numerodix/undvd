@@ -8,7 +8,7 @@ dist=$(cd $(dirname $0); pwd)
 
 tag=$v
 if [ ! $v ]; then
-	echo "Usage: $0 <version> [action]"
+	echo "Usage: $0 <version>|git [action]"
 	exit 1
 fi
 
