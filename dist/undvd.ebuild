@@ -21,9 +21,9 @@ DEPEND="sys-apps/coreutils
 	sys-process/procps
 	sys-apps/sed
 	sys-devel/bc
+	sys-apps/util-linux
 	media-video/lsdvd
 	media-video/mplayer
-	sys-apps/util-linux
 	css? (
 		media-libs/libdvdcss
 		media-video/vobcopy
