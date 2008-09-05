@@ -672,6 +672,69 @@ function run_encode() {
 	fi
 }
 
+function remux_container() {
+	local file="$1"; shift;
+	local fps="$1"; shift;
+	local container="$1"; shift;
+	local acodec="$1"; shift;
+	local vcodec="$1"; shift;
+
+	$(echo $container | $egrep '(mp4|mkv)' &>/dev/null)
+	if [[ $? == 0 ]]; then
+
+		local root="${file%.avi}"
+
+		local pre="
+			if [[ -e \"$root.$container\" ]]; then \
+				$rm $root.$container; \
+			fi &&
+			$mplayer $file -dumpaudio -dumpfile $root.$acodec &&
+			$mplayer $file -dumpvideo -dumpfile $root.$vcodec"
+
+		local post="
+			$rm $root.$acodec &&
+			$rm $root.$vcodec &&
+			$rm $file"
+
+		if [[ "$container" = "mp4" ]]; then
+			local cmd="$pre &&
+				mp4creator -create=$root.$acodec $root.$container &&
+				mp4creator -create=$root.$vcodec -rate=$fps $root.$container &&
+				mp4creator -hint=1 $root.$container &&
+				mp4creator -hint=2 $root.$container &&
+				mp4creator -optimize $root.$container &&
+				$post"
+		elif [[ "$container" = "mkv" ]]; then
+			local cmd="
+				mkvmerge -o $root.$container $file &&
+				$rm $file"
+		fi
+
+		# Set logging depending on number of passes
+
+		local logfile="logs/${title}.remuxlog"
+
+		# Print initial status message
+
+		local status="${r}[.] Remuxing, to monitor log:  tail -F $logfile    "
+		echo -en "${status}\r"
+
+		# Execute remux in the background
+
+		( echo $cmd; $bash -c "$cmd" ) &> $logfile &
+		local pid=$!
+
+		# Report exit code
+
+		wait $pid
+		if [[ $? = 0 ]]; then
+			echo -e "${status}[ ${ok}done${r} ]             "
+		else
+			echo -e "${status}[ ${e}failed${r} ] check log"
+		fi
+	fi
+}
+
 
 # initialize command variables
 init_cmds

@@ -275,6 +275,8 @@ for title in $titles; do
 		[[ -f ${title}.avi.partial ]] && $mv ${title}.avi.partial ${title}.avi
 		$rm divx2pass* 2> /dev/null
 
+		remux_container "${title}.avi" "$fps" "$container" "$audio_codec" "$video_codec"
+
 	fi
 
 done
