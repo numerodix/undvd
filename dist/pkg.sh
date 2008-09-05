@@ -53,7 +53,7 @@ myname=$(git-config user.name)
 myemail=$(git-config user.email)
 
 ubuntu_ppa_name="my-ppa"
-gpg_keyid=$(gpg --list-keys $myemail | grep pub | awk '{ print $2 }' | sed "s%.*\/%%g")
+gpg_keyid=$(gpg --list-keys $myemail 2>/dev/null | grep pub | awk '{ print $2 }' | sed "s%.*\/%%g")
 
 debtag="0ubuntu"
 #ppa_revision="~ppa1"
