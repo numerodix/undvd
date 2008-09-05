@@ -47,7 +47,7 @@ rpm_deps="mencoder, mplayer, lsdvd, coreutils, bash, bc, findutils, gawk, grep, 
 deb_section="multiverse/graphics"
 rpm_group="Applications/Multimedia"
 
-ubuntu_version=$(cat /etc/lsb-release | grep DISTRIB_CODENAME | sed "s/DISTRIB_CODENAME=//g")
+ubuntu_version=$(cat /etc/lsb-release 2>/dev/null | grep DISTRIB_CODENAME | sed "s/DISTRIB_CODENAME=//g")
 
 myname=$(git-config user.name)
 myemail=$(git-config user.email)
