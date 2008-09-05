@@ -24,8 +24,9 @@ xvid_1pass_bpp=.250
 xvid_2pass_bpp=.200
 
 # codec defaults
-video_codec="h264"
+container="avi"
 audio_codec="mp3"
+video_codec="h264"
 
 # mplayer filters
 prescale=
@@ -511,6 +512,33 @@ function scale16() {
 	echo "$width $height"
 }
 
+# set container and codecs based on input
+function container_opts() {
+	local container="$1"; shift;
+	local acodec="$1"; shift;
+	local vcodec="$1"; shift;
+
+	local audio_codec=
+	local video_codec=
+
+	if [[ "$container" ]]; then
+		if [[ "$container" = "avi" ]] || [[ "$container" = "mkv" ]]; then
+			audio_codec="mp3"
+			video_codec="h264"
+		elif [[ "$container" = "mp4" ]]; then
+			audio_codec="aac"
+			video_codec="h264"
+		else
+			fatal "Unrecognized container: $container"
+		fi
+	fi
+
+	[[ "$acodec" ]] && audio_codec="$acodec"
+	[[ "$vcodec" ]] && video_codec="$vcodec"
+
+	echo "$audio_codec $video_codec"
+}
+
 # get audio codec options
 function acodec_opts() {
 	local codec="$1"; shift;
@@ -580,7 +608,7 @@ function vcodec_opts() {
 			fi
 		fi
 
-		$(echo $codec | $egrep '(flv|libtheora|mpeg4|snow)' &>/dev/null)
+		$(echo $codec | $egrep '(flv|mpeg4)' &>/dev/null)
 		if [[ $? == 0 ]]; then
 			opts="lavc -lavcopts ${opts}vbitrate=$bitrate:vcodec=$codec"
 

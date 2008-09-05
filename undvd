@@ -30,10 +30,13 @@ adv_usage="Advanced usage:  ${b}${tool_name} ${r}[${b}standard options${r}] [${b
   -r --scale    scale video to width (integer value), ${bb}0${r} for no scaling
   -f --smooth   use picture smoothing filter
   -x            use xvid compression (faster, slightly lower quality)
-  -D --dryrun   dry run (display encoding parameters without encoding)"
+  -D --dryrun   dry run (display encoding parameters without encoding)\n
+     --cont     set container format
+     --acodec   set audio codec
+     --vcodec   set video codec"
 
 shorts="t:a:s:e:d:q:i:o:r:12uncfxDCz"
-longs="title:,audio:,subs:,end:,dev:,dir:,iso:,enc,noclone,crop,scale:,smooth,dryrun"
+longs="title:,audio:,subs:,end:,dev:,dir:,iso:,enc,noclone,crop,scale:,smooth,dryrun,cont:,acodec:,vcodec:"
 eval $(get_parsecmd "$tool_name" "$shorts" "$longs")
 
 while true; do
@@ -58,6 +61,10 @@ while true; do
 		-f|--smooth  ) prescale="spp,";postscale=",hqdn3d"; shift;;
 		-x           ) video_codec="xvid"; shift;;
 		-D|--dryrun  ) dry_run="y"; shift;;
+
+		   --cont    ) opts_cont="$2"; shift 2;;
+		   --acodec  ) opts_acodec="$2"; shift 2;;
+		   --vcodec  ) opts_vcodec="$2"; shift 2;;
 		
 		-C           ) init_cmds "y"; exit;;
 		-z           ) echo -e "$adv_usage"; exit;;
@@ -109,6 +116,19 @@ if [[ $? != 0 ]] ; then
 	echo -e "${e}Could not write to $PWD, exiting${r}"
 	exit 1
 fi
+
+
+# Set container and codecs
+
+info=($(container_opts "$opts_cont" "$opts_acodec" "$opts_vcodec"))
+[[ ${info[0]} ]] && audio_codec=${info[0]}
+[[ ${info[1]} ]] && video_codec=${info[1]}
+
+echo -en " - Output format :: "
+echo -en "container: ${it}$container${r}"
+echo -en "  audio: ${it}$audio_codec${r}"
+echo -e  "  video: ${it}$video_codec${r}"
+
 
 if [[ ! "$dvdisdir" && ! "$skipclone" ]]; then
 	echo -en " * Cloning dvd to disk first... "
