@@ -1,3 +1,8 @@
+0.4.4:
+* Add support for printing and selecting audio and subtitle numeric ids.
+* Add long options to clarify usage.
+* Check that $TERM is sent before outputing shell escapes.
+
 0.4.3:
 * Make subtitle selection optional (off by default).
 * Fix unpredictable behavior when both -n and -i or -q are set.
