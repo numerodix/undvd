@@ -23,18 +23,14 @@ h264_2pass_bpp=.150
 xvid_1pass_bpp=.250
 xvid_2pass_bpp=.200
 
-standard_audio_bitrate=160
-
-# audio encoding options
-lame="mp3lame -lameopts vbr=2:q=3"
-
 # codec defaults
 video_codec="h264"
-acodec="$lame"
+audio_codec="mp3"
+audio_codec="vorbis"
 
 # mplayer filters
 prescale=
-postscale=
+postscale=",harddup"
 
 # sources
 dvd_device="/dev/dvd"
@@ -289,13 +285,10 @@ function set_passes() {
 
 # compute video bitrate based on title length
 function compute_bitrate() {
-	local width="$1"
-	local height="$2"
-	local fps="$3"
-	local length="$4"  # in seconds
-	local bpp="$5"
-	local output_size="$6"  # in mb
-	local audio_bitrate=$(( $standard_audio_bitrate * 1024 ))  # kbps
+	local width="$1"; shift;
+	local height="$1"; shift;
+	local fps="$1"; shift;
+	local bpp="$1"; shift;
 
 	local bitrate=$( echo "scale=0; ($width*$height*$fps*$bpp)/1024." | $bc )
 
@@ -510,6 +503,32 @@ function scale16() {
 	fi
 
 	echo "$width $height"
+}
+
+# get audio codec options
+function acodec_opts() {
+	local codec="$1"; shift;
+	local get_bitrate="$1"; shift
+
+	local bitrate=224	# mencoder manpage default
+	if [[ "$codec" = "mp3" ]]; then
+		local bitrate=160
+#		local opts="mp3lame -lameopts vbr=2:q=3"
+		local opts="mp3lame -lameopts vbr=3:abr=$bitrate:q=3"
+	elif [[ "$codec" = "aac" ]]; then
+		local bitrate=192
+		local opts="faac -faacopts br=$bitrate:mpeg=4:object=2 -channels 2 -srate 48000"
+	elif [[ "$codec" = "vorbis" ]]; then
+		local opts="lavc -lavcopts acodec=vorbis:abitrate=$bitrate"
+	elif [[ "$codec" = "ac3" ]]; then
+		local opts="lavc -lavcopts acodec=ac3:abitrate=$bitrate"
+	fi
+
+	if [[ "$get_bitrate" = "y" ]]; then
+		echo $bitrate
+	else
+		echo $opts
+	fi
 }
 
 # get video codec options
