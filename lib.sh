@@ -125,6 +125,7 @@ function get_parsecmd() {
 		eval set -- \$opts"
 }
 
+# prepend with int key if int, otherwise with string key
 function ternary_int_str() {
 	local value="$1"; shift;
 	local int_key="$1"; shift;

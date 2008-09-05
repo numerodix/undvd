@@ -12,9 +12,10 @@ display_tool_banner
 usage="Usage:  ${b}${tool_name} ${r}[${b}--dev ${bb}/dev/dvd${r} | ${b}--dir ${bb}/path${r} | ${b}--iso ${bb}disc.iso${r}]
   -d --dev      dvd device to read from (default is ${bb}/dev/dvd${r})
   -q --dir      dvd directory to read from
-  -i --iso      dvd iso image to read from"
+  -i --iso      dvd iso image to read from
+  -v            be verbose (print id numbers)"
 
-shorts="d:q:i:"
+shorts="d:q:i:v"
 longs="dev:,dir:,iso:"
 eval $(get_parsecmd "$tool_name" "$shorts" "$longs")
 
@@ -23,6 +24,7 @@ while true; do
 		-d|--dev ) dvd_device="$2"; shift 2;;
 		-q|--dir ) dvd_device="$2";dvdisdir="-q "; shift 2;;
 		-i|--iso ) dvd_device="$2";dvdisdir="-q "; shift 2;;
+		-v       ) verbose="y"; shift;;
 		--) shift ; break ;;
 	esac
 done
@@ -30,6 +32,9 @@ done
 if [[ "$dvd_device" ]]; then
 	dvd_device="\"$dvd_device\""
 fi
+
+echo -e " * Scanning DVD for titles..."
+
 
 cmd="$lsdvd -avs $dvdisdir $dvd_device 2>&1"
 lsdvd_output=$(bash -c "$cmd")
@@ -41,22 +46,46 @@ if [[ $? != 0 ]]; then
 fi
 
 
-titlenos=$(echo "$lsdvd_output" | $egrep "^Title" | $awk '{ print $2 }' | $sed 's|,||g')
-
-echo -e " * Scanning DVD for titles..."
+titlenos=$(echo "$lsdvd_output" | $egrep "^Title" | $awk '{ print $2 }' | $tr -d ',')
 
 for titleno in $titlenos; do
 	title=$(echo "$lsdvd_output" | $sed -n "/^Title: $titleno/, /^$/p")
 	length=$(echo "$title" | $egrep "^Title: $titleno" | $awk '{ print $4 }' | $sed 's|\(.*\)\..*|\1|g')
-#	audio=$(echo "$title" | $egrep "Audio:" | $awk '{ printf $4 "=" $21 " " }' | $xargs)
-	audio=$(echo "$title" | $egrep "Audio:" | $awk '{ print $4 }' | $xargs)
-	subtitles=$(echo "$title" | $egrep "Subtitle:" | $awk '{ print $4 }' | $xargs)
+	aids=($(echo "$title" | $egrep "Audio:" | $awk '{ print $21 }' | $xargs))
+	alangs=($(echo "$title" | $egrep "Audio:" | $awk '{ print $4 }' | $xargs))
+	sids=($(echo "$title" | $egrep "Subtitle:" | $awk '{ print $11 }' | $tr -d ',' | $xargs))
+	slangs=($(echo "$title" | $egrep "Subtitle:" | $awk '{ print $4 }' | $xargs))
 
 	echo -en   "${b}${titleno}"
 	echo -en "  ${r}length: ${bb}${length}"
-	echo -en "  ${r}audio: ${bb}${audio}"
-	if [[ "$subtitles" ]]; then echo -en "  ${r}subtitles: ${bb}${subtitles}${r}"; fi
-	echo
+
+	if [[ "$alangs" ]]; then
+		echo -en "  ${r}audio: "
+		i=0
+		for alang in ${alangs[*]}; do
+			echo -en "${bb}${alang}${r} "
+			if [[ "$verbose" ]]; then
+				aid=$(( ${aids[$i]} )) # convert from hex
+				echo -en "${it}${aid}${r} "
+				i=$(( $i+1 ))
+			fi
+		done
+	fi
+
+	if [[ "$slangs" ]]; then
+		echo -en " ${r}subs: "
+		i=0
+		for slang in ${slangs[*]}; do
+			echo -en "${bb}${slang}${r} "
+			if [[ "$verbose" ]]; then
+				sid=$(( ${sids[$i]} )) # convert from hex
+				echo -en "${it}${sid}${r} "
+				i=$(( $i+1 ))
+			fi
+		done
+	fi
+
+	echo -e ${r}
 done
 
 echo -e "${r}\nTo watch a title:"

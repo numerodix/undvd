@@ -29,6 +29,7 @@ ceta="${magenta}${reverse}"
 
 b="\e[0m\e[1m"
 bb=$green
+it=$yellow
 
 in="\e[7m"
 r="\e[0m"
