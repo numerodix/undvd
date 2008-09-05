@@ -25,8 +25,6 @@ xvid_2pass_bpp=.200
 
 # codec defaults
 container="avi"
-audio_codec="mp3"
-video_codec="h264"
 
 # mplayer filters
 prescale=
@@ -521,16 +519,14 @@ function container_opts() {
 	local audio_codec=
 	local video_codec=
 
-	if [[ "$container" ]]; then
-		if [[ "$container" = "avi" ]] || [[ "$container" = "mkv" ]]; then
-			audio_codec="mp3"
-			video_codec="h264"
-		elif [[ "$container" = "mp4" ]]; then
-			audio_codec="aac"
-			video_codec="h264"
-		else
-			fatal "Unrecognized container: $container"
-		fi
+	if [[ "$container" = "avi" ]] || [[ "$container" = "mkv" ]]; then
+		audio_codec="mp3"
+		video_codec="h264"
+	elif [[ "$container" = "mp4" ]]; then
+		audio_codec="aac"
+		video_codec="h264"
+	else
+		fatal "Unrecognized container: $container"
 	fi
 
 	[[ "$acodec" ]] && audio_codec="$acodec"

@@ -120,9 +120,10 @@ fi
 
 # Set container and codecs
 
-info=($(container_opts "$opts_cont" "$opts_acodec" "$opts_vcodec"))
-[[ ${info[0]} ]] && audio_codec=${info[0]}
-[[ ${info[1]} ]] && video_codec=${info[1]}
+[[ "$opts_cont" ]] && container="$opts_cont"
+info=($(container_opts "$container" "$opts_acodec" "$opts_vcodec"))
+audio_codec=${info[0]}
+video_codec=${info[1]}
 
 echo -en " - Output format :: "
 echo -en "container: ${it}$container${r}"
