@@ -56,6 +56,13 @@ mplayer_vcodecs="mpeg-2"
 
 tool_name=$(basename $0)
 
+function fatal() {
+	local msg="$1"; shift;
+
+	echo -e "${e}$msg${r}" > /dev/stderr
+	kill -s SIGTERM $$
+}
+
 function display_tool_banner() {
 	echo -e "${h1}{( --- ${tool_name} $version --- )}${r}"
 }
@@ -522,6 +529,8 @@ function acodec_opts() {
 		local opts="lavc -lavcopts acodec=vorbis:abitrate=$bitrate"
 	elif [[ "$codec" = "ac3" ]]; then
 		local opts="lavc -lavcopts acodec=ac3:abitrate=$bitrate"
+	else
+		fatal "Unrecognized audio codec: $codec"
 	fi
 
 	if [[ "$get_bitrate" = "y" ]]; then
@@ -562,6 +571,8 @@ function vcodec_opts() {
 		fi
 	
 		opts="xvid -xvidencopts ${opts}bitrate=$bitrate"
+	else
+		fatal "Unrecognized video codec: $codec"
 	fi
 	echo $opts
 }
