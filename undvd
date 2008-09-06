@@ -29,13 +29,12 @@ adv_usage="Advanced usage:  ${b}${tool_name} ${r}[${b}standard options${r}] [${b
   -c --crop     autocrop video
   -r --scale    scale video to width (integer value), ${bb}0${r} for no scaling
   -f --smooth   use picture smoothing filter
-  -x            use xvid compression (faster, slightly lower quality)
   -D --dryrun   dry run (display encoding parameters without encoding)\n
      --cont     set container format
      --acodec   set audio codec
      --vcodec   set video codec"
 
-shorts="t:a:s:e:d:q:i:o:r:12uncfxDCz"
+shorts="t:a:s:e:d:q:i:o:r:12uncfDCz"
 longs="title:,audio:,subs:,end:,dev:,dir:,iso:,enc,noclone,crop,scale:,smooth,dryrun,cont:,acodec:,vcodec:"
 eval $(get_parsecmd "$tool_name" "$shorts" "$longs")
 
@@ -59,7 +58,6 @@ while true; do
 		-c|--crop    ) autocrop=y; shift;;
 		-r|--scale   ) custom_scale="$2"; shift 2;;
 		-f|--smooth  ) prescale="spp,";postscale=",hqdn3d"; shift;;
-		-x           ) video_codec="xvid"; shift;;
 		-D|--dryrun  ) dry_run="y"; shift;;
 
 		   --cont    ) opts_cont="$2"; shift 2;;
