@@ -124,7 +124,7 @@ function get_parsecmd() {
 		else
 			echo -en \${r};
 		fi;
-		eval set -- \$opts"
+		eval set -- \"\$opts\""
 }
 
 # prepend with int key if int, otherwise with string key
