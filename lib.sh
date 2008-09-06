@@ -333,18 +333,18 @@ function compute_media_size() {
 # display a title
 function display_title() {
 	info=($@)
-	local width=$(      echo ${info[0]}    | $tr -d "'" )
-	local height=$(     echo ${info[1]}    | $tr -d "'" )
-	local fps=$(        echo ${info[2]}    | $tr -d "'" )
-	local length=$(     echo ${info[3]}    | $tr -d "'" )  # in seconds
-	local bpp=$(        echo ${info[4]}    | $tr -d "'" )
-	local passes=$(     echo ${info[5]}    | $tr -d "'" )
-	local vbitrate=$(   echo ${info[6]}    | $tr -d "'" )
-	local vformat=$(    echo ${info[7]}    | $tr -d "'" )
-	local abitrate=$(   echo ${info[8]}    | $tr -d "'" )
-	local aformat=$(    echo ${info[9]}    | $tr -d "'" )
-	local filesize=$(   echo ${info[10]}   | $tr -d "'" )
-	local filename=$(   echo ${info[@]:11} | $tr -d "'" )  # rest of the array
+	local width=$(      echo ${info[0]}    | $tr -d '"' )
+	local height=$(     echo ${info[1]}    | $tr -d '"' )
+	local fps=$(        echo ${info[2]}    | $tr -d '"' )
+	local length=$(     echo ${info[3]}    | $tr -d '"' )  # in seconds
+	local bpp=$(        echo ${info[4]}    | $tr -d '"' )
+	local passes=$(     echo ${info[5]}    | $tr -d '"' )
+	local vbitrate=$(   echo ${info[6]}    | $tr -d '"' )
+	local vformat=$(    echo ${info[7]}    | $tr -d '"' )
+	local abitrate=$(   echo ${info[8]}    | $tr -d '"' )
+	local aformat=$(    echo ${info[9]}    | $tr -d '"' )
+	local filesize=$(   echo ${info[10]}   | $tr -d '"' )
+	local filename=$(   echo ${info[@]:11} | $tr -d '"' )  # rest of the array
 
 	bpp=$( echo "scale=3; $bpp/(1)" | $bc )
 	vbitrate=$( echo "scale=0; $vbitrate/(1)" | $bc )  # kbps
@@ -353,7 +353,7 @@ function display_title() {
 
 	[[ "$length" != "-1" ]] && length=$( echo "scale=0; $length/60" | $bc )
 	
-	display_title_line "'' '${width}x$height' '$fps' '$length' '$bpp' '$passes' '$vbitrate' '$vformat' '$abitrate' '$aformat' '$filesize' '$filename'"
+	display_title_line "\"\" \"${width}x$height\" \"$fps\" \"$length\" \"$bpp\" \"$passes\" \"$vbitrate\" \"$vformat\" \"$abitrate\" \"$aformat\" \"$filesize\" \"$filename\""
 }
 
 # truncate string and pad with whitespace to fit the desired length
@@ -398,18 +398,18 @@ function format_bpp() {
 # print one line of title display, whether header or not
 function display_title_line() {
 	info=($@)
-	local header=$(     echo ${info[0]}    | $tr -d "'" )
-	local dimensions=$( echo ${info[1]}    | $tr -d "'" )
-	local fps=$(        echo ${info[2]}    | $tr -d "'" )
-	local length=$(     echo ${info[3]}    | $tr -d "'" )
-	local bpp=$(        echo ${info[4]}    | $tr -d "'" )
-	local passes=$(     echo ${info[5]}    | $tr -d "'" )
-	local vbitrate=$(   echo ${info[6]}    | $tr -d "'" )
-	local vformat=$(    echo ${info[7]}    | $tr -d "'" )
-	local abitrate=$(   echo ${info[8]}    | $tr -d "'" )
-	local aformat=$(    echo ${info[9]}    | $tr -d "'" )
-	local filesize=$(   echo ${info[10]}   | $tr -d "'" )
-	local filename=$(   echo ${info[@]:11} | $tr -d "'" )  # rest of the array
+	local header=$(     echo ${info[0]}    | $tr -d '"' )
+	local dimensions=$( echo ${info[1]}    | $tr -d '"' )
+	local fps=$(        echo ${info[2]}    | $tr -d '"' )
+	local length=$(     echo ${info[3]}    | $tr -d '"' )
+	local bpp=$(        echo ${info[4]}    | $tr -d '"' )
+	local passes=$(     echo ${info[5]}    | $tr -d '"' )
+	local vbitrate=$(   echo ${info[6]}    | $tr -d '"' )
+	local vformat=$(    echo ${info[7]}    | $tr -d '"' )
+	local abitrate=$(   echo ${info[8]}    | $tr -d '"' )
+	local aformat=$(    echo ${info[9]}    | $tr -d '"' )
+	local filesize=$(   echo ${info[10]}   | $tr -d '"' )
+	local filename=$(   echo ${info[@]:11} | $tr -d '"' )  # rest of the array
 
 	if [[ "$header" ]]; then
 		dimensions="dim"
