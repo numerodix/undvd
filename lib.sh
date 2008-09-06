@@ -222,8 +222,8 @@ function examine_title() {
 		vbitrate=$( echo "scale=0; $vbitrate/1"| $bc )
 	fi
 
-	local aformat=$( echo "$mplayer_output" | $grep ID_AUDIO_FORMAT | \
-		$sed "s|ID_AUDIO_FORMAT=\(.*\)|\1|g" )
+	local aformat=$( echo "$mplayer_output" | $grep ID_AUDIO_CODEC | \
+		$sed "s|ID_AUDIO_CODEC=\(.*\)|\1|g" )
 	if [[ $? != 0 || ! "$aformat" ]]; then
 		aformat=0
 	else
