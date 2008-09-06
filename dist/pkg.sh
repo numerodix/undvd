@@ -40,7 +40,7 @@ deb_arch="all"
 rpm_arch="noarch"
 
 deb_deps="mencoder, mplayer, lsdvd, coreutils, bash, bc, findutils, gawk, grep, procps, sed, util-linux"
-deb_suggests="libdvdcss2, mount, vobcopy"
+deb_suggests="libdvdcss2, mount, mpeg4ip-server, mkvtoolnix, vobcopy"
 
 rpm_deps="mencoder, mplayer, lsdvd, coreutils, bash, bc, findutils, gawk, grep, procps, sed, util-linux-ng"
 

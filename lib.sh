@@ -39,12 +39,13 @@ mencoder_source="$disc_image"
 timer_refresh=5
 
 # tools we need
-videoutils="lsdvd mencoder mplayer vobcopy"
+videoutils="lsdvd mencoder mplayer"
 shellutils="awk bash bc grep egrep getopt mount ps sed xargs"
 coreutils="cat date dd dirname mkdir mv nice readlink rm seq sleep tail tr"
+extravideoutils="mp4creator mkvmerge vobcopy"
 
-mencoder_acodecs="mp3lame"
-mencoder_vcodecs="xvid x264"
+mencoder_acodecs="copy faac lavc mp3lame"
+mencoder_vcodecs="copy lavc x264 xvid"
 
 mplayer_acodecs="ac3"
 mplayer_vcodecs="mpeg-2"
@@ -70,7 +71,7 @@ function init_cmds() {
 	local verbose="$1"
 	
 	[[ $verbose ]] && echo -e " * Checking for tool support... "
-	for tool in $coreutils $shellutils $videoutils; do
+	for tool in $coreutils $shellutils $videoutils $extravideoutils; do
 		local path=$(which $tool 2>/dev/null)
 		if [[ ! "$path" && $verbose ]]; then
 			echo -e "   ${wa}*${r} $tool missing"
@@ -540,7 +541,10 @@ function acodec_opts() {
 	local codec="$1"; shift;
 	local get_bitrate="$1"; shift
 
-	if [[ "$codec" = "mp3" ]]; then
+	if [[ "$codec" = "copy" ]]; then
+		local bitrate=224
+		local opts="copy"
+	elif [[ "$codec" = "mp3" ]]; then
 		local bitrate=160
 		local opts="mp3lame -lameopts vbr=3:abr=$bitrate:q=3"
 	elif [[ "$codec" = "aac" ]]; then
@@ -574,7 +578,9 @@ function vcodec_opts() {
 	local bitrate="$4"
 	
 	local opts=
-	if [[ "$codec" = "h264" ]]; then
+	if [[ "$codec" = "copy" ]]; then
+		opts="copy"
+	elif [[ "$codec" = "h264" ]]; then
 		opts="subq=5:frameref=2"
 		if [[ "$twopass" ]]; then
 			if [[ $pass -eq 1 ]]; then
@@ -698,15 +704,15 @@ function remux_container() {
 
 		if [[ "$container" = "mp4" ]]; then
 			local cmd="$pre &&
-				mp4creator -create=$root.$acodec $root.$container &&
-				mp4creator -create=$root.$vcodec -rate=$fps $root.$container &&
-				mp4creator -hint=1 $root.$container &&
-				mp4creator -hint=2 $root.$container &&
-				mp4creator -optimize $root.$container &&
+				$mp4creator -create=$root.$acodec $root.$container &&
+				$mp4creator -create=$root.$vcodec -rate=$fps $root.$container &&
+				$mp4creator -hint=1 $root.$container &&
+				$mp4creator -hint=2 $root.$container &&
+				$mp4creator -optimize $root.$container &&
 				$post"
 		elif [[ "$container" = "mkv" ]]; then
 			local cmd="
-				mkvmerge -o $root.$container $file &&
+				$mkvmerge -o $root.$container $file &&
 				$rm $file"
 		fi
 
