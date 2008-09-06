@@ -34,8 +34,8 @@ adv_usage="Advanced usage:  ${b}${tool_name} ${r}[${b}standard options${r}] [${b
      --acodec   set audio codec
      --vcodec   set video codec"
 
-shorts="t:a:s:e:d:q:i:o:r:12uncfDCz"
-longs="title:,audio:,subs:,end:,dev:,dir:,iso:,enc,noclone,crop,scale:,smooth,dryrun,cont:,acodec:,vcodec:"
+shorts="t:a:s:d:q:i:e:o:r:12uncfDCz"
+longs="title:,audio:,subs:,dev:,dir:,iso:,end:,size:,enc,noclone,crop,scale:,smooth,dryrun,cont:,acodec:,vcodec:"
 eval $(get_parsecmd "$tool_name" "$shorts" "$longs")
 
 while true; do
