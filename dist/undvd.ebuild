@@ -28,6 +28,9 @@ DEPEND="sys-apps/coreutils
 		media-libs/libdvdcss
 		media-video/vobcopy
 	)
+	ffmpeg? (
+		media-video/ffmpeg
+	)
 	matroska? (
 		media-video/mkvtoolnix
 	)
