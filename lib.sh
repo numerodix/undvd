@@ -455,7 +455,7 @@ function display_title_line() {
 	else
 		bpp=$(format_bpp "$bpp" "$8")
 	fi
-	echo -e "${pre}$dimensions  $fps  $length  $bpp  $passes  $vbitrate  $vformat  $abitrate  $aformat  $filesize  $filename${post}"
+	echo -e "${pre}$dimensions  $fps  $length  $bpp $passes $vbitrate $vformat  $abitrate $aformat  $filesize  $filename${post}"
 }
 
 # compute title scaling
