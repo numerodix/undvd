@@ -11,7 +11,7 @@ SRC_URI="<tarball>"
 LICENSE="<license>"
 SLOT="0"
 KEYWORDS="~x86"
-IUSE="css xvid"
+IUSE="aac css xvid"
 
 DEPEND="sys-apps/coreutils
 	app-shells/bash
@@ -27,6 +27,12 @@ DEPEND="sys-apps/coreutils
 	css? (
 		media-libs/libdvdcss
 		media-video/vobcopy
+	)
+	matroska? (
+		media-video/mkvtoolnix
+	)
+	mp4? (
+		media-video/mpeg4ip
 	)"
 RDEPEND="${DEPEND}"
 
@@ -47,6 +53,15 @@ pkg_setup() {
 		die "mplayer missing necessary USE flags"
 	fi
 
+
+	if use aac; then
+		if ! built_with_use media-video/mplayer aac; then
+			eerror
+			eerror "aac missing. This means you cannot encode to aac."
+			eerror "Please re-emerge media-video/mplayer with USE=\"aac\""
+			die "mplayer merged without aac USE flag"
+		fi
+	fi
 
 	if use xvid; then
 		if ! built_with_use media-video/mplayer xvid; then
