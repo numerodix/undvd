@@ -453,7 +453,7 @@ function display_title_line() {
 		pre="${b}"
 		post="${r}"
 	else
-		bpp=$(format_bpp "$bpp" "$8")
+		bpp=$(format_bpp "$bpp" "$vformat")
 	fi
 	echo -e "${pre}$dimensions  $fps  $length  $bpp $passes $vbitrate $vformat  $abitrate $aformat  $filesize  $filename${post}"
 }
