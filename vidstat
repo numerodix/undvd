@@ -59,7 +59,7 @@ else
 fi
 
 
-display_title_line "header"
+display_title_line "'header'"
 for file in "${files[@]}"; do
 	if [[ ! "$input_dvd_device" && ! -e "$file" ]]; then
 		echo -e "${e}File $file does not exist"
@@ -87,14 +87,18 @@ for file in "${files[@]}"; do
 	
 	length=${info[3]}
 	
-	bitrate=$( echo "scale=0; ${info[4]}/1024" | $bc )  # convert to kbps
-	if [[ "$bitrate" ]]; then
-		bpp=$(compute_bpp "$width" "$height" "$fps" "$length" "" "$bitrate")
+	abitrate=$( echo "scale=0; ${info[4]}/1024" | $bc )  # convert to kbps
+
+	aformat=${info[5]}
+
+	vbitrate=$( echo "scale=0; ${info[6]}/1024" | $bc )  # convert to kbps
+	if [[ "$vbitrate" ]]; then
+		bpp=$(compute_bpp "$width" "$height" "$fps" "$length" "" "$vbitrate")
 	fi
 
-	format=${info[5]}
+	vformat=${info[7]}
 
 	passes="0"
 
-	display_title "$width" "$height" "$fps" "$length" "$bpp" "$bitrate" "$passes" "$format" "$filesize" "$filename"
+	display_title "'$width' '$height' '$fps' '$length' '$bpp' '$passes' '$vbitrate' '$vformat' '$abitrate' '$aformat' '$filesize' '$filename'"
 done

@@ -41,7 +41,7 @@ timer_refresh=5
 # tools we need
 videoutils="lsdvd mencoder mplayer"
 shellutils="awk bash bc grep egrep getopt mount ps sed xargs"
-coreutils="cat date dd dirname mkdir mv nice readlink rm seq sleep tail tr"
+coreutils="cat date dd dirname mkdir mv nice readlink rm seq sleep sort tail tr"
 extravideoutils="mp4creator mkvmerge vobcopy"
 
 mencoder_acodecs="copy faac lavc mp3lame"
@@ -186,37 +186,59 @@ function examine_title() {
 	local cmd="mplayer -ao null -vo null -frames 0 -identify $src 2>&1"
 	local mplayer_output=$($bash -c "$cmd")
 
-	local width=$( echo "$mplayer_output" | $grep ID_VIDEO_WIDTH | $sed "s|ID_VIDEO_WIDTH=\(.*\)|\1|g" )
+	local width=$( echo "$mplayer_output" | $grep ID_VIDEO_WIDTH | \
+		$sed "s|ID_VIDEO_WIDTH=\(.*\)|\1|g" )
 	[[ $? != 0 || ! "$width" || "$width" = "0" ]] && width=1
 
-	local height=$( echo "$mplayer_output" | $grep ID_VIDEO_HEIGHT | $sed "s|ID_VIDEO_HEIGHT=\(.*\)|\1|g" )
+	local height=$( echo "$mplayer_output" | $grep ID_VIDEO_HEIGHT | \
+		$sed "s|ID_VIDEO_HEIGHT=\(.*\)|\1|g" )
 	[[ $? != 0 || ! "$height" || "$height" = "0" ]] && height=1
 
-	local fps=$( echo "$mplayer_output" | $grep ID_VIDEO_FPS | $sed "s|ID_VIDEO_FPS=\(.*\)|\1|g" )
+	local fps=$( echo "$mplayer_output" | $grep ID_VIDEO_FPS | \
+		$sed "s|ID_VIDEO_FPS=\(.*\)|\1|g" )
 	[[ $? != 0 || ! "$fps" || "$fps" = "0.000" ]] && fps=1
 
-	local length=$( echo "$mplayer_output" | $grep ID_LENGTH | $sed "s|ID_LENGTH=\(.*\)|\1|g" )
+	local length=$( echo "$mplayer_output" | $grep ID_LENGTH | \
+		$sed "s|ID_LENGTH=\(.*\)|\1|g" )
 	if [[ $? != 0 || ! "$length" || "$length" = "0.00" ]]; then
 		length=-1
 	else
 		length=$( echo "scale=0; $length/1"| $bc )
 	fi
+
+	local abitrate=$( echo "$mplayer_output" | $grep ID_AUDIO_BITRATE | \
+		$sed "s|ID_AUDIO_BITRATE=\(.*\)|\1|g" | $sort -n | $tail -n1 )
+	if [[ $? != 0 || ! "$abitrate" || "$abitrate" = "0" ]]; then
+		abitrate=1
+	else
+		abitrate=$( echo "scale=0; $abitrate/1"| $bc )
+	fi
 		
-	local bitrate=$( echo "$mplayer_output" | $grep ID_VIDEO_BITRATE | $sed "s|ID_VIDEO_BITRATE=\(.*\)|\1|g" )
-	if [[ $? != 0 || ! "$bitrate" || "$bitrate" = "0" ]]; then
-		bitrate=1
+	local vbitrate=$( echo "$mplayer_output" | $grep ID_VIDEO_BITRATE | \
+		$sed "s|ID_VIDEO_BITRATE=\(.*\)|\1|g" )
+	if [[ $? != 0 || ! "$vbitrate" || "$vbitrate" = "0" ]]; then
+		vbitrate=1
 	else
-		bitrate=$( echo "scale=0; $bitrate/1"| $bc )
+		vbitrate=$( echo "scale=0; $vbitrate/1"| $bc )
 	fi
 
-	local format=$( echo "$mplayer_output" | $grep ID_VIDEO_FORMAT | $sed "s|ID_VIDEO_FORMAT=\(.*\)|\1|g" )
-	if [[ $? != 0 || ! "$format" ]]; then
-		format=0
+	local aformat=$( echo "$mplayer_output" | $grep ID_AUDIO_FORMAT | \
+		$sed "s|ID_AUDIO_FORMAT=\(.*\)|\1|g" )
+	if [[ $? != 0 || ! "$aformat" ]]; then
+		aformat=0
 	else
-		format=$( echo $format | $tr "[:upper:]" "[:lower:]" )
+		aformat=$( echo $aformat | $tr "[:upper:]" "[:lower:]" )
 	fi
 
-	echo "$width $height $fps $length $bitrate $format"
+	local vformat=$( echo "$mplayer_output" | $grep ID_VIDEO_FORMAT | \
+		$sed "s|ID_VIDEO_FORMAT=\(.*\)|\1|g" )
+	if [[ $? != 0 || ! "$vformat" ]]; then
+		vformat=0
+	else
+		vformat=$( echo $vformat | $tr "[:upper:]" "[:lower:]" )
+	fi
+
+	echo "$width $height $fps $length $abitrate $aformat $vbitrate $vformat"
 }
 
 # extract information from file or dvd
@@ -310,20 +332,28 @@ function compute_media_size() {
 
 # display a title
 function display_title() {
-	local width="$1"
-	local height="$2"
-	local fps="$3"
-	local length="$4"  # in seconds
-	local bpp=$( echo "scale=3; $5/(1)" | $bc )
-	local bitrate=$( echo "scale=0; $6/(1)" | $bc )  # kbps
-	local passes="$7"
-	local format="$8"
-	local filesize=$( echo "scale=0; $9/(1)" | $bc )  # in mb
-	local filename="${10}"
+	info=($@)
+	local width=$(      echo ${info[0]}  | $tr -d "'" )
+	local height=$(     echo ${info[1]}  | $tr -d "'" )
+	local fps=$(        echo ${info[2]}  | $tr -d "'" )
+	local length=$(     echo ${info[3]}  | $tr -d "'" )  # in seconds
+	local bpp=$(        echo ${info[4]}  | $tr -d "'" )
+	local passes=$(     echo ${info[5]}  | $tr -d "'" )
+	local vbitrate=$(   echo ${info[6]}  | $tr -d "'" )
+	local vformat=$(    echo ${info[7]}  | $tr -d "'" )
+	local abitrate=$(   echo ${info[8]}  | $tr -d "'" )
+	local aformat=$(    echo ${info[9]}  | $tr -d "'" )
+	local filesize=$(   echo ${info[10]} | $tr -d "'" )
+	local filename=$(   echo ${info[11]} | $tr -d "'" )
+
+	bpp=$( echo "scale=3; $bpp/(1)" | $bc )
+	vbitrate=$( echo "scale=0; $vbitrate/(1)" | $bc )  # kbps
+	abitrate=$( echo "scale=0; $abitrate/(1)" | $bc )  # kbps
+	filesize=$( echo "scale=0; $filesize/(1)" | $bc )  # in mb
 
 	[[ "$length" != "-1" ]] && length=$( echo "scale=0; $length/60" | $bc )
 	
-	display_title_line "" "${width}x${height}" "$fps" "$length" "$bpp" "$bitrate" "$passes" "$format" "$filesize" "$filename"
+	display_title_line "'' '${width}x$height' '$fps' '$length' '$bpp' '$passes' '$vbitrate' '$vformat' '$abitrate' '$aformat' '$filesize' '$filename'"
 }
 
 # truncate string and pad with whitespace to fit the desired length
@@ -367,25 +397,30 @@ function format_bpp() {
 
 # print one line of title display, whether header or not
 function display_title_line() {
-	local header="$1"
-	local dimensions="$2"
-	local fps="$3"
-	local length="$4"
-	local bpp="$5"
-	local bitrate="$6"
-	local passes="$7"
-	local format="$8"
-	local filesize="$9"
-	local filename="${10}"
+	info=($@)
+	local header=$(     echo ${info[0]}  | $tr -d "'" )
+	local dimensions=$( echo ${info[1]}  | $tr -d "'" )
+	local fps=$(        echo ${info[2]}  | $tr -d "'" )
+	local length=$(     echo ${info[3]}  | $tr -d "'" )
+	local bpp=$(        echo ${info[4]}  | $tr -d "'" )
+	local passes=$(     echo ${info[5]}  | $tr -d "'" )
+	local vbitrate=$(   echo ${info[6]}  | $tr -d "'" )
+	local vformat=$(    echo ${info[7]}  | $tr -d "'" )
+	local abitrate=$(   echo ${info[8]}  | $tr -d "'" )
+	local aformat=$(    echo ${info[9]}  | $tr -d "'" )
+	local filesize=$(   echo ${info[10]} | $tr -d "'" )
+	local filename=$(   echo ${info[11]} | $tr -d "'" )
 
 	if [[ "$header" ]]; then
 		dimensions="dim"
 		fps="fps"
 		length="len"
 		bpp="bpp"
-		bitrate="bitrate"
 		passes="p"
-		format="codec"
+		vbitrate="vbitrate"
+		vformat="vcodec"
+		abitrate="abitrate"
+		aformat="acodec"
 		filesize="size"
 		filename="title"
 	fi
@@ -394,18 +429,22 @@ function display_title_line() {
 	[[ "$fps" = "1"          ]] && unset fps
 	[[ "$length" = "-1"      ]] && unset length
 	[[ "$bpp" = "0"          ]] && unset bpp
-	[[ "$bitrate" = "0"      ]] && unset bitrate
-	[[ "$filesize" = "-1"    ]] && unset filesize
-	[[ "$format" = "0"       ]] && unset format
 	[[ "$passes" = "0"       ]] && unset passes
+	[[ "$vbitrate" = "0"     ]] && unset vbitrate
+	[[ "$vformat" = "0"      ]] && unset vformat
+	[[ "$abitrate" = "0"     ]] && unset abitrate
+	[[ "$aformat" = "0"      ]] && unset aformat
+	[[ "$filesize" = "-1"    ]] && unset filesize
 
 	dimensions=$(fill "$dimensions" 9)
 	fps=$(fill "$fps" 6)
 	length=$(fill "$length" 3)
 	bpp=$(fill "$bpp" 4)
-	bitrate=$(fill "$bitrate" 4)
 	passes=$(fill "$passes" 1)
-	format=$(fill "$format" 4)
+	vbitrate=$(fill "$vbitrate" 4)
+	vformat=$(fill "$vformat" 4)
+	abitrate=$(fill "$abitrate" 4)
+	aformat=$(fill "$aformat" 4)
 	filesize=$(fill "$filesize" 4)
 
 	pre=
@@ -416,7 +455,7 @@ function display_title_line() {
 	else
 		bpp=$(format_bpp "$bpp" "$8")
 	fi
-	echo -e "${pre}$dimensions  $fps  $length  $bpp  $bitrate  $passes $format  $filesize  $filename${post}"
+	echo -e "${pre}$dimensions  $fps  $length  $bpp  $passes  $vbitrate  $vformat  $abitrate  $aformat  $filesize  $filename${post}"
 }
 
 # compute title scaling
@@ -539,10 +578,11 @@ function container_opts() {
 # get audio codec options
 function acodec_opts() {
 	local codec="$1"; shift;
+	local orig_bitrate="$1"; shift;
 	local get_bitrate="$1"; shift
 
 	if [[ "$codec" = "copy" ]]; then
-		local bitrate=224
+		local bitrate=$orig_bitrate
 		local opts="copy"
 	elif [[ "$codec" = "mp3" ]]; then
 		local bitrate=160

@@ -153,7 +153,7 @@ fi
 
 if [[ "$dry_run" ]]; then
 	echo -e " * Performing dry-run on title(s) ${bb}$titles${r}"
-	display_title_line "header"
+	display_title_line "'header'"
 fi
 
 for title in $titles; do
@@ -177,6 +177,7 @@ for title in $titles; do
 	height=${info[1]}
 	fps=${info[2]}
 	length=${info[3]}
+	src_abitrate=${info[4]}
 	
 	# Do we need to crop?
 
@@ -201,8 +202,8 @@ for title in $titles; do
 
 	# Estimate filesize of audio
 
-	audio_bitrate=$(acodec_opts "$audio_codec" "y")
-	acodec=$(acodec_opts "$audio_codec" "")
+	audio_bitrate=$(acodec_opts "$audio_codec" "$src_abitrate" "y")
+	acodec=$(acodec_opts "$audio_codec" "$src_abitrate" "")
 	audio_size=$(compute_media_size "$length" "$audio_bitrate")
 
 	# Decide bpp
@@ -227,14 +228,14 @@ for title in $titles; do
 
 	# Compute bitrate
 	
-	bitrate=$(compute_bitrate "$width" "$height" "$fps" "$bpp")
+	video_bitrate=$(compute_bitrate "$width" "$height" "$fps" "$bpp")
 
 	# Estimate output size
 	unset output_size
 	if [[ "$target_size" ]]; then
 		output_size="$target_size"
 	else
-		video_size=$(compute_media_size "$length" "$bitrate")
+		video_size=$(compute_media_size "$length" "$video_bitrate")
 		output_size=$(( $video_size+$audio_size ))
 	fi
 
@@ -245,8 +246,7 @@ for title in $titles; do
 		# Dry run
 
 		filesize="$output_size"
-		format="$video_codec"
-		display_title "$width" "$height" "$fps" "$length" "$bpp" "$bitrate" "$passes" "$format" "$filesize" "$title"
+		display_title "'$width' '$height' '$fps' '$length' '$bpp' '$passes' '$video_bitrate' '$video_codec' '$audio_bitrate' '$audio_codec' '$filesize' '$filename'"
 
 	else
 	
@@ -256,7 +256,7 @@ for title in $titles; do
 		for p in $($seq $passes); do
 			pass=$(( $pass + 1 ))
 		
-			vcodec=$(vcodec_opts "$video_codec" "$twopass" "$pass" "$bitrate")
+			vcodec=$(vcodec_opts "$video_codec" "$twopass" "$pass" "$video_bitrate")
 			
 			cmd="time \
 			$nice -n20 \
