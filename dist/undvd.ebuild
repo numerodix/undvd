@@ -11,7 +11,7 @@ SRC_URI="<tarball>"
 LICENSE="<license>"
 SLOT="0"
 KEYWORDS="~x86"
-IUSE="aac css xvid"
+IUSE="aac css ffmpeg matroska mp4 xvid"
 
 DEPEND="sys-apps/coreutils
 	app-shells/bash
