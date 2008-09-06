@@ -173,13 +173,22 @@ function clone_vobcopy() {
 	( echo "$cmd"; $bash -c "$cmd" ) &> logs/clone.log
 }
 
+# escape quotes in filenames
+function escape_chars() {
+	local s="$@"
+	# for some reason single quotes are not a problem?
+	s=$(echo $s | $sed 's|`|\\`|g')
+	s=$(echo $s | $sed 's|"|\\"|g')
+	echo "$s"
+}
+
 # extract information from file or dvd
 function examine_title() {
 	local file="$1"
 	local mencoder_source="$2"
 	local title="$3"
 
-	local src="\"$file\""
+	local src="\"$(escape_chars $file)\""
 	if [[ "$mencoder_source" && "$title" ]]; then
 		src="-dvd-device \"$mencoder_source\" dvd://$title"
 	fi
@@ -330,21 +339,27 @@ function compute_media_size() {
 	echo $( echo "scale=0; ($bitrate/8)*$length/1024" | $bc )
 }
 
+# kill first and last character
+function kill_quoting() {
+	local s="$@"
+	echo "${s:1:${#s}-2}"
+}
+
 # display a title
 function display_title() {
 	info=($@)
-	local width=$(      echo ${info[0]}    | $tr -d '"' )
-	local height=$(     echo ${info[1]}    | $tr -d '"' )
-	local fps=$(        echo ${info[2]}    | $tr -d '"' )
-	local length=$(     echo ${info[3]}    | $tr -d '"' )  # in seconds
-	local bpp=$(        echo ${info[4]}    | $tr -d '"' )
-	local passes=$(     echo ${info[5]}    | $tr -d '"' )
-	local vbitrate=$(   echo ${info[6]}    | $tr -d '"' )
-	local vformat=$(    echo ${info[7]}    | $tr -d '"' )
-	local abitrate=$(   echo ${info[8]}    | $tr -d '"' )
-	local aformat=$(    echo ${info[9]}    | $tr -d '"' )
-	local filesize=$(   echo ${info[10]}   | $tr -d '"' )
-	local filename=$(   echo ${info[@]:11} | $tr -d '"' )  # rest of the array
+	local width=$(    kill_quoting ${info[0]}    )
+	local height=$(   kill_quoting ${info[1]}    )
+	local fps=$(      kill_quoting ${info[2]}    )
+	local length=$(   kill_quoting ${info[3]}    )
+	local bpp=$(      kill_quoting ${info[4]}    )
+	local passes=$(   kill_quoting ${info[5]}    )
+	local vbitrate=$( kill_quoting ${info[6]}    )
+	local vformat=$(  kill_quoting ${info[7]}    )
+	local abitrate=$( kill_quoting ${info[8]}    )
+	local aformat=$(  kill_quoting ${info[9]}    )
+	local filesize=$( kill_quoting ${info[10]}   )
+	local filename=$( kill_quoting ${info[@]:11} )
 
 	bpp=$( echo "scale=3; $bpp/(1)" | $bc )
 	vbitrate=$( echo "scale=0; $vbitrate/(1)" | $bc )  # kbps
@@ -398,18 +413,18 @@ function format_bpp() {
 # print one line of title display, whether header or not
 function display_title_line() {
 	info=($@)
-	local header=$(     echo ${info[0]}    | $tr -d '"' )
-	local dimensions=$( echo ${info[1]}    | $tr -d '"' )
-	local fps=$(        echo ${info[2]}    | $tr -d '"' )
-	local length=$(     echo ${info[3]}    | $tr -d '"' )
-	local bpp=$(        echo ${info[4]}    | $tr -d '"' )
-	local passes=$(     echo ${info[5]}    | $tr -d '"' )
-	local vbitrate=$(   echo ${info[6]}    | $tr -d '"' )
-	local vformat=$(    echo ${info[7]}    | $tr -d '"' )
-	local abitrate=$(   echo ${info[8]}    | $tr -d '"' )
-	local aformat=$(    echo ${info[9]}    | $tr -d '"' )
-	local filesize=$(   echo ${info[10]}   | $tr -d '"' )
-	local filename=$(   echo ${info[@]:11} | $tr -d '"' )  # rest of the array
+	local header=$(     kill_quoting ${info[0]}    )
+	local dimensions=$( kill_quoting ${info[1]}    )
+	local fps=$(        kill_quoting ${info[2]}    )
+	local length=$(     kill_quoting ${info[3]}    )
+	local bpp=$(        kill_quoting ${info[4]}    )
+	local passes=$(     kill_quoting ${info[5]}    )
+	local vbitrate=$(   kill_quoting ${info[6]}    )
+	local vformat=$(    kill_quoting ${info[7]}    )
+	local abitrate=$(   kill_quoting ${info[8]}    )
+	local aformat=$(    kill_quoting ${info[9]}    )
+	local filesize=$(   kill_quoting ${info[10]}   )
+	local filename=$(   kill_quoting ${info[@]:11} )
 
 	if [[ "$header" ]]; then
 		dimensions="dim"
