@@ -89,8 +89,11 @@ And these are special video tools we need:
 	<li><a href="http://www.dtek.chalmers.se/groups/dvd/">dvd</a>
 	<li><a href="http://lame.sourceforge.net">mp3</a>
 	<li><a href="http://developers.videolan.org/x264.html">x264</a>
+	<li><a href="http://sourceforge.net/projects/faac/">aac</a> (optional)
 	<li><a href="http://www.xvid.org">xvid</a> (optional)
 	</ul>
+<li><a href="http://www.bunkus.org/videotools/mkvtoolnix/">mkvtoolnix</a> (optional)
+<li><a href="http://mpeg4ip.sourceforge.net/">mpeg4ip</a> (optional)
 <li><a href="http://lpn.rnbhq.org/">vobcopy</a> (optional)
 </ul>
 
@@ -165,6 +168,9 @@ The above options are sufficient to get a good quality rip, but if you need more
 <tr><td><c>-f --smooth<c></td><td>use picture smoothing filter (not recommended for top quality source content)</td></tr>
 <tr><td><c>-x<c></td><td>use xvid compression (faster, slightly lower quality)</td></tr>
 <tr><td><c>-D --dryrun<c></td><td>dry run (display encoding parameters without encoding)</td></tr>
+<tr><td><c>--cont<c></td><td>set container format</td></tr>
+<tr><td><c>--acodec<c></td><td>set audio codec</td></tr>
+<tr><td><c>--vcodec<c></td><td>set video codec</td></tr>
 </table>
 
 
@@ -195,6 +201,46 @@ The above options are sufficient to get a good quality rip, but if you need more
 <p>At this point, 54.5 seconds of video have been processed, which is 3% of the title. The current rate is 13 frames/second (normally there are about 25 fps in a movie), and the time remaining is estimated to 44 minutes. The output file is estimated at 277mb.</p>
 
 <p><b>Note:</b> <c>undvd</c> runs at the lowest priority, so it should not interfere with use of your computer, it just runs in the background. (The less you use computer the faster it will run :-)</p>
+
+
+<h2>Codecs and containers</h2>
+
+A number of other containers and codecs are available aside from the default
+(avi+mp3+h264). These are optional dependencies.
+
+<p><b>Note:</b> While the default container/codec combination is quite well
+tested, the other options have not been. Certain combinations may be ill
+advised, but <c>undvd</c> does not attempt to identify them. Use these options cautiously, in particular be careful about <e>audio/video
+sync.</e></p>
+
+<p><b>Note:</b> Codecs supported through lavc (ffmpeg) are not detected by
+<c>undvd</c> as they are not exposed to <e>mencoder</e>. Unavailable
+codecs will cause encoding to fail.
+
+<ul>
+<li>Supported containers:
+	<ul>
+	<li>avi (default)
+	<li>mkv
+	<li>mp4
+	</ul>
+<li>Supported audio codecs:
+	<ul>
+	<li>copy (copy source track, no encoding)
+	<li>aac
+	<li>ac3 (supported through lavc)
+	<li>mp3 (default)
+	<li>vorbis (supported through lavc)
+	</ul>
+<li>Supported video codecs:
+	<ul>
+	<li>copy (copy source track, no encoding)
+	<li>flv (supported through lavc)
+	<li>h264 (default)
+	<li>mpeg4 (supported through lavc)
+	<li>xvid
+	</ul>
+</ul>
 
 
 <h2>Problems?</h2>
