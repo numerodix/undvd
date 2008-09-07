@@ -42,7 +42,7 @@ lsdvd_output=$(bash -c "$cmd")
 if [[ $? != 0 ]]; then
 	echo -en "${e}" ; echo "$lsdvd_output"; echo -en ${r}
 	echo -e "$usage"
-	exit 1
+	exit 2
 fi
 
 

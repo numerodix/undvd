@@ -72,9 +72,9 @@ done
 
 if [[ ! -e "$dvd_device" ]]; then
 	echo -e "${wa}=>${r} The dvd device ${bb}$dvd_device${r} does not exist."
-	echo -e "${wa}=>${r} Supply the right dvd device to $(basename $0), eg:"
-	echo -e "    ${b}$(basename $0) -d ${bb}${dvd_device}${r} [${b}other options${r}]"
-	exit 1
+	echo -e "${wa}=>${r} Supply the right dvd device to ${tool_name}, eg:"
+	echo -e "    ${b}${tool_name} -d ${bb}${dvd_device}${r} [${b}other options${r}]"
+	exit 2
 fi
 
 if [[ "$opt_noclone" ]]; then
@@ -91,13 +91,13 @@ fi
 if [[ ! "$titles" ]]; then
 	echo -e "${e}No titles to rip, exiting${r}"
 	echo -e "$usage"
-	exit 1
+	exit 2
 fi
 
 if [[ ! "$alang" ]]; then
 	echo -e "${e}No audio language selected, exiting${r}"
 	echo -e "$usage"
-	exit 1
+	exit 2
 else
 	audio=$(ternary_int_str "$alang" "-aid" "-alang")
 fi
@@ -111,7 +111,7 @@ fi
 
 $mkdir -p logs
 if [[ $? != 0 ]] ; then
-	echo -e "${e}Could not write to $PWD, exiting${r}"
+	echo -e "${e}Could not write to ${bb}$PWD${e}, exiting${r}"
 	exit 1
 fi
 

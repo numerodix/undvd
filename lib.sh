@@ -62,6 +62,16 @@ function fatal() {
 	kill -s SIGTERM $$
 }
 
+# escape quotes in filenames
+function escape_chars() {
+	local s="$1"; shift;
+	# for some reason single quotes are not a problem?
+	s=$(echo "$s" | $sed 's|\\|\\\\|g')
+	s=$(echo "$s" | $sed 's|`|\\`|g')
+	s=$(echo "$s" | $sed 's|"|\\"|g')
+	echo "$s"
+}
+
 function display_tool_banner() {
 	echo -e "${h1}{( --- ${tool_name} $version --- )}${r}"
 }
@@ -145,48 +155,43 @@ function clone_dd() {
 	local dvd_device="$1"; shift;
 	local img="$1"; shift;
 
-	cmd="time \
+	local src="\"$(escape_chars "$dvd_device")\""
+	local cmd="time \
 	$nice -n20 \
-	$dd if=${dvd_device} of=$img.partial && \
+	$dd if=${src} of=$img.partial && \
 	$mv $img.partial $img"
 	( echo "$cmd"; $bash -c "$cmd" ) &> logs/clone.log
 }
 
 # clone encrypted disc to directory
 function clone_vobcopy() {
-	local dvd_device=$($readlink -f $1); shift;
+	local dvd_device="$1"; shift;
 	local dir="$1"; shift;
 	
-	mnt_point=$($mount | $grep $dvd_device | $awk '{ print $3 }')
+	dvd_device=$(escape_chars "$(readlink -f "$dvd_device")")
+
+	local mnt_point=$($mount | $grep "$dvd_device" | $awk '{ print $3 }')
 
 	if [[ ! "$mnt_point" ]]; then
 		echo -e "\n${wa}=>${r} Your dvd device ${bb}$dvd_device${r} has to be mounted for this."
-		echo -e "${wa}=>${r} Mount the dvd and supply the device to $(basename $0), eg:"
+		echo -e "${wa}=>${r} Mount the dvd and supply the device to ${tool_name}, eg:"
 		echo -e "    ${b}sudo mount ${bb}${dvd_device}${b} /mnt/dvd -t iso9660${r}"
-		echo -e "    ${b}$(basename $0) -d ${bb}${dvd_device}${r} [${b}other options${r}]"
+		echo -e "    ${b}${tool_name} -d ${bb}${dvd_device}${r} [${b}other options${r}]"
+		exit 1
 	fi
 	
-	[[ -d "$dir" ]] && rm -rf $dir
+	[[ -d "$dir" ]] && rm -rf "$dir"
 	cmd="time \
 	$nice -n20 \
-	$vobcopy -f -l -m -F 64 -i $mnt_point -t $dir"
+	$vobcopy -f -l -m -F 64 -i \"$mnt_point\" -t \"$dir\""
 	( echo "$cmd"; $bash -c "$cmd" ) &> logs/clone.log
-}
-
-# escape quotes in filenames
-function escape_chars() {
-	local s="$@"
-	# for some reason single quotes are not a problem?
-	s=$(echo $s | $sed 's|`|\\`|g')
-	s=$(echo $s | $sed 's|"|\\"|g')
-	echo "$s"
 }
 
 # extract number of titles from dvd
 function examine_dvd_for_titlecount() {
 	local source="$1"; shift;
 
-	local src="-dvd-device \"$(escape_chars $source)\" dvd://"
+	local src="-dvd-device \"$(escape_chars "$source")\" dvd://"
 	local cmd="mplayer -ao null -vo null -frames 0 -identify $src 2>&1"
 	local mplayer_output=$($bash -c "$cmd")
 
@@ -203,9 +208,9 @@ function examine_title() {
 	local title="$1"; shift;
 
 	if [[ "$mencoder_source" && "$title" ]]; then
-		local src="-dvd-device \"$(escape_chars $mencoder_source)\" dvd://$title"
+		local src="-dvd-device \"$(escape_chars "$mencoder_source")\" dvd://$title"
 	else
-		local src="\"$(escape_chars $file)\""
+		local src="\"$(escape_chars "$file")\""
 	fi
 	local cmd="mplayer -ao null -vo null -frames 0 -identify $src 2>&1"
 	local mplayer_output=$($bash -c "$cmd")
@@ -270,7 +275,7 @@ function crop_title() {
 	local mencoder_source="$1"; shift;
 	local title="$1"; shift;
 
-	local src="-dvd-device \"$(escape_chars $mencoder_source)\" dvd://$title"
+	local src="-dvd-device \"$(escape_chars "$mencoder_source")\" dvd://$title"
 	local cmd="mplayer -ao null -vo null -fps 10000 -vf cropdetect $src 2>&1"
 	local mplayer_output=$($bash -c "$cmd")
 

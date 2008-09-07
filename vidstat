@@ -31,7 +31,7 @@ done
 
 if [[ ! "$input_dvd_device" && ! "$@" ]]; then
 	echo -e "$usage"
-	exit 1
+	exit 2
 fi
 
 
@@ -46,7 +46,7 @@ if [[ "$input_dvd_device" ]]; then
 			i=$(( $i+1 ))
 		done
 	else
-		echo -e "${e}Could not read from ${it}$input_dvd_device${e} dvd device${r}"
+		echo -e "${e}Could not read from ${bb}$input_dvd_device${e} dvd device${r}"
 		exit 1
 	fi
 else
@@ -60,7 +60,7 @@ fi
 display_title_line "\"header\""
 for file in "${files[@]}"; do
 	if [[ ! "$input_dvd_device" && ! -e "$file" ]]; then
-		echo -e "${e}File $file does not exist"
+		echo -e "${e}File ${bb}$file${e} does not exist"
 		exit 1
 	fi
 
