@@ -1,4 +1,4 @@
-0.5.0;
+0.5.0:
 * Support for selecting container format and audio/video codecs.
 * Add audio codec and bitrate detection in vidstat.
 
