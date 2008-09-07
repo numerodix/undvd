@@ -68,7 +68,7 @@ function display_tool_banner() {
 
 # check for missing dependencies
 function init_cmds() {
-	local verbose="$1"
+	local verbose="$1"; shift;
 	
 	[[ $verbose ]] && echo -e " * Checking for tool support... "
 	for tool in $coreutils $shellutils $videoutils $extravideoutils; do
@@ -91,10 +91,10 @@ function init_cmds() {
 
 # check for codec support in player/encoder
 function codec_check() {
-	local type="$1"
-	local cmd="$2"
-	local arg="$3"
-	local codecs="$4"
+	local type="$1"; shift;
+	local cmd="$1"; shift;
+	local arg="$1"; shift;
+	local codecs="$1"; shift;
 
 	echo -e " * Checking for $cmd $type codec support... "
 	for codec in $codecs; do
@@ -142,8 +142,8 @@ function ternary_int_str() {
 
 # clone disc to iso image
 function clone_dd() {
-	local dvd_device="$1"
-	local img="$2"
+	local dvd_device="$1"; shift;
+	local img="$1"; shift;
 
 	cmd="time \
 	$nice -n20 \
@@ -154,8 +154,8 @@ function clone_dd() {
 
 # clone encrypted disc to directory
 function clone_vobcopy() {
-	local dvd_device=$($readlink -f $1)
-	local dir="$2"
+	local dvd_device=$($readlink -f $1); shift;
+	local dir="$1"; shift;
 	
 	mnt_point=$($mount | $grep $dvd_device | $awk '{ print $3 }')
 
@@ -182,15 +182,30 @@ function escape_chars() {
 	echo "$s"
 }
 
+# extract number of titles from dvd
+function examine_dvd_for_titlecount() {
+	local source="$1"; shift;
+
+	local src="-dvd-device \"$(escape_chars $source)\" dvd://"
+	local cmd="mplayer -ao null -vo null -frames 0 -identify $src 2>&1"
+	local mplayer_output=$($bash -c "$cmd")
+
+	local titles=$( echo "$mplayer_output" | $grep "ID_DVD_TITLES" | \
+		$sed "s|ID_DVD_TITLES=\(.*\)|\1|g" )
+
+	echo "$titles"
+}
+
 # extract information from file or dvd
 function examine_title() {
-	local file="$1"
-	local mencoder_source="$2"
-	local title="$3"
+	local file="$1"; shift;
+	local mencoder_source="$1"; shift;
+	local title="$1"; shift;
 
-	local src="\"$(escape_chars $file)\""
 	if [[ "$mencoder_source" && "$title" ]]; then
-		src="-dvd-device \"$mencoder_source\" dvd://$title"
+		local src="-dvd-device \"$(escape_chars $mencoder_source)\" dvd://$title"
+	else
+		local src="\"$(escape_chars $file)\""
 	fi
 	local cmd="mplayer -ao null -vo null -frames 0 -identify $src 2>&1"
 	local mplayer_output=$($bash -c "$cmd")
@@ -252,10 +267,10 @@ function examine_title() {
 
 # extract information from file or dvd
 function crop_title() {
-	local mencoder_source="$1"
-	local title="$2"
+	local mencoder_source="$1"; shift;
+	local title="$1"; shift;
 
-	local src="-dvd-device \"$mencoder_source\" dvd://$title"
+	local src="-dvd-device \"$(escape_chars $mencoder_source)\" dvd://$title"
 	local cmd="mplayer -ao null -vo null -fps 10000 -vf cropdetect $src 2>&1"
 	local mplayer_output=$($bash -c "$cmd")
 
@@ -270,12 +285,12 @@ function crop_title() {
 
 # compute bits per pixel
 function compute_bpp() {
-	local width="$1"
-	local height="$2"
-	local fps="$3"
-	local length="$4"
-	local video_size="$5"  # in mb
-	local bitrate="$6"  # kbps
+	local width="$1"; shift;
+	local height="$1"; shift;
+	local fps="$1"; shift;
+	local length="$1"; shift;
+	local video_size="$1"; shift;  # in mb
+	local bitrate="$1"; shift;  # kbps
 
 	if [[ "$bitrate" ]]; then
 		bitrate=$( echo "scale=5; $bitrate*1024" | $bc )
@@ -290,8 +305,8 @@ function compute_bpp() {
 
 # set bpp based on the codec and number of passes
 function set_bpp() {
-	local video_codec="$1"
-	local twopass="$2"
+	local video_codec="$1"; shift;
+	local twopass="$1"; shift;
 
 	if [[ "$video_codec" = "h264" ]]; then
 		local bpp="$h264_1pass_bpp"
@@ -306,8 +321,8 @@ function set_bpp() {
 
 # set the number of passes based on codec and bpp
 function set_passes() {
-	local video_codec="$1"
-	local bpp="$2"
+	local video_codec="$1"; shift;
+	local bpp="$1"; shift;
 
 	local passes=1
 	
@@ -334,8 +349,8 @@ function compute_bitrate() {
 
 # compute size of media given length and bitrate
 function compute_media_size() {
-	local length="$1"  # in seconds
-	local bitrate="$2"  # kbps
+	local length="$1"; shift;  # in seconds
+	local bitrate="$1"; shift;  # kbps
 	echo $( echo "scale=0; ($bitrate/8)*$length/1024" | $bc )
 }
 
@@ -384,8 +399,8 @@ function fill() {
 
 # set formatting of bpp output depending on value
 function format_bpp() {
-	local bpp="$1"
-	local video_codec="$2"
+	local bpp="$1"; shift;
+	local video_codec="$1"; shift;
 
 	if [[ "$video_codec" = "h264" ]]; then
 		if [[ "$bpp" < "$h264_2pass_bpp" ]]; then
@@ -475,9 +490,9 @@ function display_title_line() {
 
 # compute title scaling
 function title_scale() {
-	local width="$1"
-	local height="$2"
-	local custom_scale="$3"
+	local width="$1"; shift;
+	local height="$1"; shift;
+	local custom_scale="$1"; shift;
 
 	local nwidth="$width"
 	local nheight="$height"
@@ -529,10 +544,10 @@ function title_scale() {
 
 # scale dimensions to nearest (lower/upper) multiple of 16
 function scale16() {
-	local orig_width="$1"
-	local orig_height="$2"
-	local width="$3"
-	local height="$4"
+	local orig_width="$1"; shift;
+	local orig_height="$1"; shift;
+	local width="$1"; shift;
+	local height="$1"; shift;
 	local divisor=16
 
 	# if the original dimensions are not multiples of 16, no amount of scaling
@@ -627,10 +642,10 @@ function acodec_opts() {
 
 # get video codec options
 function vcodec_opts() {
-	local codec="$1"
-	local twopass="$2"
-	local pass="$3"
-	local bitrate="$4"
+	local codec="$1"; shift;
+	local twopass="$1"; shift;
+	local pass="$1"; shift;
+	local bitrate="$1"; shift;
 	
 	local opts=
 	if [[ "$codec" = "copy" ]]; then
@@ -679,10 +694,10 @@ function vcodec_opts() {
 
 # run encode and print updates
 function run_encode() {
-	local cmd="$1"
-	local title="$2"
-	local twopass="$3"
-	local pass="$4"
+	local cmd="$1"; shift;
+	local title="$1"; shift;
+	local twopass="$1"; shift;
+	local pass="$1"; shift;
 	
 	# Set output and logging depending on number of passes
 	

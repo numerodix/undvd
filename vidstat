@@ -39,16 +39,14 @@ fi
 
 files=() ; i=0
 if [[ "$input_dvd_device" ]]; then
-	cmd="mplayer -ao null -vo null -frames 0 -identify -dvd-device \"$input_dvd_device\" dvd:// 2>&1"
-	mplayer_output=$($bash -c "$cmd")
-	titles=$( echo "$mplayer_output" | $grep "ID_DVD_TITLES" | $sed "s|ID_DVD_TITLES=\(.*\)|\1|g" )
+	titles=$(examine_dvd_for_titlecount "$input_dvd_device")
 	if [[ "$titles" ]]; then
 		for f in $($seq 1 $titles); do
 			files[$i]="$f"
 			i=$(( $i+1 ))
 		done
 	else
-		echo -e "${e}Could not read from $input_dvd_device${r}"
+		echo -e "${e}Could not read from ${it}$input_dvd_device${e} dvd device${r}"
 		exit 1
 	fi
 else
