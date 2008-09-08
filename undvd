@@ -130,6 +130,10 @@ echo -en "container: ${it}$container${r}"
 echo -en "  audio: ${it}$audio_codec${r}"
 echo -e  "  video: ${it}$video_codec${r}"
 
+# Quote encoding source
+
+mencoder_source_quot="\"$(escape_chars "$mencoder_source")\""
+
 
 if [[ ! "$dvdisdir" && ! "$skipclone" ]]; then
 	echo -en " * Cloning dvd to disk first... "
@@ -258,12 +262,11 @@ for title in $titles; do
 		
 			vcodec=$(vcodec_opts "$video_codec" "$twopass" "$pass" "$video_bitrate")
 			
-			mencoder_source="\"$(escape_chars "$mencoder_source")\""
 			cmd="time \
 			$nice -n20 \
 			$mencoder -v \
 			dvd://${title} \
-			-dvd-device $mencoder_source \
+			-dvd-device $mencoder_source_quot \
 			${audio} \
 			${subs} \
 			${endpos} \
