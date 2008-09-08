@@ -609,6 +609,12 @@ function container_opts() {
 		if [[ $? == 0 ]]; then
 			ext="$container"
 			opts="lavf -lavfopts format=$container"
+
+			if [[ "$container" = "flv" ]]; then
+				audio_codec="mp3"
+				video_codec="flv"
+			fi
+
 		else
 			fatal "Unrecognized container: ${bb}$container"
 		fi
@@ -622,26 +628,32 @@ function container_opts() {
 
 # get audio codec options
 function acodec_opts() {
+	local container="$1"; shift;
 	local codec="$1"; shift;
 	local orig_bitrate="$1"; shift;
 	local get_bitrate="$1"; shift
 
+	local opts=
+	if [[ "$container" = "flv" ]]; then
+		opts=" -srate 44100"  # flv supports 44100, 22050, 11025
+	fi
+
 	if [[ "$codec" = "copy" ]]; then
 		local bitrate=$orig_bitrate
-		local opts="copy"
+		opts="copy"
 	elif [[ "$codec" = "mp3" ]]; then
 		local bitrate=160
-		local opts="mp3lame -lameopts vbr=3:abr=$bitrate:q=3"
+		opts="mp3lame -lameopts vbr=3:abr=$bitrate:q=3$opts"
 	elif [[ "$codec" = "aac" ]]; then
 		local bitrate=192
-		local opts="faac -faacopts br=$bitrate:mpeg=4:object=2 -channels 2 -srate 48000"
+		opts="faac -faacopts br=$bitrate:mpeg=4:object=2 -channels 2$opts"
 
 	# use lavc codec
 	else
 		local bitrate=224	# mencoder manpage default
 		$(echo $codec | $egrep '(ac3|vorbis)' &>/dev/null)
 		if [[ $? == 0 ]]; then
-			local opts="lavc -lavcopts abitrate=$bitrate:acodec=$codec"
+			opts="lavc -lavcopts abitrate=$bitrate:acodec=$codec$opts"
 
 		else
 			fatal "Unrecognized audio codec: ${bb}$codec"

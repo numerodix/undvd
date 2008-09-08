@@ -202,8 +202,8 @@ for title in $titles; do
 
 	# Estimate filesize of audio
 
-	audio_bitrate=$(acodec_opts "$audio_codec" "$src_abitrate" "y")
-	acodec=$(acodec_opts "$audio_codec" "$src_abitrate" "")
+	audio_bitrate=$(acodec_opts "$container" "$audio_codec" "$src_abitrate" "y")
+	acodec=$(acodec_opts "$container" "$audio_codec" "$src_abitrate" "")
 	audio_size=$(compute_media_size "$length" "$audio_bitrate")
 
 	# Decide bpp
