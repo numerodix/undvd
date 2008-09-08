@@ -359,27 +359,20 @@ function compute_media_size() {
 	echo $( echo "scale=0; ($bitrate/8)*$length/1024" | $bc )
 }
 
-# kill first and last character
-function kill_quoting() {
-	local s="$@"
-	echo "${s:1:${#s}-2}"
-}
-
 # display a title
 function display_title() {
-	info=($@)
-	local width=$(    kill_quoting ${info[0]}    )
-	local height=$(   kill_quoting ${info[1]}    )
-	local fps=$(      kill_quoting ${info[2]}    )
-	local length=$(   kill_quoting ${info[3]}    )
-	local bpp=$(      kill_quoting ${info[4]}    )
-	local passes=$(   kill_quoting ${info[5]}    )
-	local vbitrate=$( kill_quoting ${info[6]}    )
-	local vformat=$(  kill_quoting ${info[7]}    )
-	local abitrate=$( kill_quoting ${info[8]}    )
-	local aformat=$(  kill_quoting ${info[9]}    )
-	local filesize=$( kill_quoting ${info[10]}   )
-	local filename=$( kill_quoting ${info[@]:11} )
+	local width="$1"; shift;
+	local height="$1"; shift;
+	local fps="$1"; shift;
+	local length="$1"; shift;
+	local bpp="$1"; shift;
+	local passes="$1"; shift;
+	local vbitrate="$1"; shift;
+	local vformat="$1"; shift;
+	local abitrate="$1"; shift;
+	local aformat="$1"; shift;
+	local filesize="$1"; shift;
+	local filename="$1"; shift;
 
 	bpp=$( echo "scale=3; $bpp/(1)" | $bc )
 	vbitrate=$( echo "scale=0; $vbitrate/(1)" | $bc )  # kbps
@@ -388,7 +381,7 @@ function display_title() {
 
 	[[ "$length" != "-1" ]] && length=$( echo "scale=0; $length/60" | $bc )
 	
-	display_title_line "\"\" \"${width}x$height\" \"$fps\" \"$length\" \"$bpp\" \"$passes\" \"$vbitrate\" \"$vformat\" \"$abitrate\" \"$aformat\" \"$filesize\" \"$filename\""
+	display_title_line "" "${width}x$height" "$fps" "$length" "$bpp" "$passes" "$vbitrate" "$vformat" "$abitrate" "$aformat" "$filesize" "$filename"
 }
 
 # truncate string and pad with whitespace to fit the desired length
@@ -432,19 +425,18 @@ function format_bpp() {
 
 # print one line of title display, whether header or not
 function display_title_line() {
-	info=($@)
-	local header=$(     kill_quoting ${info[0]}    )
-	local dimensions=$( kill_quoting ${info[1]}    )
-	local fps=$(        kill_quoting ${info[2]}    )
-	local length=$(     kill_quoting ${info[3]}    )
-	local bpp=$(        kill_quoting ${info[4]}    )
-	local passes=$(     kill_quoting ${info[5]}    )
-	local vbitrate=$(   kill_quoting ${info[6]}    )
-	local vformat=$(    kill_quoting ${info[7]}    )
-	local abitrate=$(   kill_quoting ${info[8]}    )
-	local aformat=$(    kill_quoting ${info[9]}    )
-	local filesize=$(   kill_quoting ${info[10]}   )
-	local filename=$(   kill_quoting ${info[@]:11} )
+	local header="$1"; shift;
+	local dimensions="$1"; shift;
+	local fps="$1"; shift;
+	local length="$1"; shift;
+	local bpp="$1"; shift;
+	local passes="$1"; shift;
+	local vbitrate="$1"; shift;
+	local vformat="$1"; shift;
+	local abitrate="$1"; shift;
+	local aformat="$1"; shift;
+	local filesize="$1"; shift;
+	local filename="$1"; shift;
 
 	if [[ "$header" ]]; then
 		dimensions="dim"

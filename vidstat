@@ -57,7 +57,7 @@ else
 fi
 
 
-display_title_line "\"header\""
+display_title_line "header"
 for file in "${files[@]}"; do
 	if [[ ! "$input_dvd_device" && ! -e "$file" ]]; then
 		echo -e "${e}File ${bb}$file${e} does not exist"
@@ -98,5 +98,5 @@ for file in "${files[@]}"; do
 
 	passes="0"
 
-	display_title "\"$width\" \"$height\" \"$fps\" \"$length\" \"$bpp\" \"$passes\" \"$vbitrate\" \"$vformat\" \"$abitrate\" \"$aformat\" \"$filesize\" \"$filename\""
+	display_title "$width" "$height" "$fps" "$length" "$bpp" "$passes" "$vbitrate" "$vformat" "$abitrate" "$aformat" "$filesize" "$filename"
 done

@@ -153,7 +153,7 @@ fi
 
 if [[ "$dry_run" ]]; then
 	echo -e " * Performing dry-run on title(s) ${bb}$titles${r}"
-	display_title_line "\"header\""
+	display_title_line "header"
 fi
 
 for title in $titles; do
@@ -246,7 +246,7 @@ for title in $titles; do
 		# Dry run
 
 		filesize="$output_size"
-		display_title "\"$width\" \"$height\" \"$fps\" \"$length\" \"$bpp\" \"$passes\" \"$video_bitrate\" \"$video_codec\" \"$audio_bitrate\" \"$audio_codec\" \"$filesize\" \"$filename\""
+		display_title "$width" "$height" "$fps" "$length" "$bpp" "$passes" "$video_bitrate" "$video_codec" "$audio_bitrate" "$audio_codec" "$filesize" "$filename"
 
 	else
 	
@@ -258,11 +258,12 @@ for title in $titles; do
 		
 			vcodec=$(vcodec_opts "$video_codec" "$twopass" "$pass" "$video_bitrate")
 			
+			mencoder_source="\"$(escape_chars "$mencoder_source")\""
 			cmd="time \
 			$nice -n20 \
 			$mencoder -v \
 			dvd://${title} \
-			-dvd-device \"$mencoder_source\" \
+			-dvd-device $mencoder_source \
 			${audio} \
 			${subs} \
 			${endpos} \

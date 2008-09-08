@@ -30,7 +30,7 @@ while true; do
 done
 
 if [[ "$dvd_device" ]]; then
-	dvd_device="\"$dvd_device\""
+	dvd_device="\"$(escape_chars "$dvd_device")\""
 fi
 
 echo -e " * Scanning DVD for titles..."
