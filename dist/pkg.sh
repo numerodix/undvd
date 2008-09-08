@@ -58,8 +58,7 @@ ubuntu_ppa_name="my-ppa"
 gpg_keyid=$(gpg --list-keys $myemail 2>/dev/null | grep pub | awk '{ print $2 }' | sed "s%.*\/%%g")
 
 debtag="0ubuntu"
-#ppa_revision="~ppa1"
-ubuntu_revision="${debtag}${r}${ppa_revision}"
+ubuntu_revision="${debtag}${r}"
 
 
 function tarball() {
@@ -151,8 +150,9 @@ function ubuntu_ppa() {
 	touch dist/ppa_version_cache
 	next_pparev=$(grep "$v" dist/ppa_version_cache | sed "s%$v \(.*\)%\1%g")
 	[ ! "$next_pparev" ] && next_pparev="1"
-	ppa_revision="~ppa$next_pparev"
-	ubuntu_revision="${debtag}${r}${ppa_revision}"
+
+	ubuntu_revision="${debtag}${r}"
+	orig_v=$v; v="$v.$next_pparev"  # override git version to set release number
 
 	# build the package
 	DEBUG=1	 # can't remove builddir for this operation
@@ -168,12 +168,12 @@ function ubuntu_ppa() {
 	# upload succeeded, increment ppa version cache
 	if [ "$ok" ]; then
 		( cd dist ;
-		if grep $v ppa_version_cache; then
-			prev=$(grep "$v" ppa_version_cache | sed "s%$v \(.*\)%\1%g")
+		if grep $orig_v ppa_version_cache; then
+			prev=$(grep "$orig_v" ppa_version_cache | sed "s%$orig_v \(.*\)%\1%g")
 			next=$(( $prev+1 ))
-			sed -i "s%$v \(.*\)%$v $next%g" ppa_version_cache
+			sed -i "s%$orig_v \(.*\)%$orig_v $next%g" ppa_version_cache
 		else
-			echo "$v 2" >> ppa_version_cache
+			echo "$orig_v 2" >> ppa_version_cache
 		fi )
 	fi
 }
