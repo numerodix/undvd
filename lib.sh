@@ -41,8 +41,8 @@ timer_refresh=5
 # tools we need
 videoutils="lsdvd mencoder mplayer"
 shellutils="awk bash bc grep egrep getopt mount ps sed xargs"
-coreutils="cat date dd dirname mkdir mv nice readlink rm seq sleep sort tail tr"
-extravideoutils="mp4creator mkvmerge vobcopy"
+coreutils="cat date dd dirname mkdir mv nice readlink rm seq sleep sort tail tr true"
+extravideoutils="mp4creator mkvmerge ogmmerge vobcopy"
 
 mencoder_acodecs="copy faac lavc mp3lame"
 mencoder_vcodecs="copy lavc x264 xvid"
@@ -585,29 +585,39 @@ function scale16() {
 	echo "$width $height"
 }
 
-# set container and codecs based on input
+# get container options and decide on codecs
 function container_opts() {
 	local container="$1"; shift;
 	local acodec="$1"; shift;
 	local vcodec="$1"; shift;
 
-	local audio_codec=
-	local video_codec=
+	local audio_codec="mp3"
+	local video_codec="h264"
+	local ext="avi"
+	local opts="avi"
 
-	if [[ "$container" = "avi" ]] || [[ "$container" = "mkv" ]]; then
-		audio_codec="mp3"
-		video_codec="h264"
+	if [[ "$container" = "avi" ]] || [[ "$container" = "mkv" ]] || \
+		[[ "$container" = "ogm" ]]; then
+		$true
 	elif [[ "$container" = "mp4" ]]; then
 		audio_codec="aac"
 		video_codec="h264"
+
+	# use lavf muxing
 	else
-		fatal "Unrecognized container: $container"
+		$(echo $container | $egrep '(asf|flv|mov|nut)' &>/dev/null)
+		if [[ $? == 0 ]]; then
+			ext="$container"
+			opts="lavf -lavfopts format=$container"
+		else
+			fatal "Unrecognized container: ${bb}$container"
+		fi
 	fi
 
 	[[ "$acodec" ]] && audio_codec="$acodec"
 	[[ "$vcodec" ]] && video_codec="$vcodec"
 
-	echo "$audio_codec $video_codec"
+	echo "$audio_codec $video_codec $ext $opts"
 }
 
 # get audio codec options
@@ -634,14 +644,14 @@ function acodec_opts() {
 			local opts="lavc -lavcopts abitrate=$bitrate:acodec=$codec"
 
 		else
-			fatal "Unrecognized audio codec: $codec"
+			fatal "Unrecognized audio codec: ${bb}$codec"
 		fi
 	fi
 
 	if [[ "$get_bitrate" = "y" ]]; then
-		echo $bitrate
+		echo "$bitrate"
 	else
-		echo $opts
+		echo "$opts"
 	fi
 }
 
@@ -685,28 +695,29 @@ function vcodec_opts() {
 			fi
 		fi
 
-		$(echo $codec | $egrep '(mpeg4)' &>/dev/null)
+		$(echo $codec | $egrep '(flv|mpeg4)' &>/dev/null)
 		if [[ $? == 0 ]]; then
 			opts="lavc -lavcopts ${opts}vbitrate=$bitrate:vcodec=$codec"
 
 		else
-			fatal "Unrecognized video codec: $codec"
+			fatal "Unrecognized video codec: ${bb}$codec"
 		fi
 	fi
 
-	echo $opts
+	echo "$opts"
 }
 
 # run encode and print updates
 function run_encode() {
 	local cmd="$1"; shift;
+	local ext="$1"; shift;
 	local title="$1"; shift;
 	local twopass="$1"; shift;
 	local pass="$1"; shift;
 	
 	# Set output and logging depending on number of passes
 	
-	local output_file="${title}.avi.partial"
+	local output_file="${title}.${ext}.partial"
 	local logfile="logs/${title}.log"
 	
 	if [[ "$twopass" ]]; then
@@ -754,28 +765,27 @@ function run_encode() {
 }
 
 function remux_container() {
-	local file="$1"; shift;
+	local root="$1"; shift;
+	local ext="$1"; shift;
 	local fps="$1"; shift;
 	local container="$1"; shift;
 	local acodec="$1"; shift;
 	local vcodec="$1"; shift;
 
-	$(echo $container | $egrep '(mp4|mkv)' &>/dev/null)
+	$(echo $container | $egrep '(mp4|mkv|ogm)' &>/dev/null)
 	if [[ $? == 0 ]]; then
-
-		local root="${file%.avi}"
 
 		local pre="
 			if [[ -e \"$root.$container\" ]]; then \
 				$rm $root.$container; \
 			fi &&
-			$mplayer $file -dumpaudio -dumpfile $root.$acodec &&
-			$mplayer $file -dumpvideo -dumpfile $root.$vcodec"
+			$mplayer $root.$ext -dumpaudio -dumpfile $root.$acodec &&
+			$mplayer $root.$ext -dumpvideo -dumpfile $root.$vcodec"
 
 		local post="
 			$rm $root.$acodec &&
 			$rm $root.$vcodec &&
-			$rm $file"
+			$rm $root.$ext"
 
 		if [[ "$container" = "mp4" ]]; then
 			local cmd="$pre &&
@@ -787,8 +797,12 @@ function remux_container() {
 				$post"
 		elif [[ "$container" = "mkv" ]]; then
 			local cmd="
-				$mkvmerge -o $root.$container $file &&
-				$rm $file"
+				$mkvmerge -o $root.$container $root.$ext &&
+				$rm $root.$ext"
+		elif [[ "$container" = "ogm" ]]; then
+			local cmd="
+				$ogmmerge -o $root.$container $root.$ext &&
+				$rm $root.$ext"
 		fi
 
 		# Set logging depending on number of passes
