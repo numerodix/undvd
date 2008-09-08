@@ -156,7 +156,7 @@ And these are special video tools we need:
 
 <p>Normally, you omit the <c>-e</c> parameter, but it's useful if you want to just rip a small part of the title to see that it works and that it looks good.</p>
 
-<p><c>undvd</c> first copies the entire disc to the harddisk with <e>dd</e>. It then encodes the title(s) with <e>mencoder</e>, part of <e>mplayer</e>. The output format uses <a href="http://en.wikipedia.org/wiki/H264">x264</a> compression (optionally xvid) for the video and mp3 for the audio.</p>
+<p><c>undvd</c> first copies the entire disc to the harddisk with <e>dd</e>. It then encodes the title(s) with <e>mencoder</e>, part of <e>mplayer</e>. The output format uses <a href="http://en.wikipedia.org/wiki/H264">h264</a> compression (optionally xvid) for the video and mp3 for the audio.</p>
 
 
 <h3>Advanced options</h3>
@@ -273,8 +273,8 @@ using a different container and/or audio codec.
 <dt>Q. undvd fails when reading from the dvd.
 <dd>A. This could be because the dvd is encrypted. Install libdvdcss and re-try with <c>-u</c> to decrypt the disc first.
 
-<dt>Q. What is the difference between x264 and xvid encoding?
-<dd>A. Xvid can be up to 30% faster, and produces very good results when the source video isn't that high quality (eg. remastered old tv-shows). But for movies of top quality, the picture is better with x264.
+<dt>Q. What is the difference between h264 and xvid encoding?
+<dd>A. Xvid can be up to 30% faster, and produces very good results when the source video isn't that high quality (eg. remastered old tv-shows). But for movies of top quality, the picture is better with h264.
 
 <dt>Q. What's the picture smoothing filter?
 <dd>A. Source content with certain imperfections tends to look better smoothed before encoded. The filter slows down encoding, so you might want to rip a small part of the video first to see if it's worth it.
@@ -300,7 +300,7 @@ using a different container and/or audio codec.
 	<li><a href="http://gentoo-wiki.com/HOWTO_Rip_DVD_mencoder">HOWTO Rip DVD mencoder [gentoo-wiki]</a>
 	</ol>
 
-<li>x264 info
+<li>h264 info
 	<ol>
 	<li><a href="http://www.mplayerhq.hu/DOCS/HTML/en/menc-feat-quicktime-7.html">Using MEncoder to create QuickTime-compatible files [mplayerhq]</a>
 	<li><a href="http://www.softlab.ntua.gr/~ttsiod/x264.html">MPEG-2 (DVD) transcoding to H.264 under UNIX</a>
