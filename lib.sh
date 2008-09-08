@@ -92,10 +92,10 @@ function init_cmds() {
 	done
 	
 	if [[ $verbose ]]; then
-		codec_check "audio" "mencoder" "-oac help" "$mencoder_acodecs"
-		codec_check "video" "mencoder" "-ovc help" "$mencoder_vcodecs"
 		codec_check "audio" "mplayer" "-ac help" "$mplayer_acodecs"
 		codec_check "video" "mplayer" "-vc help" "$mplayer_vcodecs"
+		codec_check "audio" "mencoder" "-oac help" "$mencoder_acodecs"
+		codec_check "video" "mencoder" "-ovc help" "$mencoder_vcodecs"
 	fi
 }
 
