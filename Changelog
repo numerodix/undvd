@@ -1,3 +1,9 @@
+0.5.1:
+* Add support for ogm container and more containers and codecs based on lavc.
+* Fix parsing bugs on filenames with quotes, slashes and other special
+characters.
+* Use exit code 2 on bad usage.
+
 0.5.0:
 * Support for selecting container format and audio/video codecs.
 * Add audio codec and bitrate detection in vidstat.
