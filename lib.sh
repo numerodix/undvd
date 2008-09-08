@@ -732,6 +732,7 @@ function run_encode() {
 			logfile="$logfile.pass2"
 		fi
 	else
+		logfile="$logfile      "
 		pass="-"
 	fi
 	
@@ -739,7 +740,7 @@ function run_encode() {
 	
 	# Print initial status message
 	
-	local status="${r}[$pass] Encoding, to monitor log:  tail -F $logfile    "
+	local status="${r}[$pass] Encoding, to monitor log:  tail -F $logfile   "
 	echo -en "${status}\r"
 	
 	# Execute encoder in the background
