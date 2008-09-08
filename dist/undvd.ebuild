@@ -11,7 +11,7 @@ SRC_URI="<tarball>"
 LICENSE="<license>"
 SLOT="0"
 KEYWORDS="~x86"
-IUSE="aac css ffmpeg matroska mp4 xvid"
+IUSE="aac css ffmpeg matroska mp4 ogm xvid"
 
 DEPEND="sys-apps/coreutils
 	app-shells/bash
@@ -36,6 +36,9 @@ DEPEND="sys-apps/coreutils
 	)
 	mp4? (
 		media-video/mpeg4ip
+	)
+	ogm? (
+		media-sound/ogmtools
 	)"
 RDEPEND="${DEPEND}"
 
