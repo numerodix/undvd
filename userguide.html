@@ -47,6 +47,13 @@ font-style: italic; }
 h {
 font-weight: bold;
 color: green; }
+
+n {
+font-size: 80%;
+font-weight: bold;
+color: navy;
+padding-left: 2px;
+vertical-align: text-top; }
 </style>
 </head>
 
@@ -94,6 +101,7 @@ And these are special video tools we need:
 	</ul>
 <li><a href="http://www.bunkus.org/videotools/mkvtoolnix/">mkvtoolnix</a> (optional)
 <li><a href="http://mpeg4ip.sourceforge.net/">mpeg4ip</a> (optional)
+<li><a href="http://www.bunkus.org/videotools/ogmtools/">ogmtools</a> (optional)
 <li><a href="http://lpn.rnbhq.org/">vobcopy</a> (optional)
 </ul>
 
@@ -166,7 +174,6 @@ The above options are sufficient to get a good quality rip, but if you need more
 <tr><td><c>-c --crop<c></td><td>autocrop video</td></tr>
 <tr><td><c>-r --scale<c></td><td>scale video to width (integer value), <h>0</h> for no scaling</td></tr>
 <tr><td><c>-f --smooth<c></td><td>use picture smoothing filter (not recommended for top quality source content)</td></tr>
-<tr><td><c>-x<c></td><td>use xvid compression (faster, slightly lower quality)</td></tr>
 <tr><td><c>-D --dryrun<c></td><td>dry run (display encoding parameters without encoding)</td></tr>
 <tr><td><c>--cont<c></td><td>set container format</td></tr>
 <tr><td><c>--acodec<c></td><td>set audio codec</td></tr>
@@ -213,34 +220,45 @@ tested, the other options have not been. Certain combinations may be ill
 advised, but <c>undvd</c> does not attempt to identify them. Use these options cautiously, in particular be careful about <e>audio/video
 sync.</e></p>
 
-<p><b>Note:</b> Codecs supported through lavc (ffmpeg) are not detected by
+<p><b>Note:</b> Codecs supported through <e>ffmpeg/lavc</e> are not detected by
 <c>undvd</c> as they are not exposed to <e>mencoder</e>. Unavailable
 codecs will cause encoding to fail.
 
 <ul>
 <li>Supported containers:
 	<ul>
+	<li>asf<n>1</n>
 	<li>avi (default)
-	<li>mkv
-	<li>mp4
+	<li>flv<n>1</n>
+	<li>mkv<n>2</n>
+	<li>mov<n>1</n>
+	<li>mp4<n>2</n>
+	<li>nut<n>1</n>
+	<li>ogm<n>2</n>
 	</ul>
 <li>Supported audio codecs:
 	<ul>
 	<li>copy (copy source track, no encoding)
 	<li>aac
-	<li>ac3 (supported through lavc)
+	<li>ac3<n>1</n>
 	<li>mp3 (default)
-	<li>vorbis (supported through lavc)
+	<li>vorbis<n>1</n>
 	</ul>
 <li>Supported video codecs:
 	<ul>
 	<li>copy (copy source track, no encoding)
+	<li>flv<n>1</n>
 	<li>h264 (default)
-	<li>mpeg4 (supported through lavc)
+	<li>mpeg4<n>1</n>
 	<li>xvid
 	</ul>
 </ul>
 
+<n>1</n> These codecs and containers are supported through <e>lavc</e> and are
+not recommended.  </br/>
+
+<n>2</n> These containers are supported through standalone
+additional tools and typically work more reliably than <e>lavc</e>.
 
 <h2>Problems?</h2>
 
@@ -249,7 +267,8 @@ codecs will cause encoding to fail.
 <dd>A. By default, undvd scales the image to 2/3 of the original dimensions, in order to produce a reasonable file size without sacrificing quality. Even though video players scale the image to fullscreen, the quality typically remains high. You can override the scaling by setting <c>-r 0</c>, which will preserve the original video dimensions. The file will be proportionally larger.
 
 <dt>Q. When I preview a file in progress, the video is out of sync with the audio.
-<dd>A. Wait until it's finished, then it should be fine.
+<dd>A. Wait until it's finished, then it should be fine. You can also consider
+using a different container and/or audio codec.
 
 <dt>Q. undvd fails when reading from the dvd.
 <dd>A. This could be because the dvd is encrypted. Install libdvdcss and re-try with <c>-u</c> to decrypt the disc first.
