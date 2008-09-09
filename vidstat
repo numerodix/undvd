@@ -20,18 +20,18 @@ longs="dev:,dir:,iso:"
 eval $(get_parsecmd "$tool_name" "$shorts" "$longs")
 
 while true; do
-	case "$1" in
-		-d|--dev ) input_dvd_device="$2"; shift 2;;
-		-q|--dir ) input_dvd_device="$2"; shift 2;;
-		-i|--iso ) input_dvd_device="$2"; shift 2;;
-		--) shift ; break ;;
-		* ) break ;;
-	esac
+    case "$1" in
+        -d|--dev ) input_dvd_device="$2"; shift 2;;
+        -q|--dir ) input_dvd_device="$2"; shift 2;;
+        -i|--iso ) input_dvd_device="$2"; shift 2;;
+        --) shift ; break ;;
+        * ) break ;;
+    esac
 done
 
 if [[ ! "$input_dvd_device" && ! "$@" ]]; then
-	echo -e "$usage"
-	exit 2
+    echo -e "$usage"
+    exit 2
 fi
 
 
@@ -39,64 +39,64 @@ fi
 
 files=() ; i=0
 if [[ "$input_dvd_device" ]]; then
-	titles=$(examine_dvd_for_titlecount "$input_dvd_device")
-	if [[ "$titles" ]]; then
-		for f in $($seq 1 $titles); do
-			files[$i]="$f"
-			i=$(( $i+1 ))
-		done
-	else
-		echo -e "${e}Could not read from ${bb}$input_dvd_device${e} dvd device${r}"
-		exit 1
-	fi
+    titles=$(examine_dvd_for_titlecount "$input_dvd_device")
+    if [[ "$titles" ]]; then
+        for f in $($seq 1 $titles); do
+            files[$i]="$f"
+            i=$(( $i+1 ))
+        done
+    else
+        echo -e "${e}Could not read from ${bb}$input_dvd_device${e} dvd device${r}"
+        exit 1
+    fi
 else
-	for f in "$@"; do
-		files[$i]="$f"
-		i=$(( $i+1 ))
-	done
+    for f in "$@"; do
+        files[$i]="$f"
+        i=$(( $i+1 ))
+    done
 fi
 
 
 display_title_line "header"
 for file in "${files[@]}"; do
-	if [[ ! "$input_dvd_device" && ! -e "$file" ]]; then
-		echo -e "${e}File ${bb}$file${e} does not exist"
-		exit 1
-	fi
+    if [[ ! "$input_dvd_device" && ! -e "$file" ]]; then
+        echo -e "${e}File ${bb}$file${e} does not exist"
+        exit 1
+    fi
 
-	if [[ "$input_dvd_device" ]]; then
-		filename="$file"
-		filesize="-1"
-		info=($(examine_title "" "$input_dvd_device" "$file"))
-	else
-		filename=$(basename "$file")
+    if [[ "$input_dvd_device" ]]; then
+        filename="$file"
+        filesize="-1"
+        info=($(examine_title "" "$input_dvd_device" "$file"))
+    else
+        filename=$(basename "$file")
 
-		filesize=$(stat "$file" | $grep "Size:" | $sed "s|.*Size: \([0-9]*\).*|\1|g")
-		filesize=$(echo "scale=0; $filesize/1024/1024" | $bc)  # convert to mb
+        filesize=$(stat "$file" | $grep "Size:" | $sed "s|.*Size: \([0-9]*\).*|\1|g")
+        filesize=$(echo "scale=0; $filesize/1024/1024" | $bc)  # convert to mb
 
-		info=($(examine_title "$file"))
-	fi
-	
-	width=${info[0]}
+        info=($(examine_title "$file"))
+    fi
+    
+    width=${info[0]}
 
-	height=${info[1]}
-	
-	fps=${info[2]}
-	
-	length=${info[3]}
-	
-	abitrate=$( echo "scale=0; ${info[4]}/1024" | $bc )  # convert to kbps
+    height=${info[1]}
+    
+    fps=${info[2]}
+    
+    length=${info[3]}
+    
+    abitrate=$( echo "scale=0; ${info[4]}/1024" | $bc )  # convert to kbps
 
-	aformat=${info[5]}
+    aformat=${info[5]}
 
-	vbitrate=$( echo "scale=0; ${info[6]}/1024" | $bc )  # convert to kbps
-	if [[ "$vbitrate" ]]; then
-		bpp=$(compute_bpp "$width" "$height" "$fps" "$length" "" "$vbitrate")
-	fi
+    vbitrate=$( echo "scale=0; ${info[6]}/1024" | $bc )  # convert to kbps
+    if [[ "$vbitrate" ]]; then
+        bpp=$(compute_bpp "$width" "$height" "$fps" "$length" "" "$vbitrate")
+    fi
 
-	vformat=${info[7]}
+    vformat=${info[7]}
 
-	passes="0"
+    passes="0"
 
-	display_title "$width" "$height" "$fps" "$length" "$bpp" "$passes" "$vbitrate" "$vformat" "$abitrate" "$aformat" "$filesize" "$filename"
+    display_title "$width" "$height" "$fps" "$length" "$bpp" "$passes" "$vbitrate" "$vformat" "$abitrate" "$aformat" "$filesize" "$filename"
 done

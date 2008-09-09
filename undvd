@@ -39,80 +39,80 @@ longs="title:,audio:,subs:,dev:,dir:,iso:,end:,size:,enc,noclone,crop,scale:,smo
 eval $(get_parsecmd "$tool_name" "$shorts" "$longs")
 
 while true; do
-	case "$1" in
-		-t|--title   ) titles=$(echo $2 | $sed 's|,| |g'); shift 2;;
-		-a|--audio   ) alang=$2; shift 2;;
-		-s|--subs    ) slang=$2; shift 2;;
-		
-		-d|--dev     ) dvd_device="$2"; shift 2;;
-		-q|--dir     ) dvdisdir="y";mencoder_source="$2"; shift 2;;
-		-i|--iso     ) dvdisiso="y";skipclone="y";mencoder_source="$2"; shift 2;;
-		
-		-e|--end     ) end=$2; shift 2;;
-		
-		-o|--size    ) target_size="$2"; shift 2;;
-		-1           ) target_passes="1"; shift;;
-		-2           ) target_twopass=y;target_passes="2"; shift;;
-		-u|--enc     ) encrypted="y"; shift;;
-		-n|--noclone ) skipclone="y";opt_noclone="y"; shift;;
-		-c|--crop    ) autocrop=y; shift;;
-		-r|--scale   ) custom_scale="$2"; shift 2;;
-		-f|--smooth  ) prescale="spp,";postscale=",hqdn3d"; shift;;
-		-D|--dryrun  ) dry_run="y"; shift;;
+    case "$1" in
+        -t|--title   ) titles=$(echo $2 | $sed 's|,| |g'); shift 2;;
+        -a|--audio   ) alang=$2; shift 2;;
+        -s|--subs    ) slang=$2; shift 2;;
 
-		   --cont    ) opts_cont="$2"; shift 2;;
-		   --acodec  ) opts_acodec="$2"; shift 2;;
-		   --vcodec  ) opts_vcodec="$2"; shift 2;;
-		
-		-C           ) init_cmds "y"; exit;;
-		-z           ) echo -e "$adv_usage"; exit;;
-		--           ) shift ; break ;;
-	esac
+        -d|--dev     ) dvd_device="$2"; shift 2;;
+        -q|--dir     ) dvdisdir="y";mencoder_source="$2"; shift 2;;
+        -i|--iso     ) dvdisiso="y";skipclone="y";mencoder_source="$2"; shift 2;;
+
+        -e|--end     ) end=$2; shift 2;;
+
+        -o|--size    ) target_size="$2"; shift 2;;
+        -1           ) target_passes="1"; shift;;
+        -2           ) target_twopass=y;target_passes="2"; shift;;
+        -u|--enc     ) encrypted="y"; shift;;
+        -n|--noclone ) skipclone="y";opt_noclone="y"; shift;;
+        -c|--crop    ) autocrop=y; shift;;
+        -r|--scale   ) custom_scale="$2"; shift 2;;
+        -f|--smooth  ) prescale="spp,";postscale=",hqdn3d"; shift;;
+        -D|--dryrun  ) dry_run="y"; shift;;
+
+           --cont    ) opts_cont="$2"; shift 2;;
+           --acodec  ) opts_acodec="$2"; shift 2;;
+           --vcodec  ) opts_vcodec="$2"; shift 2;;
+
+        -C           ) init_cmds "y"; exit;;
+        -z           ) echo -e "$adv_usage"; exit;;
+        --           ) shift ; break ;;
+    esac
 done
 
 if [[ ! -e "$dvd_device" ]]; then
-	echo -e "${wa}=>${r} The dvd device ${bb}$dvd_device${r} does not exist."
-	echo -e "${wa}=>${r} Supply the right dvd device to ${tool_name}, eg:"
-	echo -e "    ${b}${tool_name} -d ${bb}${dvd_device}${r} [${b}other options${r}]"
-	exit 2
+    echo -e "${wa}=>${r} The dvd device ${bb}$dvd_device${r} does not exist."
+    echo -e "${wa}=>${r} Supply the right dvd device to ${tool_name}, eg:"
+    echo -e "    ${b}${tool_name} -d ${bb}${dvd_device}${r} [${b}other options${r}]"
+    exit 2
 fi
 
 if [[ "$opt_noclone" ]]; then
-	if [[ ! "$dvdisdir" && ! "$dvdisiso" ]]; then
-		mencoder_source="$dvd_device"
-	fi
+    if [[ ! "$dvdisdir" && ! "$dvdisiso" ]]; then
+        mencoder_source="$dvd_device"
+    fi
 fi
 
 if [[ "$end" ]]; then
-	endpos="-endpos $end"
+    endpos="-endpos $end"
 fi
 
 
 if [[ ! "$titles" ]]; then
-	echo -e "${e}No titles to rip, exiting${r}"
-	echo -e "$usage"
-	exit 2
+    echo -e "${e}No titles to rip, exiting${r}"
+    echo -e "$usage"
+    exit 2
 fi
 
 if [[ ! "$alang" ]]; then
-	echo -e "${e}No audio language selected, exiting${r}"
-	echo -e "$usage"
-	exit 2
+    echo -e "${e}No audio language selected, exiting${r}"
+    echo -e "$usage"
+    exit 2
 else
-	audio=$(ternary_int_str "$alang" "-aid" "-alang")
+    audio=$(ternary_int_str "$alang" "-aid" "-alang")
 fi
 
 if [[ ! "$slang" ]]; then
-	slang="off"
+    slang="off"
 else
-	subs=$(ternary_int_str "$slang" "-sid" "-slang")
+    subs=$(ternary_int_str "$slang" "-sid" "-slang")
 fi
 
 
 $mkdir -p logs
 if [[ $? != 0 ]] ; then
-	echo -e "${e}Could not write to ${bb}$PWD${e}, exiting${r}"
-	exit 1
+    echo -e "${e}Could not write to ${bb}$PWD${e}, exiting${r}"
+    exit 1
 fi
 
 
@@ -136,152 +136,152 @@ mencoder_source_quot="\"$(escape_chars "$mencoder_source")\""
 
 
 if [[ ! "$dvdisdir" && ! "$skipclone" ]]; then
-	echo -en " * Cloning dvd to disk first... "
-	
-	if [[ "$encrypted" ]]; then
-		mencoder_source="disc"
-		clone_vobcopy "$dvd_device" "$mencoder_source"
-	else
-		clone_dd "$dvd_device" "$disc_image"
-	fi
-	
-	if [[ $? != 0 ]] ; then
-		echo -e "${e}\nFailed, check log${r}"
-		exit 1
-	fi
-	echo -e "${ok}done${r}"
+    echo -en " * Cloning dvd to disk first... "
+
+    if [[ "$encrypted" ]]; then
+        mencoder_source="disc"
+        clone_vobcopy "$dvd_device" "$mencoder_source"
+    else
+        clone_dd "$dvd_device" "$disc_image"
+    fi
+
+    if [[ $? != 0 ]] ; then
+        echo -e "${e}\nFailed, check log${r}"
+        exit 1
+    fi
+    echo -e "${ok}done${r}"
 fi
 
 
 # Display dry-run status
 
 if [[ "$dry_run" ]]; then
-	echo -e " * Performing dry-run on title(s) ${bb}$titles${r}"
-	display_title_line "header"
+    echo -e " * Performing dry-run on title(s) ${bb}$titles${r}"
+    display_title_line "header"
 fi
 
 for title in $titles; do
 	
-	# Display encode status
+    # Display encode status
 
-	if [[ ! "$dry_run" ]]; then
-		echo -en " * Now ripping title ${bb}$title${r}, with audio ${bb}$alang${r} and subtitles ${bb}$slang${r}"
-		if [[ "$end" ]]; then
-			echo -e " ${r}(only first ${bb}${end}${r}s)"
-		else
-			echo
-		fi
-	fi
-	
-	
-	# Extract information from the title
-	
-	info=($(examine_title "" "$mencoder_source" "$title"))
-	width=${info[0]}
-	height=${info[1]}
-	fps=${info[2]}
-	length=${info[3]}
-	src_abitrate=${info[4]}
-	
-	# Do we need to crop?
-
-	if [[ "$autocrop" ]]; then
-		echo -en " + Finding out how much to crop...\r"
-		info=($(crop_title "$mencoder_source" "$title"))
-		width=${info[0]}
-		height=${info[1]}
-		crop_filter="crop=${info[2]},"
-		if [[ ! "$width" || ! "$height" || ! "$crop_filter" ]]; then
-			echo -e "${e}Crop detection failed${r}              "
-			exit 1
-		fi
-	fi
-
-	# Find out how to scale the dimensions
-	
-	scale_info=($(title_scale "$width" "$height" "$custom_scale"))
-	width=${scale_info[0]}
-	height=${scale_info[1]}
-	scale="scale=$width:$height"
-
-	# Estimate filesize of audio
-
-	audio_bitrate=$(acodec_opts "$container" "$audio_codec" "$src_abitrate" "y")
-	acodec=$(acodec_opts "$container" "$audio_codec" "$src_abitrate" "")
-	audio_size=$(compute_media_size "$length" "$audio_bitrate")
-
-	# Decide bpp
-
-	if [[ "$target_size" ]]; then
-		video_size=$(( $target_size - $audio_size ))
-		[[ "0" > "$video_size" ]] && video_size=1
-		bpp=$(compute_bpp "$width" "$height" "$fps" "$length" "$video_size")	
-	else
-		bpp=$(set_bpp "$video_codec" "$target_twopass")
-	fi
-	
-	# Reset the number of passes based on the bpp
-	
-	unset twopass
-	if [[ "$target_passes" ]]; then
-		passes="$target_passes"
-	else
-		passes=$(set_passes "$video_codec" "$bpp")
-	fi
-	[[ "$passes" = "2" ]] && twopass=y
-
-	# Compute bitrate
-	
-	video_bitrate=$(compute_bitrate "$width" "$height" "$fps" "$bpp")
-
-	# Estimate output size
-	unset output_size
-	if [[ "$target_size" ]]; then
-		output_size="$target_size"
-	else
-		video_size=$(compute_media_size "$length" "$video_bitrate")
-		output_size=$(( $video_size+$audio_size ))
-	fi
+    if [[ ! "$dry_run" ]]; then
+        echo -en " * Now ripping title ${bb}$title${r}, with audio ${bb}$alang${r} and subtitles ${bb}$slang${r}"
+        if [[ "$end" ]]; then
+            echo -e " ${r}(only first ${bb}${end}${r}s)"
+        else
+            echo
+        fi
+    fi
 
 
+    # Extract information from the title
 
-	if [[ "$dry_run" ]]; then
+    info=($(examine_title "" "$mencoder_source" "$title"))
+    width=${info[0]}
+    height=${info[1]}
+    fps=${info[2]}
+    length=${info[3]}
+    src_abitrate=${info[4]}
 
-		# Dry run
+    # Do we need to crop?
 
-		filesize="$output_size"
-		display_title "$width" "$height" "$fps" "$length" "$bpp" "$passes" "$video_bitrate" "$video_codec" "$audio_bitrate" "$audio_codec" "$filesize" "$filename"
+    if [[ "$autocrop" ]]; then
+        echo -en " + Finding out how much to crop...\r"
+        info=($(crop_title "$mencoder_source" "$title"))
+        width=${info[0]}
+        height=${info[1]}
+        crop_filter="crop=${info[2]},"
+        if [[ ! "$width" || ! "$height" || ! "$crop_filter" ]]; then
+            echo -e "${e}Crop detection failed${r}              "
+            exit 1
+        fi
+    fi
 
-	else
-	
-		# Encode video
-		
-		pass=0
-		for p in $($seq $passes); do
-			pass=$(( $pass + 1 ))
-		
-			vcodec=$(vcodec_opts "$video_codec" "$twopass" "$pass" "$video_bitrate")
-			
-			cmd="time \
-			$nice -n20 \
-			$mencoder -v \
-			dvd://${title} \
-			-dvd-device $mencoder_source_quot \
-			${audio} \
-			${subs} \
-			${endpos} \
-			-vf ${crop_filter}${prescale}${scale}${postscale} \
-			-ovc ${vcodec} \
-			-oac ${acodec} \
-			-of ${cont}"
-			run_encode "$cmd" "$ext" "$title" "$twopass" "$pass"
-		done
-		
-		[[ -f ${title}.${ext}.partial ]] && $mv ${title}.${ext}.partial ${title}.${ext}
-		$rm divx2pass* 2> /dev/null
+    # Find out how to scale the dimensions
 
-		remux_container "$title" "$ext" "$fps" "$container" "$audio_codec" "$video_codec"
+    scale_info=($(title_scale "$width" "$height" "$custom_scale"))
+    width=${scale_info[0]}
+    height=${scale_info[1]}
+    scale="scale=$width:$height"
 
-	fi
+    # Estimate filesize of audio
+
+    audio_bitrate=$(acodec_opts "$container" "$audio_codec" "$src_abitrate" "y")
+    acodec=$(acodec_opts "$container" "$audio_codec" "$src_abitrate" "")
+    audio_size=$(compute_media_size "$length" "$audio_bitrate")
+
+    # Decide bpp
+
+    if [[ "$target_size" ]]; then
+        video_size=$(( $target_size - $audio_size ))
+        [[ "0" > "$video_size" ]] && video_size=1
+        bpp=$(compute_bpp "$width" "$height" "$fps" "$length" "$video_size")
+    else
+        bpp=$(set_bpp "$video_codec" "$target_twopass")
+    fi
+
+    # Reset the number of passes based on the bpp
+
+    unset twopass
+    if [[ "$target_passes" ]]; then
+        passes="$target_passes"
+    else
+        passes=$(set_passes "$video_codec" "$bpp")
+    fi
+    [[ "$passes" = "2" ]] && twopass=y
+
+    # Compute bitrate
+
+    video_bitrate=$(compute_bitrate "$width" "$height" "$fps" "$bpp")
+
+    # Estimate output size
+    unset output_size
+    if [[ "$target_size" ]]; then
+        output_size="$target_size"
+    else
+        video_size=$(compute_media_size "$length" "$video_bitrate")
+        output_size=$(( $video_size+$audio_size ))
+    fi
+
+
+
+    if [[ "$dry_run" ]]; then
+
+        # Dry run
+
+        filesize="$output_size"
+        display_title "$width" "$height" "$fps" "$length" "$bpp" "$passes" "$video_bitrate" "$video_codec" "$audio_bitrate" "$audio_codec" "$filesize" "$filename"
+
+    else
+
+        # Encode video
+
+        pass=0
+        for p in $($seq $passes); do
+            pass=$(( $pass + 1 ))
+
+            vcodec=$(vcodec_opts "$video_codec" "$twopass" "$pass" "$video_bitrate")
+
+            cmd="time \
+            $nice -n20 \
+            $mencoder -v \
+            dvd://${title} \
+            -dvd-device $mencoder_source_quot \
+            ${audio} \
+            ${subs} \
+            ${endpos} \
+            -vf ${crop_filter}${prescale}${scale}${postscale} \
+            -ovc ${vcodec} \
+            -oac ${acodec} \
+            -of ${cont}"
+            run_encode "$cmd" "$ext" "$title" "$twopass" "$pass"
+        done
+
+        [[ -f ${title}.${ext}.partial ]] && $mv ${title}.${ext}.partial ${title}.${ext}
+        $rm divx2pass* 2> /dev/null
+
+        remux_container "$title" "$ext" "$fps" "$container" "$audio_codec" "$video_codec"
+
+    fi
 
 done

@@ -20,17 +20,17 @@ longs="dev:,dir:,iso:"
 eval $(get_parsecmd "$tool_name" "$shorts" "$longs")
 
 while true; do
-	case "$1" in
-		-d|--dev ) dvd_device="$2"; shift 2;;
-		-q|--dir ) dvd_device="$2";dvdisdir="-q "; shift 2;;
-		-i|--iso ) dvd_device="$2";dvdisdir="-q "; shift 2;;
-		-v       ) verbose="y"; shift;;
-		--) shift ; break ;;
-	esac
+    case "$1" in
+        -d|--dev ) dvd_device="$2"; shift 2;;
+        -q|--dir ) dvd_device="$2";dvdisdir="-q "; shift 2;;
+        -i|--iso ) dvd_device="$2";dvdisdir="-q "; shift 2;;
+        -v       ) verbose="y"; shift;;
+        --) shift ; break ;;
+    esac
 done
 
 if [[ "$dvd_device" ]]; then
-	dvd_device="\"$(escape_chars "$dvd_device")\""
+    dvd_device="\"$(escape_chars "$dvd_device")\""
 fi
 
 echo -e " * Scanning DVD for titles..."
@@ -40,52 +40,52 @@ cmd="$lsdvd -avs $dvdisdir $dvd_device 2>&1"
 lsdvd_output=$(bash -c "$cmd")
 
 if [[ $? != 0 ]]; then
-	echo -en "${e}" ; echo "$lsdvd_output"; echo -en ${r}
-	echo -e "$usage"
-	exit 2
+    echo -en "${e}" ; echo "$lsdvd_output"; echo -en ${r}
+    echo -e "$usage"
+    exit 2
 fi
 
 
 titlenos=$(echo "$lsdvd_output" | $egrep "^Title" | $awk '{ print $2 }' | $tr -d ',')
 
 for titleno in $titlenos; do
-	title=$(echo "$lsdvd_output" | $sed -n "/^Title: $titleno/, /^$/p")
-	length=$(echo "$title" | $egrep "^Title: $titleno" | $awk '{ print $4 }' | $sed 's|\(.*\)\..*|\1|g')
-	aids=($(echo "$title" | $egrep "Audio:" | $awk '{ print $21 }' | $xargs))
-	alangs=($(echo "$title" | $egrep "Audio:" | $awk '{ print $4 }' | $xargs))
-	sids=($(echo "$title" | $egrep "Subtitle:" | $awk '{ print $11 }' | $tr -d ',' | $xargs))
-	slangs=($(echo "$title" | $egrep "Subtitle:" | $awk '{ print $4 }' | $xargs))
+    title=$(echo "$lsdvd_output" | $sed -n "/^Title: $titleno/, /^$/p")
+    length=$(echo "$title" | $egrep "^Title: $titleno" | $awk '{ print $4 }' | $sed 's|\(.*\)\..*|\1|g')
+    aids=($(echo "$title" | $egrep "Audio:" | $awk '{ print $21 }' | $xargs))
+    alangs=($(echo "$title" | $egrep "Audio:" | $awk '{ print $4 }' | $xargs))
+    sids=($(echo "$title" | $egrep "Subtitle:" | $awk '{ print $11 }' | $tr -d ',' | $xargs))
+    slangs=($(echo "$title" | $egrep "Subtitle:" | $awk '{ print $4 }' | $xargs))
 
-	echo -en   "${b}${titleno}"
-	echo -en "  ${r}length: ${bb}${length}"
+    echo -en   "${b}${titleno}"
+    echo -en "  ${r}length: ${bb}${length}"
 
-	if [[ "$alangs" ]]; then
-		echo -en "  ${r}audio: "
-		i=0
-		for alang in ${alangs[*]}; do
-			echo -en "${bb}${alang}${r} "
-			if [[ "$verbose" ]]; then
-				aid=$(( ${aids[$i]} )) # convert from hex
-				echo -en "${it}${aid}${r} "
-				i=$(( $i+1 ))
-			fi
-		done
-	fi
+    if [[ "$alangs" ]]; then
+        echo -en "  ${r}audio: "
+        i=0
+        for alang in ${alangs[*]}; do
+            echo -en "${bb}${alang}${r} "
+            if [[ "$verbose" ]]; then
+                aid=$(( ${aids[$i]} )) # convert from hex
+                echo -en "${it}${aid}${r} "
+                i=$(( $i+1 ))
+            fi
+        done
+    fi
 
-	if [[ "$slangs" ]]; then
-		echo -en " ${r}subs: "
-		i=0
-		for slang in ${slangs[*]}; do
-			echo -en "${bb}${slang}${r} "
-			if [[ "$verbose" ]]; then
-				sid=$(( ${sids[$i]} )) # convert from hex
-				echo -en "${it}${sid}${r} "
-				i=$(( $i+1 ))
-			fi
-		done
-	fi
+    if [[ "$slangs" ]]; then
+        echo -en " ${r}subs: "
+        i=0
+        for slang in ${slangs[*]}; do
+            echo -en "${bb}${slang}${r} "
+            if [[ "$verbose" ]]; then
+                sid=$(( ${sids[$i]} )) # convert from hex
+                echo -en "${it}${sid}${r} "
+                i=$(( $i+1 ))
+            fi
+        done
+    fi
 
-	echo -e ${r}
+    echo -e ${r}
 done
 
 echo -e "${r}\nTo watch a title:"
