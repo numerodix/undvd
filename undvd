@@ -7,8 +7,6 @@
 # load constants and functions
 p=$(dirname $(readlink -f $0)); . $p/lib.sh
 
-display_tool_banner
-
 usage="Usage:  ${b}${tool_name} -t ${bb}01,02,03${b} -a ${bb}en${b} -s ${bb}es${b} ${r}[${b}-d ${bb}/dev/dvd${r}] [${b}more options${r}]\n
   -t --title    titles to rip (comma separated)
   -a --audio    audio language (two letter code, eg. ${bb}en${r}, or integer id)
@@ -19,7 +17,8 @@ usage="Usage:  ${b}${tool_name} -t ${bb}01,02,03${b} -a ${bb}en${b} -s ${bb}es${
      --start    start after this many seconds (usually for testing)
   -e --end      end after this many seconds (usually for testing)\n
   -C            do sanity check (check for missing tools)
-  -z            <show advanced options>"
+  -z            <show advanced options>
+     --version  show ${tool_name} version"
 
 adv_usage="Advanced usage:  ${b}${tool_name} ${r}[${b}standard options${r}] [${b}advanced options${r}]
   -o --size     output file size in mb (integer value)
@@ -36,7 +35,7 @@ adv_usage="Advanced usage:  ${b}${tool_name} ${r}[${b}standard options${r}] [${b
      --vcodec   set video codec"
 
 shorts="t:a:s:d:q:i:e:o:r:12uncfDCz"
-longs="title:,audio:,subs:,dev:,dir:,iso:,start:,end:,size:,enc,noclone,crop,scale:,smooth,dryrun,cont:,acodec:,vcodec:"
+longs="title:,audio:,subs:,dev:,dir:,iso:,start:,end:,version,size:,enc,noclone,crop,scale:,smooth,dryrun,cont:,acodec:,vcodec:"
 eval $(get_parsecmd "$tool_name" "$shorts" "$longs")
 
 while true; do
@@ -51,6 +50,7 @@ while true; do
 
            --start   ) opts_start=$2; shift 2;;
         -e|--end     ) opts_end=$2; shift 2;;
+           --version ) opts_version="y"; shift;;
 
         -o|--size    ) target_size="$2"; shift 2;;
         -1           ) target_passes="1"; shift;;
@@ -71,6 +71,21 @@ while true; do
         --           ) shift ; break ;;
     esac
 done
+
+if [[ "$opts_version" ]]; then
+    echo "${tool_name} $version"
+    echo "  $(tool_version "mplayer" "-ac help" "\$awk '{ print \$2 }'")"
+    echo "  $(tool_version "mencoder" "-oac help" "\$awk '{ print \$2 }'")"
+    echo "  $(tool_version "lsdvd" "-V" "\$awk '{ print \$2 }'")"
+    echo "  $(tool_version "vobcopy" "--version" "\$awk '{ print \$2 }'")"
+    echo "  $(tool_version "mp4creator" "-version" "\$awk '{ print \$5 }'")"
+    echo "  $(tool_version "mkvmerge" "--version" "\$awk '{ print \$2 }'")"
+    echo "  $(tool_version "ogmmerge" "--version" "\$awk '{ print \$2 }'")"
+    exit
+fi
+
+display_tool_banner
+
 
 if [[ ! -e "$dvd_device" ]]; then
     echo -e "${wa}=>${r} The dvd device ${bb}$dvd_device${r} does not exist."

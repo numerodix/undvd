@@ -41,7 +41,7 @@ timer_refresh=5
 # tools we need
 videoutils="lsdvd mencoder mplayer"
 shellutils="awk bash bc grep egrep getopt mount ps sed xargs"
-coreutils="cat date dd dirname mkdir mv nice readlink rm seq sleep sort tail tr true"
+coreutils="cat date dd dirname head mkdir mv nice readlink rm seq sleep sort tail tr true"
 extravideoutils="mp4creator mkvmerge ogmmerge vobcopy"
 
 mencoder_acodecs="copy faac lavc mp3lame"
@@ -96,6 +96,20 @@ function init_cmds() {
 		codec_check "video" "mplayer" "-vc help" "$mplayer_vcodecs"
 		codec_check "audio" "mencoder" "-oac help" "$mencoder_acodecs"
 		codec_check "video" "mencoder" "-ovc help" "$mencoder_vcodecs"
+	fi
+}
+
+# get version of the tool
+function tool_version() {
+	local name="$1"; shift;
+	local args="$1"; shift;
+	local extract="$1"; shift;
+
+	v=$($name $args 2>&1 | $head -n1 | eval $extract)
+	if which $name &>/dev/null; then
+		echo -e "[${bb}*${r}] $name $v"
+	else
+		echo -e "[${e}!${r}] $name missing"
 	fi
 }
 
@@ -280,10 +294,10 @@ function crop_title() {
 	local mplayer_output=$($bash -c "$cmd")
 
 	local crop_filter=$(echo "$mplayer_output" |\
-		 awk '/CROP/' | tail -n1 | sed 's|.*(-vf crop=\(.*\)).*|\1|g')
+		 $awk '/CROP/' | $tail -n1 | $sed 's|.*(-vf crop=\(.*\)).*|\1|g')
 
-	local width=$(echo "$crop_filter" | sed "s|\(.*\):.*:.*:.*|\1|g")
-	local height=$(echo "$crop_filter" | sed "s|.*:\(.*\):.*:.*|\1|g")
+	local width=$(echo "$crop_filter" | $sed "s|\(.*\):.*:.*:.*|\1|g")
+	local height=$(echo "$crop_filter" | $sed "s|.*:\(.*\):.*:.*|\1|g")
 
 	echo "$width $height $crop_filter"
 }
