@@ -87,7 +87,7 @@ undvd depends on a few programs to run, so make sure you have these. These are s
 <li><a href="http://www.gnu.org/software/sed/">sed</a>
 <li><a href="http://www.kernel.org/pub/linux/utils/util-linux/">util-linux</a>
 </ul>
-And these are special video tools we need: 
+And these are special video tools we need:
 <ul>
 <li><a href="http://www.videolan.org/developers/libdvdcss.html">libdvdcss</a> (optional, but necessary to read encrypted dvds)
 <li><a href="http://untrepid.com/lsdvd/">lsdvd</a>
@@ -260,6 +260,12 @@ not recommended.  </br/>
 
 <n>2</n> These containers are supported through standalone
 additional tools and typically work more reliably than <e>lavc</e>.
+
+<p>Certain combinations of codecs will be rejected by some containers. To find
+out which combinations work, there is a helper script <e>codec_test.py</e> that
+runs <e>undvd</e> on the whole range of combinations and generates a report.
+<e>undvd</e> comes with a pre-generated report which you can find <a href="codectest.txt">here</a>. You can also generate it on your own system to see what combinations work.
+</p>
 
 <h2>Problems?</h2>
 
