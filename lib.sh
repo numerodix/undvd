@@ -657,7 +657,8 @@ function acodec_opts() {
 	# use lavc codec
 	else
 		local bitrate=224	# mencoder manpage default
-		$(echo $codec | $egrep '(ac3|vorbis)' &>/dev/null)
+		#$(echo $codec | $egrep '(ac3|vorbis)' &>/dev/null)
+		$(echo $codec | $egrep '(.*)' &>/dev/null)
 		if [[ $? == 0 ]]; then
 			opts="lavc -lavcopts abitrate=$bitrate:acodec=$codec$opts"
 
@@ -713,7 +714,8 @@ function vcodec_opts() {
 			fi
 		fi
 
-		$(echo $codec | $egrep '(flv|mpeg4)' &>/dev/null)
+		#$(echo $codec | $egrep '(flv|mpeg4)' &>/dev/null)
+		$(echo $codec | $egrep '(.*)' &>/dev/null)
 		if [[ $? == 0 ]]; then
 			opts="lavc -lavcopts ${opts}vbitrate=$bitrate:vcodec=$codec"
 

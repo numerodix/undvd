@@ -12,9 +12,19 @@ import sys
 import time
 
 
+vcodecs = ['asv1', 'asv2', 'dvvideo', 'ffv1', 'flv', 'h261', 'h263', 'h263p',
+           'h264', 'mpeg1video', 'mpeg2video', 'mpeg4', 'msmpeg4', 'msmpeg4v2',
+           'roqvideo', 'rv10', 'svq1', 'wmv1', 'wmv2', 'xvid']
+acodecs = ['aac', 'ac3', 'flac', 'mp2', 'mp3', 'sonic', 'sonicls', 'vorbis',
+           'wmav1', 'wmav2']
+
 conts = ['asf', 'avi', 'flv', 'mkv', 'mov', 'mp4', 'nut', 'ogm']
 vcodecs = ['flv', 'h264', 'mpeg4', 'xvid']
 acodecs = ['aac', 'ac3', 'mp3', 'vorbis']
+
+conts = ['mkv']
+vcodecs = ['flv', 'xvid']
+acodecs = ['vorbis', 'mp3', 'ac3']
 
 workdir = "/tmp"
 
@@ -57,7 +67,7 @@ def run_test(source, title, cont, acodec, vcodec):
     args = ['undvd', '--end', '3'] + source
     args.extend(['--title', title, '--audio', 'en'])
     args.extend(['--cont', cont, '--vcodec', vcodec, '--acodec', acodec])
-
+#    return (False, 5) # XXX
     os.environ["TERM"] = ''
 
     oldcwd = os.getcwd()
@@ -84,13 +94,17 @@ def run_suite(source, title, cont, acodec, vcodec):
     matrix = [[[None for a in acodecs] for v in vcodecs] for c in conts]
     combs = len(conts) * len(acodecs) * len(vcodecs)
 
+    cw = max([len(j) for j in conts])
+    vw = max([len(j) for j in vcodecs])
+    aw = max([len(j) for j in vcodecs])
+
     i = 1
     last_run = 0
     cum = 0
     for c in conts:
         for v in vcodecs:
             for a in acodecs:
-                s = "%s%s%s" % (c.ljust(8), v.ljust(8), a.ljust(10))
+                s = "%s%s%s" % (c.ljust(cw+3), v.ljust(vw+3), a.ljust(aw+3))
 
                 cum_i = (int) (cum / 60)
                 last_i = (int) (last_run)
@@ -101,7 +115,7 @@ def run_suite(source, title, cont, acodec, vcodec):
                 cum_s = "cum: %smin" % cum_i
                 eta_s = "eta: %smin" % eta_i
                 stat = "  ".join([last_s, cum_s, eta_s])
-                write("%s%s%s" % (s, prog_s.ljust(10), stat), ovr=True)
+                write("%s   %s%s" % (s, prog_s.ljust(10), stat), ovr=True)
 
                 (res, last_run) = run_test(source, title, c, a, v)
                 cum += last_run
@@ -111,7 +125,7 @@ def run_suite(source, title, cont, acodec, vcodec):
                     res_s = "ok"
                 elif res == False:
                     res_s = "failed"
-                write("%s%s" % (s, res_s), end=True)
+                write("%s   %s" % (s, res_s), end=True)
 
                 matrix[conts.index(c)][vcodecs.index(v)][acodecs.index(a)] = res
 
@@ -154,6 +168,64 @@ def get_report(matrix, cum, tools):
 
     return s
 
+def get_svg(matrix, cum, tools):
+    def get_s(x, y, fpx, c, th=False):
+        style = ""
+        if th:
+            style = "font-weight:bold;"
+        s = '\n<text x="%s" y="%s" style="font-size:%spx;%s">' %\
+                (x, y, fpx, style)
+        s += '\n%s' % c
+        s += '\n</text>'
+        return s
+
+    w, h = 800, 600
+
+    s = '<?xml version="1.0"?>'
+    s += '\n<svg height="%s" width="%s" xmlns="http://www.w3.org/2000/svg">' % (w, h)
+
+    x, y = 50, 50
+    fpx = 12
+    fpa = 4
+
+    cw = max([len(j) for j in conts])
+    vw = max([len(j) for j in vcodecs])
+    aw = max([len(j) for j in vcodecs])
+
+    orig_x, orig_y = x, y
+
+    for (i, c) in enumerate([None] + conts):
+        i -= 1
+
+        for (j, v) in enumerate([None] + vcodecs):
+            j -= 1
+
+            if i == -1 and j == -1:
+                pass
+            elif i > -1 and j == -1:
+                s += get_s(x, y, fpx, conts[i], th=True)
+            elif i == -1 and j > -1:
+                s += get_s(x, y, fpx, vcodecs[j], th=True)
+            else:
+                local_y = y
+                for a in acodecs:
+                    val = matrix[conts.index(c)][vcodecs.index(v)][acodecs.index(a)]
+                    if val:
+                        s += get_s(x, local_y, fpx, a)
+                        if acodecs.index(a) < len(acodecs) - 1:
+                            local_y += fpx + fpa
+
+            if j == -1:
+                y += (fpx + fpa)
+            else:
+                y += (fpx + fpa) * aw
+
+        y = orig_y
+        x += fpx * aw
+
+    s += '\n</svg>'
+    return s
+
 def main(source, title, reportfile):
     tools = check_tools()
 
@@ -162,8 +234,12 @@ def main(source, title, reportfile):
     if not tools.get("ogmmerge") and 'ogm' in conts: conts.remove('ogm')
 
     (matrix, cum) = run_suite(source, title, conts, acodecs, vcodecs)
+
     report_s = get_report(matrix, cum, tools)
-    open(reportfile, 'w').write(report_s)
+    open(reportfile + '.txt', 'w').write(report_s)
+
+    svg_s = get_svg(matrix, cum, tools)
+    open(reportfile + '.svg', 'w').write(svg_s)
 
 
 
@@ -182,6 +258,7 @@ if __name__ == "__main__":
         help="dvd iso image to rip from", metavar="iso")
     (opts, args) = parser.parse_args()
 
+    source = []
     if opts.dev:
         source = ['--dev', os.path.abspath(opts.dev)]
     elif opts.dir:
