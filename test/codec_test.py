@@ -22,9 +22,9 @@ conts = ['asf', 'avi', 'flv', 'mkv', 'mov', 'mp4', 'nut', 'ogm']
 vcodecs = ['flv', 'h264', 'mpeg4', 'xvid']
 acodecs = ['aac', 'ac3', 'mp3', 'vorbis']
 
-conts = ['mkv']
-vcodecs = ['flv', 'xvid']
-acodecs = ['vorbis', 'mp3', 'ac3']
+conts = ['mkv', 'mp4']
+vcodecs = ['xvid', 'h264']
+acodecs = ['mp3', 'aac',]
 
 workdir = "/tmp"
 
@@ -172,33 +172,34 @@ def get_svg(matrix, cum, tools):
     def get_s(x, y, fpx, c, th=False):
         style = ""
         if th:
-            style = "font-weight:bold;"
-        s = '\n<text x="%s" y="%s" style="font-size:%spx;%s">' %\
+            style = " font-weight: bold;"
+        s = '\n<text x="%s" y="%s" style="font-size: %spx;%s">' %\
                 (x, y, fpx, style)
         s += '\n%s' % c
         s += '\n</text>'
         return s
 
-    w, h = 800, 600
 
-    s = '<?xml version="1.0"?>'
-    s += '\n<svg height="%s" width="%s" xmlns="http://www.w3.org/2000/svg">' % (w, h)
+    padding = 50
 
-    x, y = 50, 50
     fpx = 12
     fpa = 4
+    x, y = padding + (fpx + fpa), padding
+    orig_x, orig_y = x, y
+    x_span = x
+
+    s = ""
 
     cw = max([len(j) for j in conts])
     vw = max([len(j) for j in vcodecs])
     aw = max([len(j) for j in vcodecs])
 
-    orig_x, orig_y = x, y
+    for (j, v) in enumerate([None] + vcodecs):
+        j -= 1
 
-    for (i, c) in enumerate([None] + conts):
-        i -= 1
-
-        for (j, v) in enumerate([None] + vcodecs):
-            j -= 1
+        row_height = 0
+        for (i, c) in enumerate([None] + conts):
+            i -= 1
 
             if i == -1 and j == -1:
                 pass
@@ -212,19 +213,24 @@ def get_svg(matrix, cum, tools):
                     val = matrix[conts.index(c)][vcodecs.index(v)][acodecs.index(a)]
                     if val:
                         s += get_s(x, local_y, fpx, a)
-                        if acodecs.index(a) < len(acodecs) - 1:
-                            local_y += fpx + fpa
+                        local_y += fpx + fpa
+                        row_height = max(local_y, row_height)
 
-            if j == -1:
-                y += (fpx + fpa)
-            else:
-                y += (fpx + fpa) * aw
+            x += fpx * aw
 
-        y = orig_y
-        x += fpx * aw
+        x_span = x# + (fpx * aw)
+        x = orig_x
+        y = max(y + (fpx + fpa), row_height)
 
-    s += '\n</svg>'
-    return s
+
+    w, h = x_span + padding, y + padding
+
+    d = '<?xml version="1.0"?>'
+    d += '\n<svg height="%s" width="%s" xmlns="http://www.w3.org/2000/svg">' % (h, w)
+    d += '\n<rect x="0" y="0" height="%s" width="%s" fill="white"/>' % (h, w)
+    d += s
+    d += '\n</svg>'
+    return d
 
 def main(source, title, reportfile):
     tools = check_tools()
