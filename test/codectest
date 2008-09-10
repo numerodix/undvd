@@ -459,7 +459,7 @@ if __name__ == "__main__":
 
     workdir = "/tmp"
     if opts.tmpdir:
-        workdir = opts.tmpdir
+        workdir = os.path.abspath(opts.tmpdir)
 
     if not opts.filename:
         write("No output file given", end=True)
