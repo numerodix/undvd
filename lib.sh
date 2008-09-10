@@ -611,7 +611,7 @@ function container_opts() {
 
 	# use lavf muxing
 	else
-		$(echo $container | $egrep '(asf|flv|mov|nut)' &>/dev/null)
+		$(echo $container | $egrep '(asf|au|dv|flv|ipod|mov|mpg|nut|rm|swf)' &>/dev/null)
 		if [[ $? == 0 ]]; then
 			ext="$container"
 			opts="lavf -lavfopts format=$container"
@@ -657,8 +657,8 @@ function acodec_opts() {
 	# use lavc codec
 	else
 		local bitrate=224	# mencoder manpage default
-		#$(echo $codec | $egrep '(ac3|vorbis)' &>/dev/null)
-		$(echo $codec | $egrep '(.*)' &>/dev/null)
+		$(echo $codec | \
+			$egrep '(ac3|flac|mp2|sonic|sonicls|vorbis|wmav1|wmav2)' &>/dev/null)
 		if [[ $? == 0 ]]; then
 			opts="lavc -lavcopts abitrate=$bitrate:acodec=$codec$opts"
 
@@ -714,8 +714,7 @@ function vcodec_opts() {
 			fi
 		fi
 
-		#$(echo $codec | $egrep '(flv|mpeg4)' &>/dev/null)
-		$(echo $codec | $egrep '(.*)' &>/dev/null)
+		$(echo $codec | $egrep '(asv1|asv2|dvvideo|ffv1|flv|h261|h263|h263p|mpeg1video|mpeg2video|mpeg4|msmpeg4|msmpeg4v2|roqvideo|rv10|snow|svq1|wmv1|wmv2)' &>/dev/null)
 		if [[ $? == 0 ]]; then
 			opts="lavc -lavcopts ${opts}vbitrate=$bitrate:vcodec=$codec"
 

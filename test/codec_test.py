@@ -12,19 +12,25 @@ import sys
 import time
 
 
-vcodecs = ['asv1', 'asv2', 'dvvideo', 'ffv1', 'flv', 'h261', 'h263', 'h263p',
-           'h264', 'mpeg1video', 'mpeg2video', 'mpeg4', 'msmpeg4', 'msmpeg4v2',
-           'roqvideo', 'rv10', 'svq1', 'wmv1', 'wmv2', 'xvid']
-acodecs = ['aac', 'ac3', 'flac', 'mp2', 'mp3', 'sonic', 'sonicls', 'vorbis',
-           'wmav1', 'wmav2']
-
-conts = ['asf', 'avi', 'flv', 'mkv', 'mov', 'mp4', 'nut', 'ogm']
-vcodecs = ['flv', 'h264', 'mpeg4', 'xvid']
-acodecs = ['aac', 'ac3', 'mp3', 'vorbis']
-
+# downscaled for quick testing
 conts = ['mkv', 'mp4']
 vcodecs = ['xvid', 'h264']
 acodecs = ['mp3', 'aac',]
+
+# definitely insane
+conts = ['asf', 'au', 'avi', 'dv', 'flv', 'ipod', 'mkv', 'mov', 'mpg', 'mp4',
+         'nut', 'ogm', 'rm', 'swf']
+acodecs = ['aac', 'ac3', 'flac', 'mp2', 'mp3', 'sonic', 'sonicls', 'vorbis',
+           'wmav1', 'wmav2']
+vcodecs = ['asv1', 'asv2', 'dvvideo', 'ffv1', 'flv', 'h261', 'h263', 'h263p',
+           'h264', 'mpeg1video', 'mpeg2video', 'mpeg4', 'msmpeg4', 'msmpeg4v2',
+           'roqvideo', 'rv10', 'snow', 'svq1', 'wmv1', 'wmv2', 'xvid']
+
+# sane?
+conts = ['asf', 'avi', 'flv', 'mkv', 'mov', 'mp4', 'nut', 'ogm']
+acodecs = ['aac', 'ac3', 'mp3', 'vorbis']
+vcodecs = ['flv', 'h264', 'mpeg4', 'xvid']
+
 
 workdir = "/tmp"
 
@@ -67,7 +73,7 @@ def run_test(source, title, cont, acodec, vcodec):
     args = ['undvd', '--end', '3'] + source
     args.extend(['--title', title, '--audio', 'en'])
     args.extend(['--cont', cont, '--vcodec', vcodec, '--acodec', acodec])
-#    return (False, 5) # XXX
+
     os.environ["TERM"] = ''
 
     oldcwd = os.getcwd()
@@ -169,10 +175,12 @@ def get_report(matrix, cum, tools):
     return s
 
 def get_svg(matrix, cum, tools):
-    def get_s(x, y, fpx, c, th=False):
+    def get_s(x, y, fpx, c, th=False, color=None):
         style = ""
         if th:
-            style = " font-weight: bold;"
+            style += " font-weight: bold;"
+        if color:
+            style += " fill: %s;" % color
         s = '\n<text x="%s" y="%s" style="font-size: %spx;%s">' %\
                 (x, y, fpx, style)
         s += '\n%s' % c
@@ -180,19 +188,33 @@ def get_svg(matrix, cum, tools):
         return s
 
 
-    padding = 50
+    margin = 20
+    padding = 10
 
-    fpx = 12
-    fpa = 4
-    x, y = padding + (fpx + fpa), padding
-    orig_x, orig_y = x, y
+    fpx = 14
+    fpl = 12
+    fpa = 6
+
+    x, y = margin, margin + (fpx + fpa)
     x_span = x
 
     s = ""
 
+    # write footer
+    header = "Container/codec test matrix"
+    s += get_s(x, y, 20, header)
+    y += (fpx + fpa) * 2
+    x_span = max(x_span, x + (fpx-6) * len(header))
+
+
+    # write table
+    x += padding
+    y += padding
+    orig_x, orig_y = x, y
+
     cw = max([len(j) for j in conts])
     vw = max([len(j) for j in vcodecs])
-    aw = max([len(j) for j in vcodecs])
+    aw = max([len(j) for j in acodecs])
 
     for (j, v) in enumerate([None] + vcodecs):
         j -= 1
@@ -203,27 +225,54 @@ def get_svg(matrix, cum, tools):
 
             if i == -1 and j == -1:
                 pass
+                x += fpx * vw
             elif i > -1 and j == -1:
                 s += get_s(x, y, fpx, conts[i], th=True)
+                x += fpx * aw
             elif i == -1 and j > -1:
                 s += get_s(x, y, fpx, vcodecs[j], th=True)
+                x += fpx * vw
             else:
                 local_y = y
                 for a in acodecs:
                     val = matrix[conts.index(c)][vcodecs.index(v)][acodecs.index(a)]
                     if val:
                         s += get_s(x, local_y, fpx, a)
-                        local_y += fpx + fpa
+                        if acodecs.index(a) < len(acodecs) - 1:
+                            local_y += fpx + fpa
+                        else:
+                            local_y += fpx + fpl
                         row_height = max(local_y, row_height)
+                x += fpx * aw
 
-            x += fpx * aw
-
-        x_span = x# + (fpx * aw)
+        x_span = x
         x = orig_x
-        y = max(y + (fpx + fpa), row_height)
+        y = max(y + (fpx + fpl), row_height)
+
+    y += padding
+    x -= padding
+
+    # write tools
+    y += (fpx + fpa) * 1
+    s += get_s(x, y, fpx, "Tools available:")
+    y += (fpx + fpa) * 1
+    ts = tools.items(); ts.sort()
+    for (k, v) in ts:
+        color = "green"
+        if not v:
+            color = "red"
+            v = "missing"
+        s += get_s(x, y, fpx, "+ %s %s" % (k, v), color=color)
+        y += fpx + fpa
+
+    # write footer
+    y += (fpx + fpa) * 1
+    footer = "# Generated with %s (time: %smin)\n\n" % (tool_name, int(cum/60))
+    s += get_s(x, y, fpx, footer)
+    x_span = max(x_span, x + (fpx-6) * len(footer))
 
 
-    w, h = x_span + padding, y + padding
+    w, h = x_span + margin, y + margin
 
     d = '<?xml version="1.0"?>'
     d += '\n<svg height="%s" width="%s" xmlns="http://www.w3.org/2000/svg">' % (h, w)
