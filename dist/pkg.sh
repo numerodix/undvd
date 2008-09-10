@@ -65,7 +65,7 @@ function tarball() {
 	local dest="$1"
 	local nopack="$2"
 	mkdir -p $dest
-	files=$(find . -maxdepth 1 -type f | xargs)
+	files=$(find . doc test -maxdepth 1 -type f | xargs)
 	git-archive --prefix=$proj-$v/ $tag $files > $dest/$proj-$v.tar
 	if [ ! $nopack ]; then
 		gzip $dest/$proj-$v.tar
