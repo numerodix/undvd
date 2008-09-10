@@ -159,8 +159,9 @@ def run_suite(source, title, start, end, keep, workdir, cont, acodec, vcodec):
                 stat = "  ".join([last_s, cum_s, eta_s])
                 write("%s   %s%s" % (s, prog_s.ljust(10), stat), ovr=True)
 
+                i_s = str(i).zfill(len(str(combs)))
                 (res, last_run) = run_test(source, title, start, end, keep,
-                                           workdir, logfile, i, c, a, v)
+                                           workdir, logfile, i_s, c, a, v)
                 cum += last_run
 
                 res_s = "enc_error"
@@ -315,7 +316,7 @@ def get_svg(matrix, cum, tools):
 
             marks_blue[i][j] = (x, row_height - fpx - fpa)
 
-        x_span = x
+        x_span = x + padding
         x = orig_x
         y = max(y + (fpx + fpl), row_height)
 
