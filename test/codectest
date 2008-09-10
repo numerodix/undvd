@@ -4,7 +4,7 @@
 # Licensed under the GNU Public License, version 3.
 #
 # A helper script to test undvd on a range of combinations of codecs and
-# containers. Results are written to a report file.
+# containers. Results are written to a report file (txt and svg).
 
 import os
 import shutil
