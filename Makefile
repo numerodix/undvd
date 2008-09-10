@@ -19,7 +19,7 @@ install:
 	install -m755 undvd ${SHARED_CHROOT}
 	install -m755 vidstat ${SHARED_CHROOT}
 	mkdir -p ${SHARED_CHROOT}/test
-	install -m755 test/vidstat ${SHARED_CHROOT}/test
+	install -m755 test/codectest ${SHARED_CHROOT}/test
 
 	mkdir -p ${DOC_CHROOT}
 	install -m644 doc/userguide.html ${DOC_CHROOT}
