@@ -1,0 +1,348 @@
+<?xml version="1.0"?>
+<svg height="670" width="792" xmlns="http://www.w3.org/2000/svg">
+<rect x="0" y="0" height="670" width="792" fill="white"/>
+<text x="20" y="40" style="font-size: 20px;">
+Container/codec test matrix
+</text>
+<text x="100" y="90" style="font-size: 14px; font-weight: bold;">
+asf
+</text>
+<text x="184" y="90" style="font-size: 14px; font-weight: bold;">
+avi
+</text>
+<text x="268" y="90" style="font-size: 14px; font-weight: bold;">
+flv
+</text>
+<text x="352" y="90" style="font-size: 14px; font-weight: bold;">
+mkv
+</text>
+<text x="436" y="90" style="font-size: 14px; font-weight: bold;">
+mov
+</text>
+<text x="520" y="90" style="font-size: 14px; font-weight: bold;">
+mp4
+</text>
+<text x="604" y="90" style="font-size: 14px; font-weight: bold;">
+nut
+</text>
+<text x="688" y="90" style="font-size: 14px; font-weight: bold;">
+ogm
+</text>
+<text x="30" y="116" style="font-size: 14px; font-weight: bold;">
+flv
+</text>
+<text x="100" y="116" style="font-size: 14px;">
+aac
+</text>
+<text x="100" y="136" style="font-size: 14px;">
+ac3
+</text>
+<text x="100" y="156" style="font-size: 14px;">
+mp3
+</text>
+<text x="100" y="176" style="font-size: 14px;">
+vorbis
+</text>
+<text x="184" y="116" style="font-size: 14px;">
+aac
+</text>
+<text x="184" y="136" style="font-size: 14px;">
+ac3
+</text>
+<text x="184" y="156" style="font-size: 14px;">
+mp3
+</text>
+<text x="184" y="176" style="font-size: 14px;">
+vorbis
+</text>
+<text x="268" y="116" style="font-size: 14px;">
+mp3
+</text>
+<text x="352" y="116" style="font-size: 14px;">
+ac3
+</text>
+<text x="352" y="136" style="font-size: 14px;">
+mp3
+</text>
+<text x="436" y="116" style="font-size: 14px;">
+aac
+</text>
+<text x="436" y="136" style="font-size: 14px;">
+ac3
+</text>
+<text x="436" y="156" style="font-size: 14px;">
+mp3
+</text>
+<text x="436" y="176" style="font-size: 14px;">
+vorbis
+</text>
+<text x="604" y="116" style="font-size: 14px;">
+aac
+</text>
+<text x="604" y="136" style="font-size: 14px;">
+ac3
+</text>
+<text x="604" y="156" style="font-size: 14px;">
+mp3
+</text>
+<text x="604" y="176" style="font-size: 14px;">
+vorbis
+</text>
+<text x="688" y="116" style="font-size: 14px;">
+aac
+</text>
+<text x="688" y="136" style="font-size: 14px;">
+ac3
+</text>
+<text x="688" y="156" style="font-size: 14px;">
+mp3
+</text>
+<text x="688" y="176" style="font-size: 14px;">
+vorbis
+</text>
+<text x="30" y="202" style="font-size: 14px; font-weight: bold;">
+h264
+</text>
+<text x="100" y="202" style="font-size: 14px;">
+aac
+</text>
+<text x="100" y="222" style="font-size: 14px;">
+ac3
+</text>
+<text x="100" y="242" style="font-size: 14px;">
+mp3
+</text>
+<text x="100" y="262" style="font-size: 14px;">
+vorbis
+</text>
+<text x="184" y="202" style="font-size: 14px;">
+aac
+</text>
+<text x="184" y="222" style="font-size: 14px;">
+ac3
+</text>
+<text x="184" y="242" style="font-size: 14px;">
+mp3
+</text>
+<text x="184" y="262" style="font-size: 14px;">
+vorbis
+</text>
+<text x="352" y="202" style="font-size: 14px;">
+ac3
+</text>
+<text x="352" y="222" style="font-size: 14px;">
+mp3
+</text>
+<text x="436" y="202" style="font-size: 14px;">
+aac
+</text>
+<text x="436" y="222" style="font-size: 14px;">
+ac3
+</text>
+<text x="436" y="242" style="font-size: 14px;">
+mp3
+</text>
+<text x="436" y="262" style="font-size: 14px;">
+vorbis
+</text>
+<text x="520" y="202" style="font-size: 14px;">
+aac
+</text>
+<text x="520" y="222" style="font-size: 14px;">
+mp3
+</text>
+<text x="604" y="202" style="font-size: 14px;">
+aac
+</text>
+<text x="604" y="222" style="font-size: 14px;">
+ac3
+</text>
+<text x="604" y="242" style="font-size: 14px;">
+mp3
+</text>
+<text x="604" y="262" style="font-size: 14px;">
+vorbis
+</text>
+<text x="688" y="202" style="font-size: 14px;">
+aac
+</text>
+<text x="688" y="222" style="font-size: 14px;">
+ac3
+</text>
+<text x="688" y="242" style="font-size: 14px;">
+mp3
+</text>
+<text x="688" y="262" style="font-size: 14px;">
+vorbis
+</text>
+<text x="30" y="288" style="font-size: 14px; font-weight: bold;">
+mpeg4
+</text>
+<text x="100" y="288" style="font-size: 14px;">
+aac
+</text>
+<text x="100" y="308" style="font-size: 14px;">
+ac3
+</text>
+<text x="100" y="328" style="font-size: 14px;">
+mp3
+</text>
+<text x="100" y="348" style="font-size: 14px;">
+vorbis
+</text>
+<text x="184" y="288" style="font-size: 14px;">
+aac
+</text>
+<text x="184" y="308" style="font-size: 14px;">
+ac3
+</text>
+<text x="184" y="328" style="font-size: 14px;">
+mp3
+</text>
+<text x="184" y="348" style="font-size: 14px;">
+vorbis
+</text>
+<text x="352" y="288" style="font-size: 14px;">
+ac3
+</text>
+<text x="352" y="308" style="font-size: 14px;">
+mp3
+</text>
+<text x="436" y="288" style="font-size: 14px;">
+aac
+</text>
+<text x="436" y="308" style="font-size: 14px;">
+ac3
+</text>
+<text x="436" y="328" style="font-size: 14px;">
+mp3
+</text>
+<text x="436" y="348" style="font-size: 14px;">
+vorbis
+</text>
+<text x="604" y="288" style="font-size: 14px;">
+aac
+</text>
+<text x="604" y="308" style="font-size: 14px;">
+ac3
+</text>
+<text x="604" y="328" style="font-size: 14px;">
+mp3
+</text>
+<text x="604" y="348" style="font-size: 14px;">
+vorbis
+</text>
+<text x="688" y="288" style="font-size: 14px;">
+aac
+</text>
+<text x="688" y="308" style="font-size: 14px;">
+ac3
+</text>
+<text x="688" y="328" style="font-size: 14px;">
+mp3
+</text>
+<text x="688" y="348" style="font-size: 14px;">
+vorbis
+</text>
+<text x="30" y="374" style="font-size: 14px; font-weight: bold;">
+xvid
+</text>
+<text x="100" y="374" style="font-size: 14px;">
+aac
+</text>
+<text x="100" y="394" style="font-size: 14px;">
+ac3
+</text>
+<text x="100" y="414" style="font-size: 14px;">
+mp3
+</text>
+<text x="100" y="434" style="font-size: 14px;">
+vorbis
+</text>
+<text x="184" y="374" style="font-size: 14px;">
+aac
+</text>
+<text x="184" y="394" style="font-size: 14px;">
+ac3
+</text>
+<text x="184" y="414" style="font-size: 14px;">
+mp3
+</text>
+<text x="184" y="434" style="font-size: 14px;">
+vorbis
+</text>
+<text x="352" y="374" style="font-size: 14px;">
+ac3
+</text>
+<text x="352" y="394" style="font-size: 14px;">
+mp3
+</text>
+<text x="436" y="374" style="font-size: 14px;">
+aac
+</text>
+<text x="436" y="394" style="font-size: 14px;">
+ac3
+</text>
+<text x="436" y="414" style="font-size: 14px;">
+mp3
+</text>
+<text x="436" y="434" style="font-size: 14px;">
+vorbis
+</text>
+<text x="520" y="374" style="font-size: 14px;">
+aac
+</text>
+<text x="520" y="394" style="font-size: 14px;">
+mp3
+</text>
+<text x="604" y="374" style="font-size: 14px;">
+aac
+</text>
+<text x="604" y="394" style="font-size: 14px;">
+ac3
+</text>
+<text x="604" y="414" style="font-size: 14px;">
+mp3
+</text>
+<text x="604" y="434" style="font-size: 14px;">
+vorbis
+</text>
+<text x="688" y="374" style="font-size: 14px;">
+aac
+</text>
+<text x="688" y="394" style="font-size: 14px;">
+ac3
+</text>
+<text x="688" y="414" style="font-size: 14px;">
+mp3
+</text>
+<text x="688" y="434" style="font-size: 14px;">
+vorbis
+</text>
+<text x="20" y="490" style="font-size: 14px;">
+Tools available:
+</text>
+<text x="20" y="510" style="font-size: 14px; fill: green;">
++ mencoder 2:1.0~rc2-0ubuntu13
+</text>
+<text x="20" y="530" style="font-size: 14px; fill: green;">
++ mkvmerge v2.0.2
+</text>
+<text x="20" y="550" style="font-size: 14px; fill: green;">
++ mp4creator 1.6
+</text>
+<text x="20" y="570" style="font-size: 14px; fill: green;">
++ mplayer 1.0rc2-4.2.3
+</text>
+<text x="20" y="590" style="font-size: 14px; fill: green;">
++ ogmmerge v1.5
+</text>
+<text x="20" y="610" style="font-size: 14px; fill: green;">
++ undvd 0.5.1
+</text>
+<text x="20" y="650" style="font-size: 14px;">
+# Generated with codec_test.py (time: 12min)
+
+
+</text>
+</svg>
