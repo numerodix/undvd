@@ -182,7 +182,7 @@ def run_suite(source, title, start, end, keep, workdir, cont, acodec, vcodec):
 def get_report(matrix, cum, tools):
     s = "# Generated with %s (time: %smin)\n\n" % (tool_name, int(cum/60))
 
-    s += "Tool versions:\n"
+    s += "Tools detected:\n"
     ts = tools.items() ; ts.sort()
     for (k, v) in ts:
         if not v:

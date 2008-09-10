@@ -1,348 +1,369 @@
 <?xml version="1.0"?>
-<svg height="670" width="792" xmlns="http://www.w3.org/2000/svg">
-<rect x="0" y="0" height="670" width="792" fill="white"/>
-<text x="20" y="40" style="font-size: 20px;">
+<svg height="700" width="802" xmlns="http://www.w3.org/2000/svg">
+<g style="font-family: monospace;">
+<rect x="0" y="0" height="700" width="802" fill="white" stroke="black"/>
+
+<rect x="100" y="70" width="70" height="370" fill="brown" stroke="brown" stroke-width="10" stroke-linejoin="round" opacity="0.1"/>
+<rect x="268" y="70" width="70" height="370" fill="brown" stroke="brown" stroke-width="10" stroke-linejoin="round" opacity="0.1"/>
+<rect x="436" y="70" width="70" height="370" fill="brown" stroke="brown" stroke-width="10" stroke-linejoin="round" opacity="0.1"/>
+<rect x="604" y="70" width="70" height="370" fill="brown" stroke="brown" stroke-width="10" stroke-linejoin="round" opacity="0.1"/>
+<rect x="30" y="102" width="742" height="78" fill="teal" stroke="teal" stroke-width="10" stroke-linejoin="round" opacity="0.1"/>
+<rect x="30" y="274" width="742" height="78" fill="teal" stroke="teal" stroke-width="10" stroke-linejoin="round" opacity="0.1"/>
+
+<text x="20" y="40" style="font-size: 20px; font-weight: bold; font-family: sans-serif;">
 Container/codec test matrix
 </text>
-<text x="100" y="90" style="font-size: 14px; font-weight: bold;">
+<text x="100" y="90" style="font-size: 14px; font-weight: bold; font-family: sans-serif; fill: brown;"  transform="rotate(-15 100 90)">
 asf
 </text>
-<text x="184" y="90" style="font-size: 14px; font-weight: bold;">
+<text x="184" y="90" style="font-size: 14px; font-weight: bold; font-family: sans-serif; fill: brown;"  transform="rotate(-15 184 90)">
 avi
 </text>
-<text x="268" y="90" style="font-size: 14px; font-weight: bold;">
+<text x="268" y="90" style="font-size: 14px; font-weight: bold; font-family: sans-serif; fill: brown;"  transform="rotate(-15 268 90)">
 flv
 </text>
-<text x="352" y="90" style="font-size: 14px; font-weight: bold;">
+<text x="352" y="90" style="font-size: 14px; font-weight: bold; font-family: sans-serif; fill: brown;"  transform="rotate(-15 352 90)">
 mkv
 </text>
-<text x="436" y="90" style="font-size: 14px; font-weight: bold;">
+<text x="436" y="90" style="font-size: 14px; font-weight: bold; font-family: sans-serif; fill: brown;"  transform="rotate(-15 436 90)">
 mov
 </text>
-<text x="520" y="90" style="font-size: 14px; font-weight: bold;">
+<text x="520" y="90" style="font-size: 14px; font-weight: bold; font-family: sans-serif; fill: brown;"  transform="rotate(-15 520 90)">
 mp4
 </text>
-<text x="604" y="90" style="font-size: 14px; font-weight: bold;">
+<text x="604" y="90" style="font-size: 14px; font-weight: bold; font-family: sans-serif; fill: brown;"  transform="rotate(-15 604 90)">
 nut
 </text>
-<text x="688" y="90" style="font-size: 14px; font-weight: bold;">
+<text x="688" y="90" style="font-size: 14px; font-weight: bold; font-family: sans-serif; fill: brown;"  transform="rotate(-15 688 90)">
 ogm
 </text>
-<text x="30" y="116" style="font-size: 14px; font-weight: bold;">
+<text x="30" y="121" style="font-size: 14px; font-weight: bold; font-family: sans-serif; fill: teal;"  transform="rotate(-15 30 121)">
 flv
 </text>
-<text x="100" y="116" style="font-size: 14px;">
+<text x="100" y="116" style="font-size: 14px; fill: black;">
 aac
 </text>
-<text x="100" y="136" style="font-size: 14px;">
+<text x="100" y="136" style="font-size: 14px; fill: black;">
 ac3
 </text>
-<text x="100" y="156" style="font-size: 14px;">
+<text x="100" y="156" style="font-size: 14px; fill: black;">
 mp3
 </text>
-<text x="100" y="176" style="font-size: 14px;">
+<text x="100" y="176" style="font-size: 14px; fill: black;">
 vorbis
 </text>
-<text x="184" y="116" style="font-size: 14px;">
+<text x="184" y="116" style="font-size: 14px; fill: black;">
 aac
 </text>
-<text x="184" y="136" style="font-size: 14px;">
+<text x="184" y="136" style="font-size: 14px; fill: black;">
 ac3
 </text>
-<text x="184" y="156" style="font-size: 14px;">
+<text x="184" y="156" style="font-size: 14px; fill: black;">
 mp3
 </text>
-<text x="184" y="176" style="font-size: 14px;">
+<text x="184" y="176" style="font-size: 14px; fill: black;">
 vorbis
 </text>
-<text x="268" y="116" style="font-size: 14px;">
+<text x="268" y="116" style="font-size: 14px; fill: black;">
 mp3
 </text>
-<text x="352" y="116" style="font-size: 14px;">
+<text x="352" y="116" style="font-size: 14px; fill: black;">
 ac3
 </text>
-<text x="352" y="136" style="font-size: 14px;">
+<text x="352" y="136" style="font-size: 14px; fill: black;">
 mp3
 </text>
-<text x="436" y="116" style="font-size: 14px;">
+<text x="436" y="116" style="font-size: 14px; fill: black;">
 aac
 </text>
-<text x="436" y="136" style="font-size: 14px;">
+<text x="436" y="136" style="font-size: 14px; fill: black;">
 ac3
 </text>
-<text x="436" y="156" style="font-size: 14px;">
+<text x="436" y="156" style="font-size: 14px; fill: black;">
 mp3
 </text>
-<text x="436" y="176" style="font-size: 14px;">
+<text x="436" y="176" style="font-size: 14px; fill: black;">
 vorbis
 </text>
-<text x="604" y="116" style="font-size: 14px;">
+<text x="604" y="116" style="font-size: 14px; fill: black;">
 aac
 </text>
-<text x="604" y="136" style="font-size: 14px;">
+<text x="604" y="136" style="font-size: 14px; fill: black;">
 ac3
 </text>
-<text x="604" y="156" style="font-size: 14px;">
+<text x="604" y="156" style="font-size: 14px; fill: black;">
 mp3
 </text>
-<text x="604" y="176" style="font-size: 14px;">
+<text x="604" y="176" style="font-size: 14px; fill: black;">
 vorbis
 </text>
-<text x="688" y="116" style="font-size: 14px;">
+<text x="688" y="116" style="font-size: 14px; fill: black;">
 aac
 </text>
-<text x="688" y="136" style="font-size: 14px;">
+<text x="688" y="136" style="font-size: 14px; fill: black;">
 ac3
 </text>
-<text x="688" y="156" style="font-size: 14px;">
+<text x="688" y="156" style="font-size: 14px; fill: black;">
 mp3
 </text>
-<text x="688" y="176" style="font-size: 14px;">
+<text x="688" y="176" style="font-size: 14px; fill: black;">
 vorbis
 </text>
-<text x="30" y="202" style="font-size: 14px; font-weight: bold;">
+<text x="30" y="207" style="font-size: 14px; font-weight: bold; font-family: sans-serif; fill: teal;"  transform="rotate(-15 30 207)">
 h264
 </text>
-<text x="100" y="202" style="font-size: 14px;">
+<text x="100" y="202" style="font-size: 14px; fill: black;">
 aac
 </text>
-<text x="100" y="222" style="font-size: 14px;">
+<text x="100" y="222" style="font-size: 14px; fill: black;">
 ac3
 </text>
-<text x="100" y="242" style="font-size: 14px;">
+<text x="100" y="242" style="font-size: 14px; fill: black;">
 mp3
 </text>
-<text x="100" y="262" style="font-size: 14px;">
+<text x="100" y="262" style="font-size: 14px; fill: black;">
 vorbis
 </text>
-<text x="184" y="202" style="font-size: 14px;">
+<text x="184" y="202" style="font-size: 14px; fill: black;">
 aac
 </text>
-<text x="184" y="222" style="font-size: 14px;">
+<text x="184" y="222" style="font-size: 14px; fill: black;">
 ac3
 </text>
-<text x="184" y="242" style="font-size: 14px;">
+<text x="184" y="242" style="font-size: 14px; fill: black;">
 mp3
 </text>
-<text x="184" y="262" style="font-size: 14px;">
+<text x="184" y="262" style="font-size: 14px; fill: black;">
 vorbis
 </text>
-<text x="352" y="202" style="font-size: 14px;">
+<text x="352" y="202" style="font-size: 14px; fill: black;">
 ac3
 </text>
-<text x="352" y="222" style="font-size: 14px;">
+<text x="352" y="222" style="font-size: 14px; fill: black;">
 mp3
 </text>
-<text x="436" y="202" style="font-size: 14px;">
+<text x="436" y="202" style="font-size: 14px; fill: black;">
 aac
 </text>
-<text x="436" y="222" style="font-size: 14px;">
+<text x="436" y="222" style="font-size: 14px; fill: black;">
 ac3
 </text>
-<text x="436" y="242" style="font-size: 14px;">
+<text x="436" y="242" style="font-size: 14px; fill: black;">
 mp3
 </text>
-<text x="436" y="262" style="font-size: 14px;">
+<text x="436" y="262" style="font-size: 14px; fill: black;">
 vorbis
 </text>
-<text x="520" y="202" style="font-size: 14px;">
+<text x="520" y="202" style="font-size: 14px; fill: black;">
 aac
 </text>
-<text x="520" y="222" style="font-size: 14px;">
+<text x="520" y="222" style="font-size: 14px; fill: black;">
 mp3
 </text>
-<text x="604" y="202" style="font-size: 14px;">
+<text x="604" y="202" style="font-size: 14px; fill: black;">
 aac
 </text>
-<text x="604" y="222" style="font-size: 14px;">
+<text x="604" y="222" style="font-size: 14px; fill: black;">
 ac3
 </text>
-<text x="604" y="242" style="font-size: 14px;">
+<text x="604" y="242" style="font-size: 14px; fill: black;">
 mp3
 </text>
-<text x="604" y="262" style="font-size: 14px;">
+<text x="604" y="262" style="font-size: 14px; fill: black;">
 vorbis
 </text>
-<text x="688" y="202" style="font-size: 14px;">
+<text x="688" y="202" style="font-size: 14px; fill: black;">
 aac
 </text>
-<text x="688" y="222" style="font-size: 14px;">
+<text x="688" y="222" style="font-size: 14px; fill: black;">
 ac3
 </text>
-<text x="688" y="242" style="font-size: 14px;">
+<text x="688" y="242" style="font-size: 14px; fill: black;">
 mp3
 </text>
-<text x="688" y="262" style="font-size: 14px;">
+<text x="688" y="262" style="font-size: 14px; fill: black;">
 vorbis
 </text>
-<text x="30" y="288" style="font-size: 14px; font-weight: bold;">
+<text x="30" y="293" style="font-size: 14px; font-weight: bold; font-family: sans-serif; fill: teal;"  transform="rotate(-15 30 293)">
 mpeg4
 </text>
-<text x="100" y="288" style="font-size: 14px;">
+<text x="100" y="288" style="font-size: 14px; fill: black;">
 aac
 </text>
-<text x="100" y="308" style="font-size: 14px;">
+<text x="100" y="308" style="font-size: 14px; fill: black;">
 ac3
 </text>
-<text x="100" y="328" style="font-size: 14px;">
+<text x="100" y="328" style="font-size: 14px; fill: black;">
 mp3
 </text>
-<text x="100" y="348" style="font-size: 14px;">
+<text x="100" y="348" style="font-size: 14px; fill: black;">
 vorbis
 </text>
-<text x="184" y="288" style="font-size: 14px;">
+<text x="184" y="288" style="font-size: 14px; fill: black;">
 aac
 </text>
-<text x="184" y="308" style="font-size: 14px;">
+<text x="184" y="308" style="font-size: 14px; fill: black;">
 ac3
 </text>
-<text x="184" y="328" style="font-size: 14px;">
+<text x="184" y="328" style="font-size: 14px; fill: black;">
 mp3
 </text>
-<text x="184" y="348" style="font-size: 14px;">
+<text x="184" y="348" style="font-size: 14px; fill: black;">
 vorbis
 </text>
-<text x="352" y="288" style="font-size: 14px;">
+<text x="352" y="288" style="font-size: 14px; fill: black;">
 ac3
 </text>
-<text x="352" y="308" style="font-size: 14px;">
+<text x="352" y="308" style="font-size: 14px; fill: black;">
 mp3
 </text>
-<text x="436" y="288" style="font-size: 14px;">
+<text x="436" y="288" style="font-size: 14px; fill: black;">
 aac
 </text>
-<text x="436" y="308" style="font-size: 14px;">
+<text x="436" y="308" style="font-size: 14px; fill: black;">
 ac3
 </text>
-<text x="436" y="328" style="font-size: 14px;">
+<text x="436" y="328" style="font-size: 14px; fill: black;">
 mp3
 </text>
-<text x="436" y="348" style="font-size: 14px;">
+<text x="436" y="348" style="font-size: 14px; fill: black;">
 vorbis
 </text>
-<text x="604" y="288" style="font-size: 14px;">
+<text x="604" y="288" style="font-size: 14px; fill: black;">
 aac
 </text>
-<text x="604" y="308" style="font-size: 14px;">
+<text x="604" y="308" style="font-size: 14px; fill: black;">
 ac3
 </text>
-<text x="604" y="328" style="font-size: 14px;">
+<text x="604" y="328" style="font-size: 14px; fill: black;">
 mp3
 </text>
-<text x="604" y="348" style="font-size: 14px;">
+<text x="604" y="348" style="font-size: 14px; fill: black;">
 vorbis
 </text>
-<text x="688" y="288" style="font-size: 14px;">
+<text x="688" y="288" style="font-size: 14px; fill: black;">
 aac
 </text>
-<text x="688" y="308" style="font-size: 14px;">
+<text x="688" y="308" style="font-size: 14px; fill: black;">
 ac3
 </text>
-<text x="688" y="328" style="font-size: 14px;">
+<text x="688" y="328" style="font-size: 14px; fill: black;">
 mp3
 </text>
-<text x="688" y="348" style="font-size: 14px;">
+<text x="688" y="348" style="font-size: 14px; fill: black;">
 vorbis
 </text>
-<text x="30" y="374" style="font-size: 14px; font-weight: bold;">
+<text x="30" y="379" style="font-size: 14px; font-weight: bold; font-family: sans-serif; fill: teal;"  transform="rotate(-15 30 379)">
 xvid
 </text>
-<text x="100" y="374" style="font-size: 14px;">
+<text x="100" y="374" style="font-size: 14px; fill: black;">
 aac
 </text>
-<text x="100" y="394" style="font-size: 14px;">
+<text x="100" y="394" style="font-size: 14px; fill: black;">
 ac3
 </text>
-<text x="100" y="414" style="font-size: 14px;">
+<text x="100" y="414" style="font-size: 14px; fill: black;">
 mp3
 </text>
-<text x="100" y="434" style="font-size: 14px;">
+<text x="100" y="434" style="font-size: 14px; fill: black;">
 vorbis
 </text>
-<text x="184" y="374" style="font-size: 14px;">
+<text x="184" y="374" style="font-size: 14px; fill: black;">
 aac
 </text>
-<text x="184" y="394" style="font-size: 14px;">
+<text x="184" y="394" style="font-size: 14px; fill: black;">
 ac3
 </text>
-<text x="184" y="414" style="font-size: 14px;">
+<text x="184" y="414" style="font-size: 14px; fill: black;">
 mp3
 </text>
-<text x="184" y="434" style="font-size: 14px;">
+<text x="184" y="434" style="font-size: 14px; fill: black;">
 vorbis
 </text>
-<text x="352" y="374" style="font-size: 14px;">
+<text x="352" y="374" style="font-size: 14px; fill: black;">
 ac3
 </text>
-<text x="352" y="394" style="font-size: 14px;">
+<text x="352" y="394" style="font-size: 14px; fill: black;">
 mp3
 </text>
-<text x="436" y="374" style="font-size: 14px;">
+<text x="436" y="374" style="font-size: 14px; fill: black;">
 aac
 </text>
-<text x="436" y="394" style="font-size: 14px;">
+<text x="436" y="394" style="font-size: 14px; fill: black;">
 ac3
 </text>
-<text x="436" y="414" style="font-size: 14px;">
+<text x="436" y="414" style="font-size: 14px; fill: black;">
 mp3
 </text>
-<text x="436" y="434" style="font-size: 14px;">
+<text x="436" y="434" style="font-size: 14px; fill: black;">
 vorbis
 </text>
-<text x="520" y="374" style="font-size: 14px;">
+<text x="520" y="374" style="font-size: 14px; fill: black;">
 aac
 </text>
-<text x="520" y="394" style="font-size: 14px;">
+<text x="520" y="394" style="font-size: 14px; fill: black;">
 mp3
 </text>
-<text x="604" y="374" style="font-size: 14px;">
+<text x="604" y="374" style="font-size: 14px; fill: black;">
 aac
 </text>
-<text x="604" y="394" style="font-size: 14px;">
+<text x="604" y="394" style="font-size: 14px; fill: black;">
 ac3
 </text>
-<text x="604" y="414" style="font-size: 14px;">
+<text x="604" y="414" style="font-size: 14px; fill: black;">
 mp3
 </text>
-<text x="604" y="434" style="font-size: 14px;">
+<text x="604" y="434" style="font-size: 14px; fill: black;">
 vorbis
 </text>
-<text x="688" y="374" style="font-size: 14px;">
+<text x="688" y="374" style="font-size: 14px; fill: black;">
 aac
 </text>
-<text x="688" y="394" style="font-size: 14px;">
+<text x="688" y="394" style="font-size: 14px; fill: black;">
 ac3
 </text>
-<text x="688" y="414" style="font-size: 14px;">
+<text x="688" y="414" style="font-size: 14px; fill: black;">
 mp3
 </text>
-<text x="688" y="434" style="font-size: 14px;">
+<text x="688" y="434" style="font-size: 14px; fill: black;">
 vorbis
 </text>
-<text x="20" y="490" style="font-size: 14px;">
-Tools available:
+<text x="20" y="470" style="font-size: 12px;">
+encoding&amp;playback test ok: in <tspan style="fill: black; font-weight: bold;">
+this color
+</tspan>
 </text>
-<text x="20" y="510" style="font-size: 14px; fill: green;">
-+ mencoder 2:1.0~rc2-0ubuntu13
+<text x="20" y="488" style="font-size: 12px;">
+playback test failed: in <tspan style="fill: maroon; font-weight: bold;">
+this color
+</tspan>
 </text>
-<text x="20" y="530" style="font-size: 14px; fill: green;">
-+ mkvmerge v2.0.2
+<text x="20" y="506" style="font-size: 12px;">
+encoding test failed: not shown
 </text>
-<text x="20" y="550" style="font-size: 14px; fill: green;">
-+ mp4creator 1.6
+<text x="20" y="542" style="font-size: 12px;">
+Tools detected:
 </text>
-<text x="20" y="570" style="font-size: 14px; fill: green;">
-+ mplayer 1.0rc2-4.2.3
+<text x="20" y="560" style="font-size: 12px; fill: green;">
+- mencoder 2:1.0~rc2-0ubuntu13
 </text>
-<text x="20" y="590" style="font-size: 14px; fill: green;">
-+ ogmmerge v1.5
+<text x="20" y="578" style="font-size: 12px; fill: green;">
+- mkvmerge v2.0.2
 </text>
-<text x="20" y="610" style="font-size: 14px; fill: green;">
-+ undvd 0.5.1
+<text x="20" y="596" style="font-size: 12px; fill: green;">
+- mp4creator 1.6
 </text>
-<text x="20" y="650" style="font-size: 14px;">
-# Generated with codec_test.py (time: 12min)
-
-
+<text x="20" y="614" style="font-size: 12px; fill: green;">
+- mplayer 1.0rc2-4.2.3
 </text>
+<text x="20" y="632" style="font-size: 12px; fill: green;">
+- ogmmerge v1.5
+</text>
+<text x="20" y="650" style="font-size: 12px; fill: green;">
+- undvd 0.5.1
+</text>
+<text x="20" y="680" style="font-size: 12px;">
+# Generated with codectest (time: 11min)
+</text>
+</g>
 </svg>
