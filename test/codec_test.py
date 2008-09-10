@@ -315,7 +315,7 @@ if __name__ == "__main__":
 
     source = []
     if opts.dev:
-        source = ['--dev', os.path.abspath(opts.dev)]
+        source = ['--dev', os.path.abspath(opts.dev), '--noclone']
     elif opts.dir:
         source = ['--dir', os.path.abspath(opts.dir)]
     elif opts.iso:
