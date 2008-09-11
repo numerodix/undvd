@@ -135,7 +135,7 @@ function ubuntu() {
 	sed -i "s|.*<Copyright (C) .*|\tCopyright (C) $(date +%Y) $myname|g" copyright ;
 	
 	# patch rules file
-	sed -i "s|^.*dh_compress.*$||g" rules ;
+	sed -i "/dh_compress/d" rules ;
 
 	# build the package
 	cd .. ;
