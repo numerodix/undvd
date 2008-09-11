@@ -294,7 +294,8 @@ for title in $titles; do
             run_encode "$cmd" "$ext" "$title" "$twopass" "$pass"
         done
 
-        [[ -f ${title}.${ext}.partial ]] && $mv ${title}.${ext}.partial ${title}.${ext}
+        [[ -f "${title}.${ext}.partial" ]] && \
+			$mv "${title}.${ext}.partial" "${title}.${ext}"
         $rm divx2pass* 2> /dev/null
 
         remux_container "$title" "$ext" "$fps" "$container" "$audio_codec" "$video_codec"

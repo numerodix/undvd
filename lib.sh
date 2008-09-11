@@ -776,14 +776,14 @@ function run_encode() {
 	
 	# Execute encoder in the background
 	
-	( echo $cmd; $bash -c "$cmd" ) &> $logfile &
+	( echo $cmd; $bash -c "$cmd" ) &> "$logfile" &
 	local pid=$!
 	
 	# Write mencoder's ETA estimate
 	
 	local start_time=$($date +%s)
 	(while $ps $pid &> /dev/null; do
-		local eta=$([ -e $logfile ] && $tail -n15 $logfile | \
+		local eta=$([ -e "$logfile" ] && $tail -n15 "$logfile" | \
 			$grep -a "Trem:" | $tail -n1 | $sed 's|.*\( .*min\).*|\1|g' | $tr " " "-")
 		local ela=$(( ( $($date +%s) - $start_time ) / 60 ))
 		echo -ne "${status}${cela}+${ela}min${r}  ${ceta}${eta}${r}    \r"
@@ -858,7 +858,7 @@ function remux_container() {
 
 		# Execute remux in the background
 
-		( echo $cmd; $bash -c "$cmd" ) &> $logfile &
+		( echo $cmd; $bash -c "$cmd" ) &> "$logfile" &
 		local pid=$!
 
 		# Report exit code
