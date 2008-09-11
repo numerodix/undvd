@@ -1,3 +1,8 @@
+0.5.2:
+* New codectest tool.
+* Add --start and --version options.
+* Add more codecs and containers.
+
 0.5.1:
 * Add support for ogm container and more containers and codecs based on lavc.
 * Fix parsing bugs on filenames with quotes, slashes and other special
