@@ -34,7 +34,11 @@ rm -rf $RPM_BUILD_ROOT
 /usr/share/undvd/scandvd
 /usr/share/undvd/undvd
 /usr/share/undvd/vidstat
+/usr/share/undvd/test/codectest
 /usr/share/doc/undvd/userguide.html
+/usr/share/doc/undvd/codectest.svg
+/usr/share/doc/undvd/codectest.txt
+/usr/share/doc/undvd/codectest_all.svg
 /usr/share/doc/undvd/Changelog
 /usr/bin/scandvd
 /usr/bin/undvd
