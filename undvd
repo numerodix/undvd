@@ -192,7 +192,7 @@ for title in $titles; do
 
     # Extract information from the title
 
-    info=($(examine_title "" "$mencoder_source" "$title"))
+    info=($(examine_title "dvd://$title" "$mencoder_source"))
     width=${info[0]}
     height=${info[1]}
     fps=${info[2]}
@@ -203,7 +203,7 @@ for title in $titles; do
 
     if [[ "$autocrop" ]]; then
         echo -en " + Finding out how much to crop...\r"
-        info=($(crop_title "$mencoder_source" "$title"))
+        info=($(crop_title "dvd://$title" "$mencoder_source"))
         width=${info[0]}
         height=${info[1]}
         crop_filter="crop=${info[2]},"

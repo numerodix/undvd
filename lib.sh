@@ -230,16 +230,14 @@ function examine_dvd_for_titlecount() {
 	echo "$titles"
 }
 
-# extract information from file or dvd
+# extract information from file or dvd title
 function examine_title() {
 	local file="$1"; shift;
-	local mencoder_source="$1"; shift;
-	local title="$1"; shift;
+	local dvd_device="$1"; shift;
 
-	if [[ "$mencoder_source" && "$title" ]]; then
-		local src="-dvd-device \"$(escape_chars "$mencoder_source")\" dvd://$title"
-	else
-		local src="\"$(escape_chars "$file")\""
+	local src="\"$(escape_chars "$file")\""
+	if [[ "$dvd_device" ]]; then
+		local src="$src -dvd-device \"$(escape_chars "$dvd_device")\""
 	fi
 	local cmd="mplayer -ao null -vo null -frames 0 -identify $src 2>&1"
 	local mplayer_output=$($bash -c "$cmd")
@@ -299,12 +297,15 @@ function examine_title() {
 	echo "$width $height $fps $length $abitrate $aformat $vbitrate $vformat"
 }
 
-# extract information from file or dvd
+# extract information from file or dvd title
 function crop_title() {
-	local mencoder_source="$1"; shift;
-	local title="$1"; shift;
+	local file="$1"; shift;
+	local dvd_device="$1"; shift;
 
-	local src="-dvd-device \"$(escape_chars "$mencoder_source")\" dvd://$title"
+	local src="\"$(escape_chars "$file")\""
+	if [[ "$dvd_device" ]]; then
+		local src="$src -dvd-device \"$(escape_chars "$dvd_device")\""
+	fi
 	local cmd="mplayer -ao null -vo null -fps 10000 -vf cropdetect $src 2>&1"
 	local mplayer_output=$($bash -c "$cmd")
 
@@ -751,7 +752,7 @@ function run_encode() {
 	
 	# Set output and logging depending on number of passes
 	
-	local output_file="${title}.${ext}.partial"
+	local output_file="\"$(escape_chars "${title}.${ext}.partial")\""
 	local logfile="logs/${title}.log"
 	
 	if [[ "$twopass" ]]; then
@@ -811,33 +812,39 @@ function remux_container() {
 	if [[ $? == 0 ]]; then
 
 		local pre="
-			if [[ -e \"$root.$container\" ]]; then \
-				$rm $root.$container; \
+			if [[ -e \"$(escape_chars "$root.$container")\" ]]; then \
+				$rm \"$(escape_chars "$root.$container")\"; \
 			fi &&
-			$mplayer $root.$ext -dumpaudio -dumpfile $root.$acodec &&
-			$mplayer $root.$ext -dumpvideo -dumpfile $root.$vcodec"
+			$mplayer \"$(escape_chars "$root.$ext")\" -dumpaudio \
+				-dumpfile \"$(escape_chars "$root.$acodec")\" &&
+			$mplayer \"$(escape_chars "$root.$ext")\" -dumpvideo \
+				-dumpfile \"$(escape_chars "$root.$vcodec")\""
 
 		local post="
-			$rm $root.$acodec &&
-			$rm $root.$vcodec &&
-			$rm $root.$ext"
+			$rm \"$(escape_chars "$root.$acodec")\" &&
+			$rm \"$(escape_chars "$root.$vcodec")\" &&
+			$rm \"$(escape_chars "$root.$ext")\""
 
 		if [[ "$container" = "mp4" ]]; then
 			local cmd="$pre &&
-				$mp4creator -create=$root.$acodec $root.$container &&
-				$mp4creator -create=$root.$vcodec -rate=$fps $root.$container &&
-				$mp4creator -hint=1 $root.$container &&
-				$mp4creator -hint=2 $root.$container &&
-				$mp4creator -optimize $root.$container &&
+				$mp4creator -create=\"$(escape_chars "$root.$acodec")\" \
+					\"$(escape_chars "$root.$container")\" &&
+				$mp4creator -create=\"$(escape_chars "$root.$vcodec")\" \
+					-rate=$fps \"$(escape_chars "$root.$container")\" &&
+				$mp4creator -hint=1 \"$(escape_chars "$root.$container")\" &&
+				$mp4creator -hint=2 \"$(escape_chars "$root.$container")\" &&
+				$mp4creator -optimize \"$(escape_chars "$root.$container")\" &&
 				$post"
 		elif [[ "$container" = "mkv" ]]; then
 			local cmd="
-				$mkvmerge -o $root.$container $root.$ext &&
-				$rm $root.$ext"
+				$mkvmerge -o \"$(escape_chars "$root.$container")\" \
+					\"$(escape_chars "$root.$ext")\" &&
+				$rm \"$(escape_chars "$root.$ext")\""
 		elif [[ "$container" = "ogm" ]]; then
 			local cmd="
-				$ogmmerge -o $root.$container $root.$ext &&
-				$rm $root.$ext"
+				$ogmmerge -o \"$(escape_chars "$root.$container")\" \
+					\"$(escape_chars "$root.$ext")\" &&
+				$rm \"$(escape_chars "$root.$ext")\""
 		fi
 
 		# Set logging depending on number of passes
