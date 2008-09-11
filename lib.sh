@@ -623,9 +623,6 @@ function container_opts() {
 	elif [[ "$container" = "mp4" ]]; then
 		audio_codec="aac"
 		video_codec="h264"
-	elif [[ "$container" = "flv" ]]; then
-		audio_codec="mp3"
-		video_codec="flv"
 
 	# use lavf muxing
 	else
