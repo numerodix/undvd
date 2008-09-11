@@ -73,18 +73,10 @@ while true; do
 done
 
 if [[ "$opts_version" ]]; then
-    echo "${tool_name} $version"
-    echo "  $(tool_version "mplayer" "-ac help" "\$awk '{ print \$2 }'")"
-    echo "  $(tool_version "mencoder" "-oac help" "\$awk '{ print \$2 }'")"
-    echo "  $(tool_version "lsdvd" "-V" "\$awk '{ print \$2 }'")"
-    echo "  $(tool_version "vobcopy" "--version" "\$awk '{ print \$2 }'")"
-    echo "  $(tool_version "mp4creator" "-version" "\$awk '{ print \$5 }'")"
-    echo "  $(tool_version "mkvmerge" "--version" "\$awk '{ print \$2 }'")"
-    echo "  $(tool_version "ogmmerge" "--version" "\$awk '{ print \$2 }'")"
-    exit
+	print_version "$tool_name"
+else
+	display_tool_banner
 fi
-
-display_tool_banner
 
 
 if [[ ! -e "$dvd_device" ]]; then

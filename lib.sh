@@ -113,6 +113,21 @@ function tool_version() {
 	fi
 }
 
+# print package version and versions of tools
+function print_version() {
+	local name="$1"; shift;
+
+    echo "${name} $version"
+    echo "  $(tool_version "mplayer" "-ac help" "\$awk '{ print \$2 }'")"
+    echo "  $(tool_version "mencoder" "-oac help" "\$awk '{ print \$2 }'")"
+    echo "  $(tool_version "lsdvd" "-V" "\$awk '{ print \$2 }'")"
+    echo "  $(tool_version "vobcopy" "--version" "\$awk '{ print \$2 }'")"
+    echo "  $(tool_version "mp4creator" "-version" "\$awk '{ print \$5 }'")"
+    echo "  $(tool_version "mkvmerge" "--version" "\$awk '{ print \$2 }'")"
+    echo "  $(tool_version "ogmmerge" "--version" "\$awk '{ print \$2 }'")"
+    exit
+}
+
 # check for codec support in player/encoder
 function codec_check() {
 	local type="$1"; shift;
