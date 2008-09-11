@@ -745,15 +745,16 @@ function vcodec_opts() {
 # run encode and print updates
 function run_encode() {
 	local cmd="$1"; shift;
-	local ext="$1"; shift;
 	local title="$1"; shift;
+	local ext="$1"; shift;
 	local twopass="$1"; shift;
 	local pass="$1"; shift;
 	
 	# Set output and logging depending on number of passes
 	
 	local output_file="\"$(escape_chars "${title}.${ext}.partial")\""
-	local logfile="logs/${title}.log"
+	local base="$(basename "$(escape_chars "$title")")"
+	local logfile="logs/${base}.log"
 	
 	if [[ "$twopass" ]]; then
 		if [[ $pass -eq 1 ]]; then
@@ -849,7 +850,8 @@ function remux_container() {
 
 		# Set logging depending on number of passes
 
-		local logfile="logs/${title}.remuxlog"
+		local base="$(basename "$(escape_chars "$title")")"
+		local logfile="logs/${base}.remuxlog"
 
 		# Print initial status message
 

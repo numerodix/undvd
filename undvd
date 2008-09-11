@@ -291,7 +291,7 @@ for title in $titles; do
             -ovc ${vcodec} \
             -oac ${acodec} \
             -of ${cont}"
-            run_encode "$cmd" "$ext" "$title" "$twopass" "$pass"
+            run_encode "$cmd" "$title" "$ext" "$twopass" "$pass"
         done
 
         [[ -f "${title}.${ext}.partial" ]] && \
