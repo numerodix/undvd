@@ -608,6 +608,9 @@ function container_opts() {
 	elif [[ "$container" = "mp4" ]]; then
 		audio_codec="aac"
 		video_codec="h264"
+	elif [[ "$container" = "flv" ]]; then
+		audio_codec="mp3"
+		video_codec="flv"
 
 	# use lavf muxing
 	else
@@ -767,7 +770,7 @@ function run_encode() {
 	
 	local start_time=$($date +%s)
 	(while $ps $pid &> /dev/null; do
-		local eta=$([[ -e $logfile ]] && $tail -n15 $logfile | \
+		local eta=$([ -e $logfile ] && $tail -n15 $logfile | \
 			$grep -a "Trem:" | $tail -n1 | $sed 's|.*\( .*min\).*|\1|g' | $tr " " "-")
 		local ela=$(( ( $($date +%s) - $start_time ) / 60 ))
 		echo -ne "${status}${cela}+${ela}min${r}  ${ceta}${eta}${r}    \r"
