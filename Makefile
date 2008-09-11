@@ -18,9 +18,14 @@ install:
 	install -m755 scandvd ${SHARED_CHROOT}
 	install -m755 undvd ${SHARED_CHROOT}
 	install -m755 vidstat ${SHARED_CHROOT}
+	mkdir -p ${SHARED_CHROOT}/test
+	install -m755 test/vidstat ${SHARED_CHROOT}/test
 
 	mkdir -p ${DOC_CHROOT}
-	install -m644 userguide.html ${DOC_CHROOT}
+	install -m644 doc/userguide.html ${DOC_CHROOT}
+	install -m644 doc/codectest.svg ${DOC_CHROOT}
+	install -m644 doc/codectest.txt ${DOC_CHROOT}
+	install -m644 doc/codectest_all.svg ${DOC_CHROOT}
 	install -m644 Changelog ${DOC_CHROOT}
 
 	mkdir -p ${BIN_CHROOT}
