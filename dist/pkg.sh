@@ -134,6 +134,9 @@ function ubuntu() {
 	sed -i "s|.*<likewise for another author.*||g" copyright ;
 	sed -i "s|.*<Copyright (C) .*|\tCopyright (C) $(date +%Y) $myname|g" copyright ;
 	
+	# patch rules file
+	sed -i "s|^.*dh_compress.*$||g" rules ;
+
 	# build the package
 	cd .. ;
 	dpkg-buildpackage -rfakeroot )
