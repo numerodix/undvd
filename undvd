@@ -24,8 +24,8 @@ adv_usage="Advanced usage:  ${b}${tool_name} ${r}[${b}standard options${r}] [${b
   -o --size     output file size in mb (integer value)
   -1            force 1-pass encoding
   -2            force 2-pass encoding
-  -u --enc      dvd is encrypted (requires libdvdcss to read)
-  -n --noclone  no disc cloning (encode straight from the dvd, save disk space)
+  -u --enc      dvd is encrypted, clone with vobcopy (needs libdvdcss)
+  -n --noclone  no disc cloning (encode straight from the dvd)
   -c --crop     autocrop video
   -r --scale    scale video to width (integer value), ${bb}0${r} for no scaling
   -f --smooth   use picture smoothing filter
