@@ -17,7 +17,7 @@ usage="Usage:  ${b}${tool_name} -t ${bb}01,02,03${b} -a ${bb}en${b} -s ${bb}es${
      --start    start after this many seconds (usually for testing)
   -e --end      end after this many seconds (usually for testing)\n
   -C            do sanity check (check for missing tools)
-  -z            <show advanced options>
+  -z --adv      <show advanced options>
      --version  show ${tool_name} version"
 
 adv_usage="Advanced usage:  ${b}${tool_name} ${r}[${b}standard options${r}] [${b}advanced options${r}]
@@ -35,7 +35,7 @@ adv_usage="Advanced usage:  ${b}${tool_name} ${r}[${b}standard options${r}] [${b
      --vcodec   set video codec"
 
 shorts="t:a:s:d:q:i:e:o:r:12uncfDCz"
-longs="title:,audio:,subs:,dev:,dir:,iso:,start:,end:,version,size:,enc,noclone,crop,scale:,smooth,dryrun,cont:,acodec:,vcodec:"
+longs="title:,audio:,subs:,dev:,dir:,iso:,start:,end:,adv,version,size:,enc,noclone,crop,scale:,smooth,dryrun,cont:,acodec:,vcodec:"
 eval $(get_parsecmd "$tool_name" "$shorts" "$longs")
 
 while true; do
@@ -67,7 +67,7 @@ while true; do
            --vcodec  ) opts_vcodec="$2"; shift 2;;
 
         -C           ) init_cmds "y"; exit;;
-        -z           ) echo -e "$adv_usage"; exit;;
+        -z|--adv     ) echo -e "$adv_usage"; exit;;
         --           ) shift ; break ;;
     esac
 done
