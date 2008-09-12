@@ -272,6 +272,7 @@ if [ "$action" = "tarball" ]; then
 elif [ "$action" = "fedora" ]; then
 	fedora pub
 elif [ "$action" = "gentoo" ]; then
+	tarball pub
 	gentoo pub
 elif [ "$action" = "ubuntu" ]; then
 	ubuntu pub
