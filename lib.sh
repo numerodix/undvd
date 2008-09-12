@@ -416,13 +416,26 @@ function display_title() {
 
 # truncate string and pad with whitespace to fit the desired length
 function fill() {
-	str=${1:0:$2}
-	local f=$(( $2-${#1} ))
+	local s="$1"; shift;
+	local w="$1"; shift;
+	local l="$1"; shift;
+
+	str=${s:0:$w}
+	local f=$(( $w-${#s} ))
 	pad=""
 	for i in $($seq 1 $f); do
 		pad=" $pad"
 	done
-	echo "$pad$str"
+
+	if [[ "$l" ]]; then
+		if [[ "${#str}" == "$w" ]]; then
+			echo "${str::$w-3}...$pad"
+		else
+			echo "$str$pad"
+		fi
+	else
+		echo "$pad$str"
+	fi
 }
 
 # set formatting of bpp output depending on value
@@ -747,6 +760,7 @@ function run_encode() {
 	local cmd="$1"; shift;
 	local title="$1"; shift;
 	local ext="$1"; shift;
+	local length="$1"; shift;
 	local twopass="$1"; shift;
 	local pass="$1"; shift;
 	
@@ -764,7 +778,6 @@ function run_encode() {
 			logfile="$logfile.pass2"
 		fi
 	else
-		logfile="$logfile      "
 		pass="-"
 	fi
 	
@@ -772,7 +785,7 @@ function run_encode() {
 	
 	# Print initial status message
 	
-	local status="${r}[$pass] Encoding, to monitor log:  tail -F $logfile   "
+	local status="${r}[$pass] Encoding       "
 	echo -en "${status}\r"
 	
 	# Execute encoder in the background
@@ -783,21 +796,42 @@ function run_encode() {
 	# Write mencoder's ETA estimate
 	
 	local start_time=$($date +%s)
-	(while $ps $pid &> /dev/null; do
-		local eta=$([ -e "$logfile" ] && $tail -n15 "$logfile" | \
-			$grep -a "Trem:" | $tail -n1 | $sed 's|.*\( .*min\).*|\1|g' | $tr " " "-")
+	while $ps $pid &> /dev/null; do
+		local line=$([ -e "$logfile" ] && $tail -n15 "$logfile" | \
+			$grep -a "Trem:" | $tail -n1)
+
+		local eta=$( echo "$line" | $sed 's|.*\( .*min\).*|\1|g' | $tr -d " ")
+		[[ "$eta" ]] && eta="-${eta}"
+		local size=$(echo "$line" | $sed 's|.*\( .*mb\).*|\1|g' | $tr -d " ")
+		[[ "$size" = "0mb" ]] && size="??mb"
+		local fps=$(echo "$line" | $sed 's|.*\( .*fps\).*|\1|g' | $tr -d " ")
+		local secs=$(echo "$line" | $sed 's|.*Pos:[ ]*\([0-9]*\).*|\1|g' | $tr -d " ")
+		if [[ "$secs" ]]; then
+			perc="$(( 100 * $secs / $length ))%"
+			secs="${secs}s"
+		else
+			unset secs
+			unset perc
+		fi
+
+		size=$(fill "$size" 6)
+		fps=$(fill "$fps" 7)
+		secs=$(fill "$secs" 6)
+		perc=$(fill "$perc" 4)
+
 		local ela=$(( ( $($date +%s) - $start_time ) / 60 ))
-		echo -ne "${status}${cela}+${ela}min${r}  ${ceta}${eta}${r}    \r"
+		local str="${status}   ${it2}${perc}${r}   ${secs}   ${it}${fps}${r}   ${size}     "
+		echo -ne "${str}${cela}+${ela}min${r}  ${ceta}${eta}${r}    \r"
 		$sleep $timer_refresh
-	done)
+	done
 	
 	# Report exit code
 	
 	wait $pid
 	if [[ $? = 0 ]]; then
-		echo -e "${status}[ ${ok}done${r} ]             "
+		echo -e "${str}[ ${ok}done${r} ]             "
 	else
-		echo -e "${status}[ ${e}failed${r} ] check log"
+		echo -e "${str}[ ${e}failed${r} ] check log"
 	fi
 }
 
@@ -855,7 +889,7 @@ function remux_container() {
 
 		# Print initial status message
 
-		local status="${r}[.] Remuxing, to monitor log:  tail -F $logfile    "
+		local status="${r}[.] Remuxing                                               "
 		echo -en "${status}\r"
 
 		# Execute remux in the background
