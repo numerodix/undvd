@@ -800,19 +800,20 @@ function run_encode() {
 		local line=$([ -e "$logfile" ] && $tail -n15 "$logfile" | \
 			$grep -a "Trem:" | $tail -n1)
 
-		local eta=$( echo "$line" | $sed 's|.*\( .*min\).*|\1|g' | $tr -d " ")
-		[[ "$eta" ]] && eta="-${eta}"
-		local size=$(echo "$line" | $sed 's|.*\( .*mb\).*|\1|g' | $tr -d " ")
-		[[ "$size" = "0mb" ]] && size="??mb"
-		local fps=$(echo "$line" | $sed 's|.*\( .*fps\).*|\1|g' | $tr -d " ")
+		local perc=$(echo "$line" | $sed 's|.*(\([0-9 %]*\)).*|\1|g' | $tr -d " ")
 		local secs=$(echo "$line" | $sed 's|.*Pos:[ ]*\([0-9]*\).*|\1|g' | $tr -d " ")
 		if [[ "$secs" ]]; then
-			perc="$(( 100 * $secs / $length ))%"
+			[[ "$perc" = "0%" ]] && perc="$(( 100 * $secs / $length ))%"
 			secs="${secs}s"
 		else
 			unset secs
 			unset perc
 		fi
+		local fps=$(echo "$line" | $sed 's|.*\( .*fps\).*|\1|g' | $tr -d " ")
+		local size=$(echo "$line" | $sed 's|.*\( .*mb\).*|\1|g' | $tr -d " ")
+		[[ "$size" = "0mb" ]] && size="??mb"
+		local eta=$( echo "$line" | $sed 's|.*\( .*min\).*|\1|g' | $tr -d " ")
+		[[ "$eta" ]] && eta="-${eta}"
 
 		size=$(fill "$size" 6)
 		fps=$(fill "$fps" 7)
