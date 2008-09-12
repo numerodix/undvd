@@ -174,7 +174,7 @@ The above options are sufficient to get a good quality rip, but if you need more
 <tr><td><c>-u --enc<c></td><td>dvd is encrypted, clone with vobcopy (needs libdvdcss)</td></tr>
 <tr><td><c>-n --noclone<c></td><td>no disc cloning (encode straight from the dvd)</td></tr>
 <tr><td><c>-c --crop<c></td><td>autocrop video</td></tr>
-<tr><td><c>-r --scale<c></td><td>scale video to width (integer value), <h>0</h> for no scaling</td></tr>
+<tr><td><c>-r --scale<c></td><td>scale video to x:y (integer value or <h>0</h>) or <h>off</h> to disable</td></tr>
 <tr><td><c>-f --smooth<c></td><td>use picture smoothing filter (not recommended for top quality source content)</td></tr>
 <tr><td><c>-D --dryrun<c></td><td>dry run (display encoding parameters without encoding)</td></tr>
 <tr><td><c>--cont<c></td><td>set container format</td></tr>
@@ -187,27 +187,28 @@ The above options are sufficient to get a good quality rip, but if you need more
 
 <p>This depends mostly on your cpu. Copying the dvd to disk can take about <e>10-15 minutes</e>. Encoding the video can take about <e>2-5 minutes per minute of video</e> (so for a 2 hour movie - 4h-10h).</p>
 
-<p><c>undvd</c> uses <e>mencoder</e>'s estimate to give you an idea of how long it takes. For every title it displays a line like this:</p>
+<p><c>undvd</c> uses <e>mencoder</e>'s estimate to give you an idea of how long it takes. For every title it displays progress like this:</p>
 
-<table><tr>
-<td><h>[-]</h></td>
-<td>Encoding, to monitor log:</td>
-<td>tail -F logs/01.log</td>
+<table>
+<tr>
+<td colspan=7>* Now ripping title <h>01</h>, with audio <h>en</h> and subtitles <h>off</h></td>
+</tr>
+<tr>
+<td>[-] Encoding</td>
+<td><h>3%</h></td>
+<td>54s</td>
+<td><h>13fps</h></td>
+<td>277mb</td>
 <td><h>+101min</h></td>
 <td><h>-44min</h></td>
-</tr></table>
+</tr>
+</table>
 
-<p>Here track <e>01</e> is being ripped and it has been running for <e>101</e> minutes. The estimated time to completion is <e>44</e> minutes. For more detailed information, have a look at the log file, which displays line like this:</p>
-
-<table><tr>
-<td>Pos: <h>54.5s</h></td>
-<td>1367f ( <h>3%</h>)</td>
-<td><h>13fps</h></td>
-<td>Trem:  <h>44min</h></td>
-<td><h>277mb</h></td>
-</tr></table>
-
-<p>At this point, 54.5 seconds of video have been processed, which is 3% of the title. The current rate is 13 frames/second (normally there are about 25 fps in a movie), and the time remaining is estimated to 44 minutes. The output file is estimated at 277mb.</p>
+<p>Here track <e>01</e> is being ripped. At this point, 54 seconds of video
+have been processed, which is 3% of the title. The current rate is 13
+frames/second (normally there are about 25 fps in a movie), it has been
+running for <e>101</e> minutes and the time remaining is estimated to 44
+minutes. The output file is estimated at 277mb.</p>
 
 <p><b>Note:</b> <c>undvd</c> runs at the lowest priority, so it should not interfere with use of your computer, it just runs in the background. (The less you use computer the faster it will run :-)</p>
 
@@ -278,7 +279,17 @@ it will be playable in other media players.</p>
 
 <dl>
 <dt>Q. How do I make a high quality rip without down scaling the image?
-<dd>A. By default, undvd scales the image to 2/3 of the original dimensions, in order to produce a reasonable file size without sacrificing quality. Even though video players scale the image to fullscreen, the quality typically remains high. You can override the scaling by setting <c>-r 0</c>, which will preserve the original video dimensions. The file will be proportionally larger.
+<dd>A. By default, undvd scales the image to 2/3 of the original dimensions,
+in order to produce a reasonable file size without sacrificing quality. Even
+though video players scale the image to fullscreen, the quality typically
+remains high. You can override the scaling by setting <c>-r off</c>, which will preserve the original video dimensions. The file will be proportionally larger.
+
+<dt>Q. I still don't understand how scaling works.
+<dd>A. To scale the video you set the <c>-r</r> option with a pair of numbers,
+eg. <c>-r 480:384</c>. You can also omit the height (<c>-r 480:0</c>) or the
+width (<c>-r 0:384</c>). undvd will scale your given dimensions to the closest
+multiples of 16 (as required by most video codecs), preserving the aspect
+ratio. Setting <c>-r off</c> disables scaling altogether.
 
 <dt>Q. When I preview a file in progress, the video is out of sync with the audio.
 <dd>A. Wait until it's finished, then it should be fine. You can also consider

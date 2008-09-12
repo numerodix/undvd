@@ -529,6 +529,16 @@ function display_title_line() {
 	echo -e "${pre}$dimensions  $fps  $length  $bpp $passes $vbitrate $vformat  $abitrate $aformat  $filesize  $filename${post}"
 }
 
+# match an int
+function check_int() {
+	local v="$1"; shift;
+	if egrep '^[0-9]*$' <(echo "$v") &>/dev/null; then
+		return 0
+	else
+		return 1
+	fi
+}
+
 # compute title scaling
 function title_scale() {
 	local width="$1"; shift;
@@ -537,12 +547,36 @@ function title_scale() {
 
 	local nwidth="$width"
 	local nheight="$height"
-	if [[ "$custom_scale" != "0" ]]; then  # scaling isn't disabled
+	if [[ "$custom_scale" != "off" ]]; then  # scaling isn't disabled
+		unset nwidth
+		unset nheight
 		
 		# scale to the width given by user (upscaling permitted)
 		if [[ "$custom_scale" ]]; then
-			nwidth=$(( $width * $custom_scale/$width ))
-			nheight=$(( $height * $custom_scale/$width ))
+			if check_int "$custom_scale"; then
+				nwidth="$custom_scale"
+			else
+				nwidth=${custom_scale%:*}
+				nheight=${custom_scale#*:}
+			fi
+
+			if [[ "$nwidth" ]] && ! check_int "$nwidth"; then
+				fatal "Failed to read positive int value ${bb}$nwidth"; return
+			fi
+			if [[ "$nheight" ]] && ! check_int "$nheight"; then
+				fatal "Failed to read positive int value ${bb}$nheight"; return
+			fi
+
+			[[ "$nwidth"  == 0 ]] && unset nwidth
+			[[ "$nheight" == 0 ]] && unset nheight
+
+			if [[      "$nwidth" && ! "$nheight" ]]; then
+				nwidth=$((  $width  * $nwidth/$width ))
+				nheight=$(( $height * $nwidth/$width ))
+			elif [[ ! "$nwidth" &&    "$nheight" ]]; then
+				nwidth=$((  $width  * $nheight/$height ))
+				nheight=$(( $height * $nheight/$height ))
+			fi
 
 		# apply default scaling heuristic
 		else
@@ -574,8 +608,8 @@ function title_scale() {
 
 		# make sure the new dimensions are sane
 		if (( $nwidth * $nheight <= 0 )); then
-			local nwidth="$width"
-			local nheight="$height"
+			nwidth="$width"
+			nheight="$height"
 		fi
 	fi
 
@@ -652,7 +686,7 @@ function container_opts() {
 			fi
 
 		else
-			fatal "Unrecognized container: ${bb}$container"
+			fatal "Unrecognized container: ${bb}$container"; return
 		fi
 	fi
 
@@ -693,7 +727,7 @@ function acodec_opts() {
 			opts="lavc -lavcopts abitrate=$bitrate:acodec=$codec$opts"
 
 		else
-			fatal "Unrecognized audio codec: ${bb}$codec"
+			fatal "Unrecognized audio codec: ${bb}$codec"; return
 		fi
 	fi
 
@@ -749,7 +783,7 @@ function vcodec_opts() {
 			opts="lavc -lavcopts ${opts}vbitrate=$bitrate:vcodec=$codec"
 
 		else
-			fatal "Unrecognized video codec: ${bb}$codec"
+			fatal "Unrecognized video codec: ${bb}$codec"; return
 		fi
 	fi
 

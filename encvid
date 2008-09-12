@@ -19,7 +19,7 @@ adv_usage="Advanced usage:  ${b}${tool_name} ${bb}<file(s)>${r} [${b}options${r}
   -1            force 1-pass encoding
   -2            force 2-pass encoding
   -c --crop     autocrop video
-  -r --scale    scale video to width (integer value), ${bb}0${r} for no scaling
+  -r --scale    scale video to x:y (integer value or ${bb}0${r}) or ${bb}off${r} to disable
   -f --smooth   use picture smoothing filter
   -D --dryrun   dry run (display encoding parameters without encoding)\n
      --cont     set container format

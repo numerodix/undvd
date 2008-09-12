@@ -27,7 +27,7 @@ adv_usage="Advanced usage:  ${b}${tool_name} ${r}[${b}standard options${r}] [${b
   -u --enc      dvd is encrypted, clone with vobcopy (needs libdvdcss)
   -n --noclone  no disc cloning (encode straight from the dvd)
   -c --crop     autocrop video
-  -r --scale    scale video to width (integer value), ${bb}0${r} for no scaling
+  -r --scale    scale video to x:y (integer value or ${bb}0${r}) or ${bb}off${r} to disable
   -f --smooth   use picture smoothing filter
   -D --dryrun   dry run (display encoding parameters without encoding)\n
      --cont     set container format
