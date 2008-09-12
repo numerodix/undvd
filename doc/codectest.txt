@@ -6,7 +6,7 @@ Tools detected:
 + mp4creator 1.6
 + mplayer 1.0rc2-4.2.3
 + ogmmerge v1.5
-+ undvd 0.5.1
++ undvd 0.5.2
 
 +-------------+-------------+-------------+-------------+
 | container   | vcodec      | acodec      | status      |
