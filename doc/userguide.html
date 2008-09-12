@@ -183,6 +183,19 @@ The above options are sufficient to get a good quality rip, but if you need more
 </table>
 
 
+<h2>Encoding videos with encvid</h2>
+
+<p>Although undvd was designed to be a dvd ripping tool, it has evolved the
+ability to encode any other video files as well. The tool <c>encvid</c>
+accepts the same options as <c>undvd</c> (those that are not specific to
+dvds) and behaves just the same way (there
+is one difference, <c>encvid</c> does not scale the video by default).</p>
+
+<p>To convert a file video.avi from avi to mp4, you would run:</p>
+
+<code>encvid <h>video.avi</h> --cont <h>mp4</h></code>
+
+
 <h2>How long does it take?</h2>
 
 <p>This depends mostly on your cpu. Copying the dvd to disk can take about <e>10-15 minutes</e>. Encoding the video can take about <e>2-5 minutes per minute of video</e> (so for a 2 hour movie - 4h-10h).</p>
@@ -191,7 +204,7 @@ The above options are sufficient to get a good quality rip, but if you need more
 
 <table>
 <tr>
-<td colspan=7>* Now ripping title <h>01</h>, with audio <h>en</h> and subtitles <h>off</h></td>
+<td colspan=7>&nbsp;* Now ripping title <h>01</h>, with audio <h>en</h> and subtitles <h>off</h></td>
 </tr>
 <tr>
 <td>[-] Encoding</td>
