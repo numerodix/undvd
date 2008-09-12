@@ -18,7 +18,7 @@ usage="Usage:  ${b}${tool_name} -t ${bb}01,02,03${b} -a ${bb}en${b} -s ${bb}es${
   -e --end      end after this many seconds (usually for testing)\n
   -C            do sanity check (check for missing tools)
   -z --adv      <show advanced options>
-     --version  show ${tool_name} version"
+     --version  show ${suite_name} version"
 
 adv_usage="Advanced usage:  ${b}${tool_name} ${r}[${b}standard options${r}] [${b}advanced options${r}]
   -o --size     output file size in mb (integer value)
@@ -50,7 +50,7 @@ while true; do
 
            --start   ) opts_start=$2; shift 2;;
         -e|--end     ) opts_end=$2; shift 2;;
-           --version ) opts_version="y"; shift;;
+           --version ) print_version;;
 
         -o|--size    ) target_size="$2"; shift 2;;
         -1           ) target_passes="1"; shift;;
@@ -72,11 +72,7 @@ while true; do
     esac
 done
 
-if [[ "$opts_version" ]]; then
-	print_version "$tool_name"
-else
-	display_tool_banner
-fi
+display_tool_banner
 
 
 if [[ ! -e "$dvd_device" ]]; then

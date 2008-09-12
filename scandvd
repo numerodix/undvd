@@ -7,27 +7,30 @@
 # load constants and functions
 p=$(dirname $(readlink -f $0)); . $p/lib.sh
 
-display_tool_banner
-
 usage="Usage:  ${b}${tool_name} ${r}[${b}--dev ${bb}/dev/dvd${r} | ${b}--dir ${bb}/path${r} | ${b}--iso ${bb}disc.iso${r}]
   -d --dev      dvd device to read from (default is ${bb}/dev/dvd${r})
   -q --dir      dvd directory to read from
   -i --iso      dvd iso image to read from
-  -v            be verbose (print id numbers)"
+  -v            be verbose (print id numbers)
+     --version  show ${suite_name} version"
 
 shorts="d:q:i:v"
-longs="dev:,dir:,iso:"
+longs="dev:,dir:,iso:,version"
 eval $(get_parsecmd "$tool_name" "$shorts" "$longs")
 
 while true; do
     case "$1" in
-        -d|--dev ) dvd_device="$2"; shift 2;;
-        -q|--dir ) dvd_device="$2";dvdisdir="-q "; shift 2;;
-        -i|--iso ) dvd_device="$2";dvdisdir="-q "; shift 2;;
-        -v       ) verbose="y"; shift;;
-        --) shift ; break ;;
+        -d|--dev     ) dvd_device="$2"; shift 2;;
+        -q|--dir     ) dvd_device="$2";dvdisdir="-q "; shift 2;;
+        -i|--iso     ) dvd_device="$2";dvdisdir="-q "; shift 2;;
+        -v           ) verbose="y"; shift;;
+           --version ) print_version;;
+        --           ) shift ; break ;;
     esac
 done
+
+display_tool_banner
+
 
 if [[ "$dvd_device" ]]; then
     dvd_device="\"$(escape_chars "$dvd_device")\""

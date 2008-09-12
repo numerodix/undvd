@@ -7,27 +7,30 @@
 # load constants and functions
 p=$(dirname $(readlink -f $0)); . $p/lib.sh
 
-display_tool_banner
-
 usage="Usage:  ${b}${tool_name} ${r}[${bb}<file(s)>${r} | ${b}--dev ${bb}/dev/dvd${r} | ${b}--dir ${bb}/path${r} | ${b}--iso ${bb}disc.iso${r}]
   <file(s)>     files to read
   -d --dev      dvd device to read from (default is ${bb}/dev/dvd${r})
   -q --dir      dvd directory to read from
-  -i --iso      dvd iso image to read from"
+  -i --iso      dvd iso image to read from
+     --version  show ${suite_name} version"
 
 shorts="d:q:i:"
-longs="dev:,dir:,iso:"
+longs="dev:,dir:,iso:,version"
 eval $(get_parsecmd "$tool_name" "$shorts" "$longs")
 
 while true; do
     case "$1" in
-        -d|--dev ) input_dvd_device="$2"; shift 2;;
-        -q|--dir ) input_dvd_device="$2"; shift 2;;
-        -i|--iso ) input_dvd_device="$2"; shift 2;;
-        --) shift ; break ;;
-        * ) break ;;
+        -d|--dev     ) input_dvd_device="$2"; shift 2;;
+        -q|--dir     ) input_dvd_device="$2"; shift 2;;
+        -i|--iso     ) input_dvd_device="$2"; shift 2;;
+           --version ) print_version;;
+        --           ) shift ; break ;;
+        *            ) break ;;
     esac
 done
+
+display_tool_banner
+
 
 if [[ ! "$input_dvd_device" && ! "$@" ]]; then
     echo -e "$usage"

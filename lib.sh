@@ -53,6 +53,7 @@ mplayer_vcodecs="mpeg-2"
 
 ### FUNCTIONS
 
+suite_name="undvd"
 tool_name=$(basename $0)
 
 function fatal() {
@@ -115,7 +116,7 @@ function tool_version() {
 
 # print package version and versions of tools
 function print_version() {
-	local name="$1"; shift;
+	local name="$suite_name"
 
     echo "${name} $version"
     echo "  $(tool_version "mplayer" "-ac help" "\$awk '{ print \$2 }'")"
