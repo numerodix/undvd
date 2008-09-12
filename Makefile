@@ -15,6 +15,7 @@ install:
 	mkdir -p ${SHARED_CHROOT}
 	install -m644 colors.sh ${SHARED_CHROOT}
 	install -m644 lib.sh ${SHARED_CHROOT}
+	install -m755 encvid ${SHARED_CHROOT}
 	install -m755 scandvd ${SHARED_CHROOT}
 	install -m755 undvd ${SHARED_CHROOT}
 	install -m755 vidstat ${SHARED_CHROOT}
@@ -29,6 +30,7 @@ install:
 	install -m644 Changelog ${DOC_CHROOT}
 
 	mkdir -p ${BIN_CHROOT}
+	ln -s ${SHARED}/encvid ${BIN_CHROOT}
 	ln -s ${SHARED}/scandvd ${BIN_CHROOT}
 	ln -s ${SHARED}/undvd ${BIN_CHROOT}
 	ln -s ${SHARED}/vidstat ${BIN_CHROOT}

@@ -1,3 +1,7 @@
+0.6.0:
+* New encvid tool for general purpose encoding/conversion.
+* Add --version and --adv options.
+
 0.5.2:
 * New codectest tool.
 * Add --start and --version options.

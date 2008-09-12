@@ -31,6 +31,7 @@ rm -rf $RPM_BUILD_ROOT
 
 /usr/share/undvd/colors.sh
 /usr/share/undvd/lib.sh
+/usr/share/undvd/encvid
 /usr/share/undvd/scandvd
 /usr/share/undvd/undvd
 /usr/share/undvd/vidstat
@@ -40,6 +41,7 @@ rm -rf $RPM_BUILD_ROOT
 /usr/share/doc/undvd/codectest.txt
 /usr/share/doc/undvd/codectest_all.svg
 /usr/share/doc/undvd/Changelog
+/usr/bin/encvid
 /usr/bin/scandvd
 /usr/bin/undvd
 /usr/bin/vidstat
