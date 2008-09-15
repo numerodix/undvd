@@ -308,7 +308,8 @@ multiples of 16 (as required by most video codecs). Setting <c>-r off</c> disabl
 using a different container and/or audio codec.
 
 <dt>Q. undvd fails when reading from the dvd.
-<dd>A. This could be because the dvd is encrypted. Install libdvdcss and re-try with <c>-u</c> to decrypt the disc first.
+<dd>A. This could be because the dvd is encrypted. To read encrypted dvds you
+need libdvdcss. mplayer/mencoder will use it automatically if it is installed, and you can run without cloning the disc (<c>-n</c>). Otherwise you'll need to set <c>-u</c> so that undvd knows to use vobcopy (which also supports libdvdcss) instead of dd when cloning this disc.
 
 <dt>Q. What is the difference between h264 and xvid encoding?
 <dd>A. Xvid can be up to 30% faster, and produces very good results when the source video isn't that high quality (eg. remastered old tv-shows). But for movies of top quality, the picture is better with h264.
