@@ -68,7 +68,7 @@ if [[ "$opts_end" ]]; then
 fi
 
 if [[ ! "$custom_scale" ]]; then
-	custom_scale="0"
+	custom_scale="off"
 fi
 
 
