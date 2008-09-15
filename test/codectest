@@ -22,6 +22,16 @@ vcodecs = ['asv1', 'asv2', 'dvvideo', 'ffv1', 'flv', 'h261', 'h263', 'h263p',
            'h264', 'mpeg1video', 'mpeg2video', 'mpeg4', 'msmpeg4', 'msmpeg4v2',
            'roqvideo', 'rv10', 'snow', 'svq1', 'wmv1', 'wmv2', 'xvid']
 
+# insaner
+conts = ['asf', 'au', 'avi', 'dv', 'flv', 'ipod', 'mkv', 'mov', 'mpg', 'mp4',
+         'nut', 'ogm', 'rm', 'swf']
+acodecs = ['aac', 'ac3', 'flac', 'g726', 'libamr_nb', 'libamr_wb', 'mp2',
+           'mp3', 'roq_dpcm', 'sonic', 'sonicls', 'vorbis', 'wmav1', 'wmav2']
+vcodecs = ['asv1', 'asv2', 'dvvideo', 'ffv1', 'flv', 'h261', 'h263', 'h263p',
+           'h264', 'huffyuv', 'libtheora', 'ljpeg', 'mjpeg', 'mpeg1video',
+           'mpeg2video', 'mpeg4', 'msmpeg4', 'msmpeg4v2', 'roqvideo', 'rv10',
+           'snow', 'svq1', 'wmv1', 'wmv2', 'xvid']
+
 # downscaled for quick testing
 conts = ['mkv', 'mp4']
 vcodecs = ['xvid', 'h264']
@@ -248,7 +258,7 @@ def get_svg(matrix, cum, tools):
     color_acodec = "black"
     color_acodec_em = "maroon"
 
-    fpx = 14
+    fpx = 10
     fpa = int(fpx * (6/14.))
     fpl = int(fpx * (12/14.))
 
@@ -349,7 +359,7 @@ def get_svg(matrix, cum, tools):
     y += padding
     x -= padding
 
-    fpx -= 2
+    fpx = 12
 
     # write legend
     c = get_fmt("this color", color_acodec)

@@ -724,7 +724,7 @@ function acodec_opts() {
 	else
 		local bitrate=224	# mencoder manpage default
 		$(echo $codec | \
-			$egrep '(ac3|flac|mp2|sonic|sonicls|vorbis|wmav1|wmav2)' &>/dev/null)
+			$egrep '(ac3|flac|g726|libamr_nb|libamr_wb|mp2|roq_dpcm|sonic|sonicls|vorbis|wmav1|wmav2)' &>/dev/null)
 		if [[ $? == 0 ]]; then
 			opts="lavc -lavcopts abitrate=$bitrate:acodec=$codec$opts"
 
@@ -780,7 +780,7 @@ function vcodec_opts() {
 			fi
 		fi
 
-		$(echo $codec | $egrep '(asv1|asv2|dvvideo|ffv1|flv|h261|h263|h263p|mpeg1video|mpeg2video|mpeg4|msmpeg4|msmpeg4v2|roqvideo|rv10|snow|svq1|wmv1|wmv2)' &>/dev/null)
+		$(echo $codec | $egrep '(asv1|asv2|dvvideo|ffv1|flv|h261|h263|h263p|huffyuv|libtheora|ljpeg|mjpeg|mpeg1video|mpeg2video|mpeg4|msmpeg4|msmpeg4v2|roqvideo|rv10|snow|svq1|wmv1|wmv2)' &>/dev/null)
 		if [[ $? == 0 ]]; then
 			opts="lavc -lavcopts ${opts}vbitrate=$bitrate:vcodec=$codec"
 
