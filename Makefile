@@ -27,6 +27,7 @@ install:
 	install -m644 doc/codectest.svg ${DOC_CHROOT}
 	install -m644 doc/codectest.txt ${DOC_CHROOT}
 	install -m644 doc/codectest_all.svg ${DOC_CHROOT}
+	install -m644 doc/codectest_all.txt ${DOC_CHROOT}
 	install -m644 Changelog ${DOC_CHROOT}
 
 	mkdir -p ${BIN_CHROOT}
