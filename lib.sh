@@ -550,6 +550,7 @@ function title_scale() {
 	if [[ "$custom_scale" != "off" ]]; then  # scaling isn't disabled
 		unset nwidth
 		unset nheight
+		aspect_ratio="$height/$width"
 		
 		# scale to the width given by user (upscaling permitted)
 		if [[ "$custom_scale" ]]; then
@@ -558,6 +559,7 @@ function title_scale() {
 			else
 				nwidth=${custom_scale%:*}
 				nheight=${custom_scale#*:}
+				aspect_ratio="$nheight/$nwidth"
 			fi
 
 			if [[ "$nwidth" ]] && ! check_int "$nwidth"; then
@@ -602,7 +604,7 @@ function title_scale() {
 		fi
 
 		# dimensions have been changed, make sure they are multiples of 16
-		scale_info=( $(scale16 "$width" "$height" "$nwidth" "$nheight") )
+		scale_info=( $(scale16 "$width" "$height" "$nwidth" "$nheight" "$aspect_ratio") )
 		nwidth=${scale_info[0]}
 		nheight=${scale_info[1]}
 
@@ -623,6 +625,7 @@ function scale16() {
 	local orig_height="$1"; shift;
 	local width="$1"; shift;
 	local height="$1"; shift;
+	local aspect_ratio="$1"; shift;
 	local divisor=16
 
 	# if the original dimensions are not multiples of 16, no amount of scaling
@@ -631,7 +634,6 @@ function scale16() {
 		width="$orig_width"
 		height="$orig_height"
 	else
-		local ratio="$orig_height/$orig_width"
 
 		step=-1
 		unset completed
@@ -642,7 +644,7 @@ function scale16() {
 			local down_step=$(( $width - ($step * $divisor) ))
 			for x_step in $down_step $up_step; do
 				local x_width=$(( $x_step - ($x_step % $divisor) ))
-				local x_height=$( echo "scale=0; $x_width*$ratio/1" | $bc )
+				local x_height=$( echo "scale=0; $x_width*$aspect_ratio/1" | $bc )
 				if (( ($x_width % $divisor) + ($x_height % $divisor) == 0 )); then
 					completed="y"
 					width=$x_width
