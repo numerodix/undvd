@@ -356,10 +356,12 @@ def get_svg(matrix, cum, tools):
                 l += ' stroke-width="10" stroke-linejoin="round" opacity="0.1"/>'
 
 
-    y += padding
-    x -= padding
-
     fpx = 12
+    fpa = int(fpx * (6/14.))
+    fpl = int(fpx * (12/14.))
+
+    y += padding + fpa
+    x -= padding
 
     # write legend
     c = get_fmt("this color", color_acodec)
