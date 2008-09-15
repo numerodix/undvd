@@ -16,15 +16,6 @@ import time
 # definitely insane
 conts = ['asf', 'au', 'avi', 'dv', 'flv', 'ipod', 'mkv', 'mov', 'mpg', 'mp4',
          'nut', 'ogm', 'rm', 'swf']
-acodecs = ['aac', 'ac3', 'flac', 'mp2', 'mp3', 'sonic', 'sonicls', 'vorbis',
-           'wmav1', 'wmav2']
-vcodecs = ['asv1', 'asv2', 'dvvideo', 'ffv1', 'flv', 'h261', 'h263', 'h263p',
-           'h264', 'mpeg1video', 'mpeg2video', 'mpeg4', 'msmpeg4', 'msmpeg4v2',
-           'roqvideo', 'rv10', 'snow', 'svq1', 'wmv1', 'wmv2', 'xvid']
-
-# insaner
-conts = ['asf', 'au', 'avi', 'dv', 'flv', 'ipod', 'mkv', 'mov', 'mpg', 'mp4',
-         'nut', 'ogm', 'rm', 'swf']
 acodecs = ['aac', 'ac3', 'flac', 'g726', 'libamr_nb', 'libamr_wb', 'mp2',
            'mp3', 'roq_dpcm', 'sonic', 'sonicls', 'vorbis', 'wmav1', 'wmav2']
 vcodecs = ['asv1', 'asv2', 'dvvideo', 'ffv1', 'flv', 'h261', 'h263', 'h263p',
