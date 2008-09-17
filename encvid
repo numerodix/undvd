@@ -26,7 +26,7 @@ adv_usage="Advanced usage:  ${b}${tool_name} ${bb}<file(s)>${r} [${b}options${r}
      --acodec   set audio codec
      --vcodec   set video codec"
 
-shorts="e:o:r:12cfDCz"
+shorts="e:o:r:12cfDz"
 longs="start:,end:,adv,version,size:,crop,scale:,smooth,dryrun,cont:,acodec:,vcodec:"
 eval $(get_parsecmd "$tool_name" "$shorts" "$longs")
 
@@ -48,7 +48,6 @@ while true; do
            --acodec  ) opts_acodec="$2"; shift 2;;
            --vcodec  ) opts_vcodec="$2"; shift 2;;
 
-        -C           ) init_cmds "y"; exit;;
         -z|--adv     ) echo -e "$adv_usage"; exit;;
         --           ) shift ; break ;;
     esac
