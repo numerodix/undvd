@@ -266,7 +266,7 @@ for title in $titles; do
         # Dry run
 
         filesize="$output_size"
-        display_title "$width" "$height" "$fps" "$length" "$bpp" "$passes" "$video_bitrate" "$video_codec" "$audio_bitrate" "$audio_codec" "$filesize" "$filename"
+        display_title "$width" "$height" "$fps" "$length" "$bpp" "$passes" "$video_bitrate" "$video_codec" "$audio_bitrate" "$audio_codec" "$filesize" "$title"
 
     else
 
