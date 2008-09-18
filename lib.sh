@@ -100,6 +100,24 @@ function init_cmds() {
 	fi
 }
 
+# check for codec support in player/encoder
+function codec_check() {
+	local type="$1"; shift;
+	local cmd="$1"; shift;
+	local arg="$1"; shift;
+	local codecs="$1"; shift;
+
+	echo -e " * Checking for $cmd $type codec support... "
+	for codec in $codecs; do
+		local c=$($cmd $arg 2>/dev/null | $grep -i $codec)
+		if [[ ! "$c" ]]; then
+			echo -e "   ${wa}*${r} $codec missing"
+		else
+			echo -e "   ${ok}*${r} $codec"
+		fi
+	done
+}
+
 # get version of the tool
 function tool_version() {
 	local name="$1"; shift;
@@ -129,24 +147,6 @@ function print_version() {
     exit
 }
 
-# check for codec support in player/encoder
-function codec_check() {
-	local type="$1"; shift;
-	local cmd="$1"; shift;
-	local arg="$1"; shift;
-	local codecs="$1"; shift;
-
-	echo -e " * Checking for $cmd $type codec support... "
-	for codec in $codecs; do
-		local c=$($cmd $arg 2>/dev/null | $grep -i $codec)
-		if [[ ! "$c" ]]; then
-			echo -e "   ${wa}*${r} $codec missing"
-		else
-			echo -e "   ${ok}*${r} $codec"
-		fi
-	done
-}
-
 # generate parse command to execute in caller
 # note: $usage and $@ variables evaluated in calling context!
 function get_parsecmd() {
@@ -165,6 +165,44 @@ function get_parsecmd() {
 			echo -en \${r};
 		fi;
 		eval set -- \"\$opts\""
+}
+
+# match an int
+function check_int() {
+	local v="$1"; shift;
+	if egrep '^[0-9]*$' <(echo "$v") &>/dev/null; then
+		return 0
+	else
+		return 1
+	fi
+}
+
+# match an int
+function check_float() {
+	local v="$1"; shift;
+	if check_int "$(echo "$v/1" | $bc 2>&1)"; then
+		return 0
+	else
+		return 1
+	fi
+}
+
+# validate value against type
+function check() {
+	local type="$1"; shift;
+	local value="$1"; shift;
+
+	if [[ "$type" = "int" ]]; then
+		if ! check_int "$value"; then
+			fatal "Failed to read positive int value ${bb}$value"
+		fi
+	elif [[ "$type" = "float" ]]; then
+		if ! check_float "$value"; then
+			fatal "Failed to read positive float value ${bb}$value"
+		fi
+	fi
+
+	echo "$value"
 }
 
 # prepend with int key if int, otherwise with string key
@@ -527,16 +565,6 @@ function display_title_line() {
 		bpp=$(format_bpp "$bpp" "$vformat")
 	fi
 	echo -e "${pre}$dimensions  $fps  $length  $bpp $passes $vbitrate $vformat  $abitrate $aformat  $filesize  $filename${post}"
-}
-
-# match an int
-function check_int() {
-	local v="$1"; shift;
-	if egrep '^[0-9]*$' <(echo "$v") &>/dev/null; then
-		return 0
-	else
-		return 1
-	fi
 }
 
 # compute title scaling

@@ -20,9 +20,9 @@ eval $(get_parsecmd "$tool_name" "$shorts" "$longs")
 
 while true; do
     case "$1" in
-        -d|--dev     ) dvd_device="$2"; shift 2;;
-        -q|--dir     ) dvd_device="$2";dvdisdir="-q "; shift 2;;
-        -i|--iso     ) dvd_device="$2";dvdisdir="-q "; shift 2;;
+        -d|--dev     ) dvd_device="$2"; shift 2;;	# str
+        -q|--dir     ) dvd_device="$2";dvdisdir="-q "; shift 2;;	# str
+        -i|--iso     ) dvd_device="$2";dvdisdir="-q "; shift 2;;	# str
         -v           ) verbose="y"; shift;;
            --version ) print_version;;
         --           ) shift ; break ;;

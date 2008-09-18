@@ -8,7 +8,7 @@
 p=$(dirname $(readlink -f $0)); . $p/lib.sh
 
 usage="Usage:  ${b}${tool_name} -t ${bb}01,02,03${b} -a ${bb}en${b} -s ${bb}es${b} ${r}[${b}-d ${bb}/dev/dvd${r}] [${b}more options${r}]\n
-  -t --title    titles to rip (comma separated)
+  -t --title    title(s) to rip (comma separated)
   -a --audio    audio language (two letter code, eg. ${bb}en${r}, or integer id)
   -s --subs     subtitle language (two letter code or ${bb}off${r}, or integer id)\n
   -d --dev      dvd device to rip from (default is ${bb}/dev/dvd${r})
@@ -41,32 +41,32 @@ eval $(get_parsecmd "$tool_name" "$shorts" "$longs")
 
 while true; do
     case "$1" in
-        -t|--title   ) titles=$(echo $2 | $sed 's|,| |g'); shift 2;;
-        -a|--audio   ) alang=$2; shift 2;;
-        -s|--subs    ) slang=$2; shift 2;;
+        -t|--title   ) titles="$(echo "$2" | $sed 's|,| |g')"; shift 2;;	# str
+        -a|--audio   ) alang="$2"; shift 2;;	# str
+        -s|--subs    ) slang="$2"; shift 2;;	# str
 
-        -d|--dev     ) dvd_device="$2"; shift 2;;
-        -q|--dir     ) dvdisdir="y";mencoder_source="$2"; shift 2;;
-        -i|--iso     ) dvdisiso="y";skipclone="y";mencoder_source="$2"; shift 2;;
+        -d|--dev     ) dvd_device="$2"; shift 2;;	# str
+        -q|--dir     ) dvdisdir="y";mencoder_source="$2"; shift 2;;		# str
+        -i|--iso     ) dvdisiso="y";skipclone="y";mencoder_source="$2"; shift 2;;	#str
 
-           --start   ) opts_start=$2; shift 2;;
-        -e|--end     ) opts_end=$2; shift 2;;
+           --start   ) opts_start="$(check float "$2")"; shift 2;;
+        -e|--end     ) opts_end="$(check float "$2")"; shift 2;;
            --version ) print_version;;
 
-        -o|--size    ) target_size="$2"; shift 2;;
-           --bpp     ) bpp="$2"; shift 2;;
+        -o|--size    ) target_size="$(check int "$2")"; shift 2;;
+           --bpp     ) bpp="$(check float "$2")"; shift 2;;
         -1           ) target_passes="1"; shift;;
-        -2           ) target_twopass=y;target_passes="2"; shift;;
+        -2           ) target_twopass="y";target_passes="2"; shift;;
         -u|--enc     ) encrypted="y"; shift;;
         -n|--noclone ) skipclone="y";opt_noclone="y"; shift;;
-        -c|--crop    ) autocrop=y; shift;;
-        -r|--scale   ) custom_scale="$2"; shift 2;;
+        -c|--crop    ) autocrop="y"; shift;;
+        -r|--scale   ) custom_scale="$2"; shift 2;;		# validate later
         -f|--smooth  ) prescale="spp,";postscale=",hqdn3d"; shift;;
         -D|--dryrun  ) dry_run="y"; shift;;
 
-           --cont    ) opts_cont="$2"; shift 2;;
-           --acodec  ) opts_acodec="$2"; shift 2;;
-           --vcodec  ) opts_vcodec="$2"; shift 2;;
+           --cont    ) opts_cont="$2"; shift 2;;	# validate later
+           --acodec  ) opts_acodec="$2"; shift 2;;	# validate later
+           --vcodec  ) opts_vcodec="$2"; shift 2;;	# validate later
 
         -C           ) init_cmds "y"; exit;;
         -z|--adv     ) echo -e "$adv_usage"; exit;;
