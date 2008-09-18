@@ -1,3 +1,10 @@
+0.6.1:
+* Validate user input.
+* New --bpp option.
+* Setting x:y scaling now allows breaking the original aspect ratio.
+* Add more exotic codecs.
+* Add full codectest report with all codecs and containers.
+
 0.6.0:
 * New encvid tool for general purpose encoding/conversion.
 * Add --version and --adv options.
