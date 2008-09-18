@@ -136,6 +136,7 @@ function ubuntu() {
 	
 	# patch rules file
 	sed -i "/dh_compress/d" rules ;
+	sed -i "/dh_installchangelogs Changelog/d" rules ;
 
 	# build the package
 	cd .. ;
