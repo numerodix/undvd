@@ -229,7 +229,7 @@ function fedora() {
 	sed -i "s|BuildArch: .*|BuildArch: $rpm_arch|g" $tmp/$proj.spec
 	sed -i "s|Requires: .*|Requires: $rpm_deps|g" $tmp/$proj.spec
 	
-	# build package locally given .spec file and local .rpmrc
+	# build package using locally given .spec file and local .rpmrc
 	rpmbuild -ba $tmp/$proj.spec --rcfile "$rcfiles"
 	
 	cp $tmp/rpmbuild/RPMS/$rpm_arch/$proj-$v-1.$rpm_arch.rpm $dest
