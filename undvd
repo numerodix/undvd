@@ -22,6 +22,7 @@ usage="Usage:  ${b}${tool_name} -t ${bb}01,02,03${b} -a ${bb}en${b} -s ${bb}es${
 
 adv_usage="Advanced usage:  ${b}${tool_name} ${r}[${b}standard options${r}] [${b}advanced options${r}]
   -o --size     output file size in mb (integer value)
+     --bpp      bits per pixel (float value)
   -1            force 1-pass encoding
   -2            force 2-pass encoding
   -u --enc      dvd is encrypted, clone with vobcopy (needs libdvdcss)
@@ -35,7 +36,7 @@ adv_usage="Advanced usage:  ${b}${tool_name} ${r}[${b}standard options${r}] [${b
      --vcodec   set video codec"
 
 shorts="t:a:s:d:q:i:e:o:r:12uncfDCz"
-longs="title:,audio:,subs:,dev:,dir:,iso:,start:,end:,adv,version,size:,enc,noclone,crop,scale:,smooth,dryrun,cont:,acodec:,vcodec:"
+longs="title:,audio:,subs:,dev:,dir:,iso:,start:,end:,adv,version,size:,bpp:,enc,noclone,crop,scale:,smooth,dryrun,cont:,acodec:,vcodec:"
 eval $(get_parsecmd "$tool_name" "$shorts" "$longs")
 
 while true; do
@@ -53,6 +54,7 @@ while true; do
            --version ) print_version;;
 
         -o|--size    ) target_size="$2"; shift 2;;
+           --bpp     ) bpp="$2"; shift 2;;
         -1           ) target_passes="1"; shift;;
         -2           ) target_twopass=y;target_passes="2"; shift;;
         -u|--enc     ) encrypted="y"; shift;;
@@ -224,7 +226,9 @@ for title in $titles; do
 
     # Decide bpp
 
-    if [[ "$target_size" ]]; then
+    if [[ "$bpp" ]]; then
+		$true
+    elif [[ "$target_size" ]]; then
         video_size=$(( $target_size - $audio_size ))
         [[ "0" > "$video_size" ]] && video_size=1
         bpp=$(compute_bpp "$width" "$height" "$fps" "$length" "$video_size")

@@ -16,6 +16,7 @@ usage="Usage:  ${b}${tool_name} ${bb}<file(s)>${r} [${b}options${r}]\n
 
 adv_usage="Advanced usage:  ${b}${tool_name} ${bb}<file(s)>${r} [${b}options${r}]
   -o --size     output file size in mb (integer value)
+     --bpp      bits per pixel (float value)
   -1            force 1-pass encoding
   -2            force 2-pass encoding
   -c --crop     autocrop video
@@ -27,7 +28,7 @@ adv_usage="Advanced usage:  ${b}${tool_name} ${bb}<file(s)>${r} [${b}options${r}
      --vcodec   set video codec"
 
 shorts="e:o:r:12cfDz"
-longs="start:,end:,adv,version,size:,crop,scale:,smooth,dryrun,cont:,acodec:,vcodec:"
+longs="start:,end:,adv,version,size:,bpp:,crop,scale:,smooth,dryrun,cont:,acodec:,vcodec:"
 eval $(get_parsecmd "$tool_name" "$shorts" "$longs")
 
 while true; do
@@ -37,6 +38,7 @@ while true; do
            --version ) print_version;;
 
         -o|--size    ) target_size="$2"; shift 2;;
+           --bpp     ) bpp="$2"; shift 2;;
         -1           ) target_passes="1"; shift;;
         -2           ) target_twopass=y;target_passes="2"; shift;;
         -c|--crop    ) autocrop=y; shift;;
@@ -171,7 +173,9 @@ for mencoder_source in "$@"; do
 
     # Decide bpp
 
-    if [[ "$target_size" ]]; then
+    if [[ "$bpp" ]]; then
+		$true
+    elif [[ "$target_size" ]]; then
         video_size=$(( $target_size - $audio_size ))
         [[ "0" > "$video_size" ]] && video_size=1
         bpp=$(compute_bpp "$width" "$height" "$fps" "$length" "$video_size")
