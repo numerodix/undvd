@@ -12,10 +12,10 @@ use functions;
 my $verbose = 0;
 
 
-(my $exit, my $lsdvd) = run("which", "lsdvd");
+my ($exit, $lsdvd) = run("which", "lsdvd");
 
 print " * Scanning DVD for titles...\n";
-(my $exit, my $out, my $err) = r($lsdvd, "-avs", "-q", "/1ex/tt/disc.iso", "2>/dev/null");
+my ($exit, $out, $err) = run($lsdvd, "-avs", "-q", "/ex/tt/disc.iso", "2>/dev/null");
 
 if ($exit) {
 	print $colors::e . $err . $colors::r . "\n";
