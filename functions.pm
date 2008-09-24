@@ -4,17 +4,21 @@
 package functions;
 
 use strict;
+
 use base 'Exporter';
+our @EXPORT = qw(print_tool_banner run);
 
-our @EXPORT = qw(run);
 
+sub print_tool_banner {
+	print "{( --- undvd 0.6.1 --- )}\n";
+}
 
 # extremely suspicious
 sub run {
 	my (@args) = @_;
 
 	my ($exit, $out, $err);
-
+#	print join(' ', @_)."\n";
 	use IPC::Open3;
 	my $pid = open3(\*WRITER, \*READER, \*ERROR, @args);
 	wait;

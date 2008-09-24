@@ -5,39 +5,47 @@ package colors;
 
 use strict;
 
+use base 'Exporter';
+our @EXPORT = qw(s_err s_ok s_wa  s_ela s_eta  s_b s_bb s_it s_it2);
 
-# regular colors
-our $black = "\e[0;30m";
-our $red = "\e[0;31m";
-our $green = "\e[0;32m";
-our $yellow = "\e[0;33m";
-our $blue = "\e[0;34m";
-our $magenta = "\e[0;35m";
-our $cyan = "\e[0;36m";
-our $white = "\e[0;37m";
 
-our $reverse = "\e[7m";
+my ($black, $red, $green, $yellow, $blue, $magenta, $cyan, $white);
+my ($bold, $reverse, $reset);
 
-if ($ENV{'TERM'} == "xterm" ) {
-	$red = "\e[0;91m";
+if (($ENV{'TERM'} ne "") and ($ENV{'TERM'} ne "dumb")) {
+
+	# regular colors
+	$black = "\e[0;30m";
+	$red = "\e[0;31m";
+	$green = "\e[0;32m";
+	$yellow = "\e[0;33m";
+	$blue = "\e[0;34m";
+	$magenta = "\e[0;35m";
+	$cyan = "\e[0;36m";
+	$white = "\e[0;37m";
+
+	if ($ENV{'TERM'} eq "xterm") {
+		$red = "\e[0;91m";
+	}
+
+	# special codes
+	$bold = "\e[0m\e[1m";
+	$reverse = "\e[7m";
+	$reset = "\e[0m";
+
 }
 
 
-our $h1 = "";
+sub s_err { return $red    . $_[0] . $reset; }
+sub s_ok  { return $green  . $_[0] . $reset; }
+sub s_wa  { return $yellow . $_[0] . $reset; }
 
-our $e = $red;
-our $ok = $green;
-our $wa = $yellow;
+sub s_ela { return $magenta . $_[0] . $reset; }
+sub s_eta { return $magenta . $reverse . $_[0] . $reset; }
 
-our $cela = $magenta;
-our $ceta = "${magenta}${reverse}";
-
-our $b = "\e[0m\e[1m";
-our $bb = $green;
-our $it = $yellow;
-our $it2 = $cyan;
-
-our $in = "\e[7m";
-our $r = "\e[0m";
+sub s_b   { return $bold   . $_[0] . $reset; }
+sub s_bb  { return $green  . $_[0] . $reset; }
+sub s_it  { return $yellow . $_[0] . $reset; }
+sub s_it2 { return $cyan   . $_[0] . $reset; }
 
 1;
