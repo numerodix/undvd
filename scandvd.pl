@@ -5,7 +5,7 @@
 
 use strict;
 use File::Basename;
-use Getopt::Long;
+use Getopt::Long qw(:config no_ignore_case);
 
 BEGIN {
 	push(@INC, dirname(grep(-l, $0) ? readlink $0 : $0));
@@ -31,6 +31,7 @@ GetOptions(
 	"i|iso=s"=> sub { $dvd_device = $_[1]; $dvd_is_dir = "-q"; },
 	"v"=>\$verbose,
 	"version"=>\&print_version,
+	"C"=> sub { init_cmds(1); exit; },
 );
 
 print_tool_banner

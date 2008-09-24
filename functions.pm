@@ -9,7 +9,7 @@ use File::Basename;
 use colors;
 
 use base 'Exporter';
-our @EXPORT = qw(print_tool_banner run print_version);
+our @EXPORT = qw(run init_cmds print_tool_banner print_version);
 our @EXPORT_OK = qw($suite $tools);
 
 
@@ -18,7 +18,7 @@ our @EXPORT_OK = qw($suite $tools);
 our $suite = {
 	name => "undvd",
 	version => "0.6.1",
-	tool_name => basename($0),
+	tool_name => basename(grep(-l, $0) ? readlink $0 : $0),
 };
 
 my @videoutils = qw(lsdvd mencoder mplayer);
@@ -26,18 +26,17 @@ my @shellutils = qw(awk bash bc grep egrep getopt mount ps sed xargs);
 my @coreutils = qw(cat date dd dirname head mkdir mv nice readlink rm seq sleep sort tail tr true);
 my @extravideoutils = qw(mp4creator mkvmerge ogmmerge vobcopy);
 
+my @mencoder_acodecs = qw(copy faac lavc mp3lame);
+my @mencoder_vcodecs = qw(copy lavc x264 xvid);
+
+my @mplayer_acodecs = qw(ac3);
+my @mplayer_vcodecs = qw(mpeg-2);
+
 our $tools = {};
-foreach (@videoutils, @shellutils, @coreutils, @extravideoutils) {
-	my ($out, $exit, $err) = run("which", $_);
-	if (! $exit) { $tools->{$_} = $out; }
-}
+init_cmds();
 
 
 ### FUNCTIONS
-
-sub print_tool_banner {
-	print "{( --- " . $suite->{tool_name} . " " . $suite->{version} . " --- )}\n";
-}
 
 # extremely suspicious
 sub run {
@@ -57,6 +56,53 @@ sub run {
 	chomp($err);
 
 	return ($out, $exit, $err);
+}
+
+# check for missing dependencies
+sub init_cmds {
+	my $verbose = shift;
+
+	print " * Checking for tool support...\n" if $verbose;
+	foreach my $tool (@videoutils, @shellutils, @coreutils, @extravideoutils) {
+		my ($tool_path, $exit, $err) = run("which", $tool);
+		$tools->{$tool} = $tool_path;
+		if (! $exit) {
+			print "   " . s_ok("*") . " $tool_path\n" if $verbose;
+		} else {
+			print "   " . s_wa("*") . " $tool missing\n" if $verbose;
+		}
+	}
+
+	sub codec_check {
+		my $type = shift;
+		my $codecs = shift;
+		my $tool = shift;
+		my @args = @_;
+
+		print " * Checking for $tool $type codec support...\n";
+
+		unshift(@args, $tools->{$tool});
+		my ($out, $exit, $err) = run(@args);
+		foreach my $codec (@$codecs) {
+			if ($out . $err =~ /$codec/i) {
+				print "   " . s_ok("*") . " $codec\n";
+			} else {
+				print "   " . s_wa("*") . " $codec missing\n";
+			}
+		}
+	};
+
+	if ($verbose) {
+		codec_check("audio", \@mplayer_acodecs, "mplayer", qw(-ac help));
+		codec_check("video", \@mplayer_vcodecs, "mplayer", qw(-vc help));
+		codec_check("audio", \@mencoder_acodecs, "mencoder", qw(-oac help));
+		codec_check("video", \@mencoder_vcodecs, "mencoder", qw(-ovc help));
+	}
+}
+
+# print standard common banner
+sub print_tool_banner {
+	print "{( --- " . $suite->{tool_name} . " " . $suite->{version} . " --- )}\n";
 }
 
 # print package version and versions of tools
