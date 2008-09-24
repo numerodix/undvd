@@ -15,8 +15,10 @@ our @EXPORT = qw(
 	init_cmds
 	print_tool_banner
 	print_version
+	compute_bpp
 	examine_dvd_for_titlecount
 	examine_title
+	print_title_line
 	);
 
 
@@ -148,6 +150,26 @@ sub print_version {
 	exit;
 }
 
+# compute bits per pixel
+sub compute_bpp {
+	my $width = shift;
+	my $height = shift;
+	my $fps = shift;
+	my $length = shift;
+	my $video_size = shift;		# in mb
+	my $bitrate = shift;	# kbps
+
+	if ($bitrate) {
+		$bitrate = $bitrate * 1024;
+	} else {
+		$video_size = $video_size * 1024 * 1024;
+		$bitrate = (8 * $video_size)/$length;
+	}
+	my $bpp = ($bitrate)/($width*$height*$fps);
+
+	return $bpp;
+}
+
 # extract number of titles from dvd
 sub examine_dvd_for_titlecount {
 	my $source = shift;
@@ -181,13 +203,17 @@ sub examine_title {
 		my $default = shift;
 		my $s = shift;
 		my $re = shift;
+
 		my @match = map { /^${re}$/ } split('\n', $s);
-		return shift(@match);
+		if (@match) {
+			@match = sort {$b <=> $a} @match;
+			return shift(@match);
+		} else { return $default; }
 	}
 
 	my $s = $out . $err;
 	my $data = {
-		source => $file,
+		filename => $file,
 		width =>    find(1,  $s, "ID_VIDEO_WIDTH=(.+)"),
 		heigth =>   find(1,  $s, "ID_VIDEO_HEIGHT=(.+)"),
 		fps =>      find(1,  $s, "ID_VIDEO_FPS=(.+)"),
@@ -195,12 +221,80 @@ sub examine_title {
 		abitrate => find(1,  $s, "ID_AUDIO_BITRATE=(.+)"),
 		aformat =>  find(0,  $s, "ID_AUDIO_CODEC=(.+)"),
 		vbitrate => find(1,  $s, "ID_VIDEO_BITRATE=(.+)"),
-		vformat =>  find(0,  $s, "ID_VIDEO_CODEC=(.+)"),
+		vformat =>  find(0,  $s, "ID_VIDEO_FORMAT=(.+)"),
 	};
+
+	use Data::Dumper;
+#	print Dumper($data);
 
 	return $data;
 }
 
+# print one line of title display, whether header or not
+sub print_title_line {
+	my $is_header = shift;
+	my $data = shift;
+
+	my ($dim, $fps, $len, $bpp, $passes, $vbitrate, $vformat, $abitrate, $aformat);
+	my ($filesize, $filename);
+
+	my $wrap = \&s_id;
+	if ($is_header) {
+		$wrap = \&s_b;
+
+		$dim = "dim";
+		$fps = "fps";
+		$len = "length";
+		$bpp = "bpp";
+		$passes = "p";
+		$vbitrate = "vbitrate";
+		$vformat = "vcodec";
+		$abitrate = "abitrate";
+		$aformat = "acodec";
+		$filesize = "size";
+		$filename = "title";
+	} else {
+		my $x = $data->{width}  > 1 ? $data->{width}  : "";
+		my $y = $data->{heigth} > 1 ? $data->{heigth} : "";
+		$dim = $x and $y         ? "${x}x${y}"             : "";
+		$fps = $data->{fps} > 1  ? $data->{fps}            : "";
+		$len = $data->{len} > -1 ? int($data->{len} / 60)  : "";
+		$bpp = $data->{bpp} < 1  ? substr($data->{bpp}, 1) : $data->{bpp};
+		$passes = $data->{passes}     > 0 ? $data->{passes}   : "";
+		$vbitrate = $data->{vbitrate} > 1 ? $data->{vbitrate} : "";
+		$vformat = $data->{vformat}  != 0 ? $data->{vformat}  : "";
+		$abitrate = $data->{abitrate} > 1 ? $data->{abitrate} : "";
+		$aformat = $data->{aformat}  != 0 ? $data->{aformat}  : "";
+		$filesize = $data->{filesize};
+		$filename = $data->{filename};
+	}
+
+	sub trunc {
+		my $width = shift;
+		my $s = shift;
+
+		$s = substr($s, 0, $width);
+		my $fill = $width - length($s);
+
+		my $pad;
+		for (my $i = $fill; $i > 0; $i -= 1) { $pad .= " "; }
+
+		return $pad . $s;
+	}
+
+	$dim = trunc(9, $dim);
+	$fps = trunc(6, $fps);
+	$len = trunc(3, $len);
+	$bpp = trunc(4, $bpp);
+	$passes = trunc(1, $passes);
+	$vbitrate = trunc(4, $vbitrate);
+	$vformat = trunc(4, $vformat);
+	$abitrate = trunc(4, $abitrate);
+	$aformat = trunc(4, $aformat);
+	$filesize = trunc(4, $filesize);
+
+	print $wrap->("$dim  $fps  $len  $bpp $passes $vbitrate $vformat  $abitrate $aformat  $filesize  $filename\n");
+}
 
 
 1;

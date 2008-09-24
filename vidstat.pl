@@ -51,13 +51,24 @@ if ($dvd_device) {
 	@titles = @ARGV;
 }
 
+print_title_line(1);
 foreach my $title (@titles) {
-	my $dvd_source;
+	my ($dvd_source, $filesize);
 	if ($dvd_device) {
 		$dvd_source = $dvd_device;
 		$title = "dvd://$title";
+	} else {
+		$filesize = int( (stat($title))[7] / 1024 / 1024 );
 	}
+
 	my $data = examine_title($title, $dvd_device);
-	use Data::Dumper;
-	print Dumper($data);
+
+	$data->{filesize} = $filesize or 0;
+	$data->{abitrate} = int($data->{abitrate} / 1024);
+	$data->{vbitrate} = int($data->{vbitrate} / 1024);
+	my $width = $data->{width};
+	$data->{bpp} = compute_bpp($width, $data->{heigth}, $data->{fps},
+		$data->{len}, 0, $data->{vbitrate});
+
+	print_title_line(0, $data);
 }
