@@ -4,13 +4,17 @@
 # Licensed under the GNU Public License, version 3.
 
 use strict;
+use File::Basename;
 use Getopt::Long;
 
-use colors;
-use functions;
+BEGIN {
+	push(@INC, dirname(grep(-l, $0) ? readlink $0 : $0));
+	require colors; colors->import(qw(:DEFAULT));
+	require functions; functions->import(qw(:DEFAULT $suite $tools));
+}
 
 
-my $usage = "Usage:  "   . s_b("scandvd")   . " ["
+my $usage = "Usage:  "   . s_b($suite->{tool_name})   . " ["
 	. s_b("--dev") . " " . s_bb("/dev/dvd") . " | "
 	. s_b("--dir") . " " . s_bb("/path")    . " | "
 	. s_b("--iso") . " " . s_bb("disc.iso") . "]
@@ -18,7 +22,7 @@ my $usage = "Usage:  "   . s_b("scandvd")   . " ["
   -q --dir      dvd directory to read from
   -i --iso      dvd iso image to read from
   -v            be verbose (print id numbers)
-     --version  show undvd version\n";
+     --version  show " . $suite->{name} . " version\n";
 
 my ($verbose, $dvd_device, $dvd_is_dir);
 GetOptions(
@@ -26,14 +30,13 @@ GetOptions(
 	"q|dir=s"=> sub { $dvd_device = $_[1]; $dvd_is_dir = "-q"; },
 	"i|iso=s"=> sub { $dvd_device = $_[1]; $dvd_is_dir = "-q"; },
 	"v"=>\$verbose,
+	"version"=>\&print_version,
 );
 
 print_tool_banner
 
-my ($exit, $lsdvd) = run("which", "lsdvd");
-
 print " * Scanning DVD for titles...\n";
-my ($exit, $out, $err) = run($lsdvd, "-avs", $dvd_is_dir, $dvd_device, "2>/dev/null");
+my ($out, $exit, $err) = run($tools->{lsdvd}, "-avs", $dvd_is_dir, $dvd_device);
 
 if ($exit) {
 	print s_err($err) . "\n";
