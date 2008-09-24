@@ -1,7 +1,7 @@
 # Author: Martin Matusiak <numerodix@gmail.com>
 # Licensed under the GNU Public License, version 3.
 
-package functions;
+package common;
 
 use strict;
 use File::Basename;
@@ -9,8 +9,15 @@ use File::Basename;
 use colors;
 
 use base 'Exporter';
-our @EXPORT = qw(run init_cmds print_tool_banner print_version);
-our @EXPORT_OK = qw($suite $tools);
+our @EXPORT_OK = qw($suite $defaults $tools);
+our @EXPORT = qw(
+	run
+	init_cmds
+	print_tool_banner
+	print_version
+	examine_dvd_for_titlecount
+	examine_title
+	);
 
 
 ### DECLARATIONS
@@ -20,6 +27,13 @@ our $suite = {
 	version => "0.6.1",
 	tool_name => basename(grep(-l, $0) ? readlink $0 : $0),
 };
+
+our $defaults = {
+	dvd_device => "/dev/dvd",
+	disc_image => "disc.iso",
+	mencoder_source => "disc.iso",
+};
+
 
 my @videoutils = qw(lsdvd mencoder mplayer);
 my @shellutils = qw(awk bash bc grep egrep getopt mount ps sed xargs);
@@ -43,7 +57,8 @@ sub run {
 	my (@args) = @_;
 
 	my ($out, $exit, $err);
-#	print join(' ', @_)."\n";
+	print join(' ', @_)."\n" if $ENV{"DEBUG"};
+
 	use IPC::Open3;
 	my $pid = open3(\*WRITER, \*READER, \*ERROR, @args);
 	wait;
@@ -132,6 +147,60 @@ sub print_version {
 	check_tool("ogmmerge", "^ogmmerge ([^ ]+)", qw(--version));
 	exit;
 }
+
+# extract number of titles from dvd
+sub examine_dvd_for_titlecount {
+	my $source = shift;
+
+	my @args = ($tools->{mplayer}, "-ao", "null", "-vo", "null");
+	push(@args, "-frames", "0", "-identify");
+	push(@args, "-dvd-device", $source, "dvd://");
+
+	my ($out, $exit, $err) = run(@args);
+	my $titles = $1 if ($out . $err) =~ /^ID_DVD_TITLES=([^\s]+)/ms;
+
+	return $titles;
+}
+
+# extract information from file or dvd title
+sub examine_title {
+	my $file = shift;
+	my $dvd_device = shift;
+
+	my @source = ($file);
+	if ($dvd_device) {
+		push (@source, "-dvd-device", $dvd_device);
+	}
+	my @args = ($tools->{mplayer}, "-ao", "null", "-vo", "null");
+	push(@args, "-frames", "0", "-identify");
+	push(@args, @source);
+
+	my ($out, $exit, $err) = run(@args);
+
+	sub find {
+		my $default = shift;
+		my $s = shift;
+		my $re = shift;
+		my @match = map { /^${re}$/ } split('\n', $s);
+		return shift(@match);
+	}
+
+	my $s = $out . $err;
+	my $data = {
+		source => $file,
+		width =>    find(1,  $s, "ID_VIDEO_WIDTH=(.+)"),
+		heigth =>   find(1,  $s, "ID_VIDEO_HEIGHT=(.+)"),
+		fps =>      find(1,  $s, "ID_VIDEO_FPS=(.+)"),
+		len =>      find(-1, $s, "ID_LENGTH=(.+)"),
+		abitrate => find(1,  $s, "ID_AUDIO_BITRATE=(.+)"),
+		aformat =>  find(0,  $s, "ID_AUDIO_CODEC=(.+)"),
+		vbitrate => find(1,  $s, "ID_VIDEO_BITRATE=(.+)"),
+		vformat =>  find(0,  $s, "ID_VIDEO_CODEC=(.+)"),
+	};
+
+	return $data;
+}
+
 
 
 1;

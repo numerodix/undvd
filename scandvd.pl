@@ -4,13 +4,13 @@
 # Licensed under the GNU Public License, version 3.
 
 use strict;
-use File::Basename;
 use Getopt::Long qw(:config no_ignore_case);
 
 BEGIN {
+	use File::Basename;
 	push(@INC, dirname(grep(-l, $0) ? readlink $0 : $0));
 	require colors; colors->import(qw(:DEFAULT));
-	require functions; functions->import(qw(:DEFAULT $suite $tools));
+	require common; common->import(qw(:DEFAULT $suite $defaults $tools));
 }
 
 
@@ -25,6 +25,7 @@ my $usage = "Usage:  "   . s_b($suite->{tool_name})   . " ["
      --version  show " . $suite->{name} . " version\n";
 
 my ($verbose, $dvd_device, $dvd_is_dir);
+$dvd_device = $defaults->{dvd_device};
 GetOptions(
 	"d|dev=s"=>\$dvd_device,
 	"q|dir=s"=> sub { $dvd_device = $_[1]; $dvd_is_dir = "-q"; },
@@ -34,7 +35,7 @@ GetOptions(
 	"C"=> sub { init_cmds(1); exit; },
 );
 
-print_tool_banner
+print_tool_banner();
 
 print " * Scanning DVD for titles...\n";
 my ($out, $exit, $err) = run($tools->{lsdvd}, "-avs", $dvd_is_dir, $dvd_device);
