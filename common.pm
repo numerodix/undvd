@@ -163,9 +163,9 @@ sub compute_bpp {
 		$bitrate = $bitrate * 1024;
 	} else {
 		$video_size = $video_size * 1024 * 1024;
-		$bitrate = (8 * $video_size)/$length;
+		$bitrate = (8 * $video_size)/( $length != 0 ? $length : 1 );
 	}
-	my $bpp = ($bitrate)/($width*$height*$fps);
+	my $bpp = ($bitrate)/( $width*$height*$fps != 0 ? $width*$height*$fps : 1);
 
 	return $bpp;
 }
@@ -224,7 +224,7 @@ sub examine_title {
 		vformat =>  find(0,  $s, "ID_VIDEO_FORMAT=(.+)"),
 	};
 
-	use Data::Dumper;
+#	use Data::Dumper;
 #	print Dumper($data);
 
 	return $data;
