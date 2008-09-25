@@ -11,6 +11,8 @@ use colors;
 use base 'Exporter';
 our @EXPORT_OK = qw($suite $defaults $tools);
 our @EXPORT = qw(
+	nonfatal
+	fatal
 	run
 	init_cmds
 	print_tool_banner
@@ -34,6 +36,12 @@ our $defaults = {
 	dvd_device => "/dev/dvd",
 	disc_image => "disc.iso",
 	mencoder_source => "disc.iso",
+
+	h264_1pass_bpp => .195,
+	h264_2pass_bpp => .150,
+
+	xvid_1pass_bpp => .250,
+	xvid_2pass_bpp => .200,
 };
 
 
@@ -53,6 +61,31 @@ init_cmds();
 
 
 ### FUNCTIONS
+
+# non fatal error
+sub nonfatal {
+	my $s = shift;
+
+	my $p = \&s_err;
+	my $em = \&s_it;
+
+	my $ms;
+	while ($s =~ m/(%%%.*?%%%)/g) {
+		$ms .= $p->(substr($s, 0, @-[0]));
+		$ms .= $em->($&);
+		$s = substr($s, @+[0]);
+	}
+	$ms .= $p->($s);
+	$ms =~ s/%%%//g;
+
+	print $p->("Error:") . "  $ms\n";
+}
+
+# fatal error
+sub fatal {
+	nonfatal($_[0]);
+	exit 1;
+}
 
 # extremely suspicious
 sub run {
@@ -214,20 +247,51 @@ sub examine_title {
 	my $s = $out . $err;
 	my $data = {
 		filename => $file,
-		width =>    find(1,  $s, "ID_VIDEO_WIDTH=(.+)"),
-		heigth =>   find(1,  $s, "ID_VIDEO_HEIGHT=(.+)"),
-		fps =>      find(1,  $s, "ID_VIDEO_FPS=(.+)"),
-		len =>      find(-1, $s, "ID_LENGTH=(.+)"),
-		abitrate => find(1,  $s, "ID_AUDIO_BITRATE=(.+)"),
-		aformat =>  find(0,  $s, "ID_AUDIO_CODEC=(.+)"),
-		vbitrate => find(1,  $s, "ID_VIDEO_BITRATE=(.+)"),
-		vformat =>  find(0,  $s, "ID_VIDEO_FORMAT=(.+)"),
+		width =>    find(0,  $s, "ID_VIDEO_WIDTH=(.+)"),
+		heigth =>   find(0,  $s, "ID_VIDEO_HEIGHT=(.+)"),
+		fps =>      find(0,  $s, "ID_VIDEO_FPS=(.+)"),
+		len =>      find(0, $s, "ID_LENGTH=(.+)"),
+		abitrate => find(0,  $s, "ID_AUDIO_BITRATE=(.+)"),
+		aformat =>  lc(find(0,  $s, "ID_AUDIO_CODEC=(.+)")),
+		vbitrate => find(0,  $s, "ID_VIDEO_BITRATE=(.+)"),
+		vformat =>  lc(find(0,  $s, "ID_VIDEO_FORMAT=(.+)")),
 	};
 
-#	use Data::Dumper;
+	$data->{abitrate} = int($data->{abitrate} / 1024);	# to kbps
+	$data->{vbitrate} = int($data->{vbitrate} / 1024);	# to kbps
+
+	use Data::Dumper;
 #	print Dumper($data);
 
 	return $data;
+}
+
+# set formatting of bpp output depending on value
+sub markup_bpp {
+	my $bpp = shift;
+	my $video_codec = shift;
+
+	if (($video_codec =~ "(h264|avc)")) {
+		if ($bpp      < $defaults->{h264_2pass_bpp}) {
+			$bpp = s_err($bpp);
+		} elsif ($bpp > $defaults->{h264_1pass_bpp}) {
+			$bpp = s_wa($bpp);
+		} else {
+			$bpp = s_bb($bpp);
+		}
+	} elsif (($video_codec =~ "xvid")) {
+		if ($bpp      < $defaults->{xvid_2pass_bpp}) {
+			$bpp = s_err($bpp);
+		} elsif ($bpp > $defaults->{xvid_1pass_bpp}) {
+			$bpp = s_wa($bpp);
+		} else {
+			$bpp = s_bb($bpp);
+		}
+	} else {
+		$bpp = s_b($bpp);
+	}
+
+	return $bpp;
 }
 
 # print one line of title display, whether header or not
@@ -254,17 +318,17 @@ sub print_title_line {
 		$filesize = "size";
 		$filename = "title";
 	} else {
-		my $x = $data->{width}  > 1 ? $data->{width}  : "";
-		my $y = $data->{heigth} > 1 ? $data->{heigth} : "";
-		$dim = $x and $y         ? "${x}x${y}"             : "";
-		$fps = $data->{fps} > 1  ? $data->{fps}            : "";
-		$len = $data->{len} > -1 ? int($data->{len} / 60)  : "";
+		my $x = $data->{width}  > 0 ? $data->{width}  : "";
+		my $y = $data->{heigth} > 0 ? $data->{heigth} : "";
+		$dim = $x."x".$y ne "x"     ? $x."x".$y            : "";
+		$fps = $data->{fps} > 0  ? $data->{fps}            : "";
+		$len = $data->{len} > 0  ? int($data->{len} / 60)  : "";
 		$bpp = $data->{bpp} < 1  ? substr($data->{bpp}, 1) : $data->{bpp};
-		$passes = $data->{passes}     > 0 ? $data->{passes}   : "";
-		$vbitrate = $data->{vbitrate} > 1 ? $data->{vbitrate} : "";
-		$vformat = $data->{vformat}  != 0 ? $data->{vformat}  : "";
-		$abitrate = $data->{abitrate} > 1 ? $data->{abitrate} : "";
-		$aformat = $data->{aformat}  != 0 ? $data->{aformat}  : "";
+		$passes =   $data->{passes}     > 0 ? $data->{passes}   : "";
+		$vbitrate = $data->{vbitrate}   > 0 ? $data->{vbitrate} : "";
+		$vformat =  $data->{vformat} ne "0" ? $data->{vformat}  : "";
+		$abitrate = $data->{abitrate}   > 0 ? $data->{abitrate} : "";
+		$aformat =  $data->{aformat} ne "0" ? $data->{aformat}  : "";
 		$filesize = $data->{filesize};
 		$filename = $data->{filename};
 	}
@@ -292,6 +356,8 @@ sub print_title_line {
 	$abitrate = trunc(4, $abitrate);
 	$aformat = trunc(4, $aformat);
 	$filesize = trunc(4, $filesize);
+
+	$bpp = markup_bpp($bpp, $vformat) unless $is_header;
 
 	print $wrap->("$dim  $fps  $len  $bpp $passes $vbitrate $vformat  $abitrate $aformat  $filesize  $filename\n");
 }
