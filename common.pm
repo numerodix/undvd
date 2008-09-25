@@ -13,6 +13,7 @@ our @EXPORT_OK = qw($suite $defaults $tools);
 our @EXPORT = qw(
 	nonfatal
 	fatal
+	init_logdir
 	run
 	init_cmds
 	print_tool_banner
@@ -20,7 +21,10 @@ our @EXPORT = qw(
 	compute_bpp
 	examine_dvd_for_titlecount
 	examine_title
+	crop_title
 	print_title_line
+	set_container_opts
+	scale_title
 	);
 
 
@@ -33,15 +37,21 @@ our $suite = {
 };
 
 our $defaults = {
+	logdir => "logs",
+
 	dvd_device => "/dev/dvd",
 	disc_image => "disc.iso",
 	mencoder_source => "disc.iso",
+
+	framesize_baseline => 720*576*(2/3)^2,	# frame size in pixels
 
 	h264_1pass_bpp => .195,
 	h264_2pass_bpp => .150,
 
 	xvid_1pass_bpp => .250,
 	xvid_2pass_bpp => .200,
+
+	container => "avi",
 };
 
 
@@ -85,6 +95,15 @@ sub nonfatal {
 sub fatal {
 	nonfatal($_[0]);
 	exit 1;
+}
+
+# create directory for logging
+sub init_logdir {
+	if (! -e $defaults->{logdir} and ! mkdir($defaults->{logdir})) {
+		fatal("Could not write to %%%$ENV{PWD}%%%, exiting");
+	} elsif (-e $defaults->{logdir} and ! -w $defaults->{logdir}) {
+		fatal("Logging directory %%%".$defaults->{logdir}."%%% is not writable");
+	}
 }
 
 # extremely suspicious
@@ -266,6 +285,31 @@ sub examine_title {
 	return $data;
 }
 
+# figure out how much to crop
+sub crop_title {
+	my ($file, $dvd_device) = @_;
+
+	my @source = ($file);
+	if ($dvd_device) {
+		push (@source, "-dvd-device", $dvd_device);
+	}
+	my @args = ($tools->{mplayer}, "-quiet", "-ao", "null", "-vo", "null");
+	push(@args, "-fps", "10000", "-vf", "cropdetect");
+	push(@args, @source);
+
+	my ($out, $exit, $err) = run(@args);
+
+	my @cropdata = map { /^(\[CROP\].*)$/ } split("\n", $out . $err);
+	my $cropline = pop(@cropdata);
+
+	my ($w, $h, $x, $y) =
+		map { /-vf crop=([0-9]+):([0-9]+):([0-9]+):([0-9]+)/ } $cropline;
+
+	my @cropfilter = ("-vf", "crop=$w:$h:$x:$y");
+
+	return ($w, $h, @cropfilter);
+}
+
 # set formatting of bpp output depending on value
 sub markup_bpp {
 	my $bpp = shift;
@@ -360,6 +404,127 @@ sub print_title_line {
 	$bpp = markup_bpp($bpp, $vformat) unless $is_header;
 
 	print $wrap->("$dim  $fps  $len  $bpp $passes $vbitrate $vformat  $abitrate $aformat  $filesize  $filename\n");
+}
+
+# get container options and decide on codecs
+sub set_container_opts {
+	my ($acodec, $vcodec, $container) = @_;
+
+	my $audio_codec = "mp3";
+	my $video_codec = "h264";
+	my $ext = "avi";
+	my @opts = ("avi");
+
+	if ($container =~ /(avi|mkv|ogm)/) {
+	} elsif ($container eq "mp4") {
+		$audio_codec = "aac";
+		$video_codec = "h264";
+	} else {
+
+		# use lavf muxing
+		if ($container =~ "(asf|au|dv|flv|ipod|mov|mpg|nut|rm|swf)") {
+			$ext = $container;
+			@opts = ("lavf", "-lavfopts", "format=$container");
+
+			if ($container eq "flv") {
+				$audio_codec = "mp3";
+				$video_codec = "flv";
+			}
+		} else {
+			fatal("Unrecognized container %%%$container%%%");
+		}
+	}
+
+	$audio_codec = $acodec if $acodec;
+	$video_codec = $vcodec if $vcodec;
+
+	return ($audio_codec, $video_codec, $ext, @opts);
+}
+
+# compute title scaling
+sub scale_title {
+	my ($width, $height, $custom_scale) = @_;
+
+	my ($nwidth, $nheight) = ($width, $height);
+
+	if ($custom_scale ne "off") {	# scaling isn't disabled
+
+		# scale to the width given by user (upscaling permitted)
+		if ($custom_scale) {
+			undef $nwidth;
+			undef $nheight;
+
+			if ($custom_scale =~ /^([0-9]+)$/) {
+				$nwidth = $1;
+			} elsif ($custom_scale =~ /^([0-9]*):([0-9]*)$/) {
+				($nwidth, $nheight) = ($1, $2);
+			} else {
+				fatal("Failed to read a pair of positive integers from scaling "
+					. "%%%$custom_scale%%%");
+			}
+
+			if (       $nwidth > 0 and ! $nheight > 0) {
+				$nheight = int($height*$nwidth/$width);
+			} elsif (! $nwidth > 0 and   $nheight > 0) {
+				$nwidth = int($width*$nheight/$height);
+			}
+
+		# apply default scaling heuristic
+		} else {
+			# compute scaling factor based on baseline value
+			my $framesize = $width * $height;
+			my $factor = sqrt($defaults->{framesize_baseline}/$framesize);
+
+			# scale by factor, do not upscale
+			if ($factor < 1) {
+				$nwidth = int($width*$factor);
+				$nheight = int($height*$factor);
+			}
+		}
+
+		# dimensions have been changed, make sure they are multiples of 16
+		($nwidth, $nheight) = scale_by_x($width, $height, $nwidth, $nheight);
+
+		# make sure the new dimensions are sane
+		if ($nwidth * $nheight <= 0) {
+			($nwidth, $nheight) = ($width, $height);
+		}
+	}
+
+	return ($nwidth, $nheight);
+}
+
+# scale dimensions to nearest (lower/upper) multiple of 16
+sub scale_by_x {
+	my ($orig_width, $orig_height, $width, $height) = @_;
+	my $divisor = 16;
+
+	# if the original dimensions are not multiples of 16, no amount of scaling
+	# will bring us to an aspect ratio where the smaller dimensions are
+	if (($orig_width % $divisor) + ($orig_height % $divisor) != 0) {
+		$width = $orig_width;
+		$height = $orig_height;
+	} else {
+		my $step = -1;
+		my $completed;
+		while (! $completed) {
+			$step++;
+
+			my $up_step = $width + ($step * $divisor);
+			my $down_step = $width - ($step * $divisor);
+			foreach my $x_step ($up_step, $down_step) {
+				my $x_width = $x_step - ($x_step % $divisor);
+				my $x_height = $x_width * ($orig_height/$orig_width);
+				if (($x_width % $divisor) + ($x_height % $divisor) == 0) {
+					$completed = 1;
+					$width = $x_width;
+					$height = $x_height;
+				}
+			}
+		}
+	}
+
+	return ($width, $height);
 }
 
 

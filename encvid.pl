@@ -39,14 +39,14 @@ my $adv_usage = "Advanced usage:  " . s_b($suite->{tool_name}) . " "
      --acodec   set audio codec
      --vcodec   set video codec\n";
 
-my ($opts_start, $opts_end);
-my ($target_size, $bpp, $target_passes, $autocrop, $custom_scale, $prescale,
-	$postscale, $dry_run);
-my ($opts_cont, $opts_acodec, $opts_vcodec);
+my ($opts_start, $opts_end, $target_size, $bpp, $target_passes, $autocrop, $prescale, $postscale);
+my ($dry_run, $acodec, $vcodec);
+my $custom_scale;# = "off";
+my $container = $defaults->{container};
 
 my $parse = GetOptions(
-	"start=i"=>\$opts_start,
-	"e|end=i"=>\$opts_end,
+	"start=f"=>\$opts_start,
+	"e|end=f"=>\$opts_end,
 
 	"C"=> sub { init_cmds(1); exit; },
 	"z|adv"=> sub { print $adv_usage; exit; },
@@ -61,9 +61,9 @@ my $parse = GetOptions(
 	"f|smooth"=> sub { $prescale = "spp,"; $postscale = ",hqdn3d"; },
 	"D|dryrun"=> sub { $dry_run = 1; },
 
-	"cont=s"=>\$opts_cont,
-	"acodec=s"=>\$opts_acodec,
-	"vcodec=s"=>\$opts_vcodec,
+	"cont=s"=>\$container,
+	"acodec=s"=>\$acodec,
+	"vcodec=s"=>\$vcodec,
 );
 
 print_tool_banner();
@@ -73,9 +73,96 @@ if (! $parse) {
 	exit 2;
 }
 
+my @startpos = ("-ss", $opts_start ? $opts_start : 0);
+my @endpos;
+if ($opts_end) {
+	push(@endpos, "-endpos", $opts_end);
+}
 
-if (scalar @ARGV < 1) {
+my @files = @ARGV;
+if (scalar @files < 1) {
 	nonfatal("No files to encode, exiting");
 	print $usage;
 	exit 2;
+}
+
+
+init_logdir();
+
+
+# Set container and codecs
+
+my ($audio_codec, $video_codec, $ext, @cont_opts) = set_container_opts($acodec,
+	$vcodec, $container);
+
+print " - Output format :: "
+	. "container: " . s_it($container)
+	. "  audio: "   . s_it($audio_codec)
+	. "  video: "   . s_it($video_codec) . "\n";
+
+
+# Display dry-run status
+
+if ($dry_run) {
+	print " * Performing dry-run\n";
+	print_title_line(1);
+}
+
+foreach my $file (@files) {
+
+	if (! -e $file) {
+		nonfatal("File %%%$file%%% does not exist");
+		next;
+	}
+
+	my $title = $file;
+	$title =~ s/\..*//g;
+
+
+	# Display encode status
+
+	if (! $dry_run) {
+		print " * Now encoding file " . s_bb(substr($file, 0, 36));
+		if ($opts_start and $opts_end) {
+			print "  [" . s_bb($opts_start) . "s - " . s_bb($opts_end) . "s]";
+		} elsif ($opts_start) {
+			print "  [" . s_bb($opts_start) . "s -> ]";
+		} elsif ($opts_end) {
+			print "  [ -> " . s_bb($opts_end) . "s]";
+		}
+		print "\n";
+	}
+
+
+	# Extract information from the title
+
+	my $title_data = examine_title($file);
+
+
+	# Do we need to crop?
+
+	if ($autocrop) {
+		print " + Finding out how much to crop...\r";
+		my ($width, $height, @crop_opts) = crop_title($file);
+		if (! $width or ! $height or ! @crop_opts) {
+			fatal("Crop detection failed");
+		}
+		$title_data->{width} = $width;
+		$title_data->{heigth} = $height;
+		use Data::Dumper;
+		print Dumper($title_data);
+	}
+
+	# Find out how to scale the dimensions
+
+	my ($width, $height) =
+		scale_title($title_data->{width}, $title_data->{heigth}, $custom_scale);
+	$title_data->{width} = $width;
+	$title_data->{heigth} = $height;
+	my $scale_opts = "scale=$width:$height";
+
+	# Estimate filesize of audio
+
+
+
 }
