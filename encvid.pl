@@ -39,12 +39,43 @@ my $adv_usage = "Advanced usage:  " . s_b($suite->{tool_name}) . " "
      --acodec   set audio codec
      --vcodec   set video codec\n";
 
-GetOptions(
+my ($opts_start, $opts_end);
+my ($target_size, $bpp, $target_passes, $autocrop, $custom_scale, $prescale,
+	$postscale, $dry_run);
+my ($opts_cont, $opts_acodec, $opts_vcodec);
+
+my $parse = GetOptions(
+	"start=i"=>\$opts_start,
+	"e|end=i"=>\$opts_end,
+
+	"C"=> sub { init_cmds(1); exit; },
 	"z|adv"=> sub { print $adv_usage; exit; },
 	"version"=>\&print_version,
+
+	"o|size=i"=>\$target_size,
+	"bpp=f"=>\$bpp,
+	"1"=> sub { $target_passes = 1; },
+	"2"=> sub { $target_passes = 2; },
+	"c|crop"=> sub { $autocrop = 1; },
+	"r|scale=s"=>\$custom_scale,
+	"f|smooth"=> sub { $prescale = "spp,"; $postscale = ",hqdn3d"; },
+	"D|dryrun"=> sub { $dry_run = 1; },
+
+	"cont=s"=>\$opts_cont,
+	"acodec=s"=>\$opts_acodec,
+	"vcodec=s"=>\$opts_vcodec,
 );
 
 print_tool_banner();
 
-print $usage;
+if (! $parse) {
+	print $usage;
+	exit 2;
+}
 
+
+if (scalar @ARGV < 1) {
+	nonfatal("No files to encode, exiting");
+	print $usage;
+	exit 2;
+}

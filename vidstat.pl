@@ -26,7 +26,7 @@ my $usage = "Usage:  "   . s_b($suite->{tool_name})   . " ["
      --version  show " . $suite->{name} . " version\n";
 
 my $dvd_device;
-GetOptions(
+my $parse = GetOptions(
 	"d|dev=s"=>\$dvd_device,
 	"q|dir=s"=>\$dvd_device,
 	"i|iso=s"=>\$dvd_device,
@@ -34,6 +34,11 @@ GetOptions(
 );
 
 print_tool_banner();
+
+if (! $parse) {
+	print "$usage";
+	exit 2;
+}
 
 if ((! $dvd_device) and (! @ARGV)) {
 	print "$usage";

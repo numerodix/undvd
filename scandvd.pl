@@ -26,7 +26,7 @@ my $usage = "Usage:  "   . s_b($suite->{tool_name})   . " ["
 
 my ($verbose, $dvd_device, $dvd_is_dir);
 $dvd_device = $defaults->{dvd_device};
-GetOptions(
+my $parse = GetOptions(
 	"d|dev=s"=>\$dvd_device,
 	"q|dir=s"=> sub { $dvd_device = $_[1]; $dvd_is_dir = "-q"; },
 	"i|iso=s"=> sub { $dvd_device = $_[1]; $dvd_is_dir = "-q"; },
@@ -36,6 +36,11 @@ GetOptions(
 );
 
 print_tool_banner();
+
+if (! $parse) {
+	print $usage;
+	exit 2;
+}
 
 print " * Scanning DVD for titles...\n";
 my ($out, $exit, $err) = run($tools->{lsdvd}, "-avs", $dvd_is_dir, $dvd_device);
