@@ -499,9 +499,9 @@ sub print_title_line {
 	$bpp = markup_bpp($bpp, $vformat) unless $is_header;
 
 	my $line = "$dim  $fps  $length  $bpp $passes $vbitrate $vformat  "
-		. "$abitrate $aformat  $filesize  $filename\n";
+		. "$abitrate $aformat  $filesize  $filename";
 	$line = s_b($line) if $is_header;
-	print $line;
+	print "$line\n";
 }
 
 # compute title scaling
