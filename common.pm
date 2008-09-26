@@ -158,12 +158,22 @@ sub init_logdir {
 	}
 }
 
+# replace gnu which
+sub which {
+	my ($bin) = @_;
+
+	foreach my $dir (split(":", $ENV{PATH})) {
+		return ("$dir/$bin", 0) if (-x "$dir/$bin");
+	}
+	return ($bin, 1);
+}
+
 # extremely suspicious
 sub run {
 	my (@args) = @_;
 
 	my ($out, $exit, $err);
-	print join(' ', @_)."\n" if $ENV{"DEBUG"};
+	print STDERR join(' ', @_)."\n" if $ENV{"DEBUG"};
 
 	use IPC::Open3;
 	my $pid = open3(\*WRITER, \*READER, \*ERROR, @args);
@@ -185,7 +195,7 @@ sub init_cmds {
 
 	print " * Checking for tool support...\n" if $verbose;
 	foreach my $tool (@videoutils, @shellutils, @coreutils, @extravideoutils) {
-		my ($tool_path, $exit, $err) = run("which", $tool);
+		my ($tool_path, $exit) = which($tool);
 		$tools->{$tool} = $tool_path;
 		if (! $exit) {
 			print "   " . s_ok("*") . " $tool_path\n" if $verbose;
@@ -233,7 +243,7 @@ sub print_version {
 		my $re = shift;
 		my @args = @_;
 
-		my ($tool_path, $exit) = run("which", $tool);
+		my ($tool_path, $exit) = which($tool);
 		if ($exit) {
 			print "  [" . s_err("!") . "] $tool missing\n";
 		} else {
