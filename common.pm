@@ -461,7 +461,7 @@ sub print_title_line {
 		$dim =    $x."x".$y ne "x"     ? $x."x".$y                 : "";
 		$fps =    $data->{fps}    > 0  ? $data->{fps}              : "";
 		$length = $data->{length} > 0  ? int($data->{length} / 60) : "";
-		$bpp =    $data->{bpp}    < 1  ? substr($data->{bpp}, 1)   : $data->{bpp};
+		$bpp =    $data->{bpp}    > 0  ? $data->{bpp}              : "";
 		$passes =   $data->{passes}     > 0 ? $data->{passes}   : "";
 		$vbitrate = $data->{vbitrate}   > 0 ? $data->{vbitrate} : "";
 		$vformat =  $data->{vformat} ne "0" ? $data->{vformat}  : "";
@@ -474,7 +474,7 @@ sub print_title_line {
 	$dim =      trunc(9, -1, $dim);
 	$fps =      trunc(6, -1, $fps);
 	$length =   trunc(3, -1, $length);
-	$bpp =      trunc(4,  1, $bpp);
+	$bpp =      trunc(5,  1, $bpp);
 	$passes =   trunc(1, -1, $passes);
 	$vbitrate = trunc(4, -1, $vbitrate);
 	$vformat =  trunc(4, -1, $vformat);
