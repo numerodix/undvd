@@ -336,15 +336,15 @@ sub examine_title {
 
 	my $s = $out . $err;
 	my $data = {
-		filename => $file,
-		width =>    find(0,  $s, "ID_VIDEO_WIDTH=(.+)"),
-		height =>   find(0,  $s, "ID_VIDEO_HEIGHT=(.+)"),
-		fps =>      find(0,  $s, "ID_VIDEO_FPS=(.+)"),
-		length =>   find(0, $s, "ID_LENGTH=(.+)"),
-		abitrate => find(0,  $s, "ID_AUDIO_BITRATE=(.+)"),
-		aformat =>  lc(find(0,  $s, "ID_AUDIO_CODEC=(.+)")),
-		vbitrate => find(0,  $s, "ID_VIDEO_BITRATE=(.+)"),
-		vformat =>  lc(find(0,  $s, "ID_VIDEO_FORMAT=(.+)")),
+		filename =>    $file,
+		width =>       find(0, $s, "ID_VIDEO_WIDTH=(.+)"),
+		height =>      find(0, $s, "ID_VIDEO_HEIGHT=(.+)"),
+		fps =>         find(0, $s, "ID_VIDEO_FPS=(.+)"),
+		length =>      find(0, $s, "ID_LENGTH=(.+)"),
+		abitrate =>    find(0, $s, "ID_AUDIO_BITRATE=(.+)"),
+		aformat =>  lc(find(0, $s, "ID_AUDIO_CODEC=(.+)")),
+		vbitrate =>    find(0, $s, "ID_VIDEO_BITRATE=(.+)"),
+		vformat =>  lc(find(0, $s, "ID_VIDEO_FORMAT=(.+)")),
 	};
 
 	$data->{abitrate} = int($data->{abitrate} / 1024);	# to kbps
@@ -352,7 +352,10 @@ sub examine_title {
 	$data->{bpp} = compute_bpp($data->{width}, $data->{height}, $data->{fps},
 		$data->{len}, 0, $data->{vbitrate});
 
-	if (! $dvd_device) {
+	if ($dvd_device) {
+		$data->{filesize} = int(
+			($data->{abitrate} + $data->{vbitrate}) * $data->{length} / 8 / 1024);
+	} else {
 		$data->{filesize} = int( (stat($file))[7] / 1024 / 1024 );
 	}
 
@@ -420,10 +423,7 @@ sub print_title_line {
 	my ($dim, $fps, $len, $bpp, $passes, $vbitrate, $vformat, $abitrate, $aformat);
 	my ($filesize, $filename);
 
-	my $wrap = \&s_id;
 	if ($is_header) {
-		$wrap = \&s_b;
-
 		$dim = "dim";
 		$fps = "fps";
 		$len = "length";
@@ -475,9 +475,16 @@ sub print_title_line {
 	$aformat = trunc(4, $aformat);
 	$filesize = trunc(4, $filesize);
 
+	if ($filename =~ /dvd:\/\//) {
+		$filesize = s_est($filesize);
+	}
+
 	$bpp = markup_bpp($bpp, $vformat) unless $is_header;
 
-	print $wrap->("$dim  $fps  $len  $bpp $passes $vbitrate $vformat  $abitrate $aformat  $filesize  $filename\n");
+	my $line = "$dim  $fps  $len  $bpp $passes $vbitrate $vformat  "
+		. "$abitrate $aformat  $filesize  $filename\n";
+	$line = s_b($line) if $is_header;
+	print $line;
 }
 
 # compute title scaling

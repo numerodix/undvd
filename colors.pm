@@ -6,7 +6,7 @@ package colors;
 use strict;
 
 use base 'Exporter';
-our @EXPORT = qw(s_id  s_err s_ok s_wa  s_ela s_eta  s_b s_bb s_it s_it2);
+our @EXPORT = qw(s_id  s_err s_ok s_wa s_est  s_ela s_eta  s_b s_bb s_it s_it2);
 
 
 my ($black, $red, $green, $yellow, $blue, $magenta, $cyan, $white);
@@ -40,6 +40,7 @@ sub s_id  { return $_[0]; }
 sub s_err { return $red    . $_[0] . $reset; }
 sub s_ok  { return $green  . $_[0] . $reset; }
 sub s_wa  { return $yellow . $_[0] . $reset; }
+sub s_est { return $cyan   . $_[0] . $reset; }
 
 sub s_ela { return $magenta . $_[0] . $reset; }
 sub s_eta { return $magenta . $reverse . $_[0] . $reset; }
