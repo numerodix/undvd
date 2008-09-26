@@ -177,7 +177,7 @@ sub run {
 
 	use IPC::Open3;
 	my $pid = open3(\*WRITER, \*READER, \*ERROR, @args);
-	wait;
+	#wait;	# stalls mplayer -vf cropdetect
 	$exit = $? >> 8;
 
 	while (my $output = <READER>) { $out .= $output; }

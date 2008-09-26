@@ -153,7 +153,8 @@ foreach my $file (@files) {
 	# Do we need to crop?
 
 	if ($autocrop) {
-		print " + Finding out how much to crop...\r";
+		my $est = int(($ntitle->{length} * $ntitle->{fps}) / 250 / 60);
+		print " + Finding out how much to crop... (est: ${est}min)\r";
 		my ($width, $height, @crop_opts) = crop_title($file);
 		if (! $width or ! $height or ! @crop_opts) {
 			fatal("Crop detection failed");
