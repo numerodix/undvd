@@ -41,7 +41,7 @@ my $adv_usage = "Advanced usage:  " . s_b($suite->{tool_name}) . " "
 
 my ($opts_start, $opts_end, $target_size, $bpp, $autocrop, $prescale, $postscale);
 my ($dry_run, $opts_acodec, $opts_vcodec, $opts_cont);
-my $custom_scale;# = "off";
+my $custom_scale = "off";
 my $target_passes = 1;
 
 my $parse = GetOptions(
