@@ -152,11 +152,13 @@ foreach my $file (@files) {
 
 	# Do we need to crop?
 
+	my $crop_arg;
 	if ($autocrop) {
 		my $est = get_crop_eta($ntitle->{length}, $ntitle->{fps});
 		print " + Finding out how much to crop... (est: ${est}min)\r";
-		my ($width, $height, @crop_opts) = crop_title($file);
-		if (! $width or ! $height or ! @crop_opts) {
+		my ($width, $height);
+		($width, $height, $crop_arg) = crop_title($file);
+		if (! $width or ! $height or ! $crop_arg) {
 			fatal("Crop detection failed");
 		}
 		$ntitle->{width} = $width;
@@ -169,7 +171,7 @@ foreach my $file (@files) {
 		scale_title($ntitle->{width}, $ntitle->{height}, $custom_scale);
 	$ntitle->{width} = $width;
 	$ntitle->{height} = $height;
-	my @scale_args = ("scale=$width:$height");
+	my $scale_arg = "scale=$width:$height";
 
 	# Estimate filesize of audio
 
@@ -231,11 +233,17 @@ foreach my $file (@files) {
 		for (my $pass = 1; $pass <= $ntitle->{passes}; $pass++) {
 			my @vcodec_args = set_vcodec_opts($ntitle->{vformat},
 				$ntitle->{passes}, $pass, $ntitle->{vbitrate});
+
+			my @args = ("time", "nice", "-n20");
+			push(@args, $tools->{mencoder}, "-v", $file);
+			push(@args, @startpos, @endpos);
+			push(@args, "-vf", "${crop_arg}${prescale}${scale_arg}${postscale}");
+			push(@args, "-oac", @acodec_args);
+			push(@args, "-ovc", @vcodec_args);
+			push(@args, "-of", @cont_args);
+
 		}
 
 	}
-
-
-
 
 }

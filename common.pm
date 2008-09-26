@@ -421,9 +421,9 @@ sub crop_title {
 	my ($w, $h, $x, $y) =
 		map { /-vf crop=([0-9]+):([0-9]+):([0-9]+):([0-9]+)/ } $cropline;
 
-	my @cropfilter = ("-vf", "crop=$w:$h:$x:$y");
+	my $cropfilter = "crop=$w:$h:$x:$y,";
 
-	return ($w, $h, @cropfilter);
+	return ($w, $h, $cropfilter);
 }
 
 # set formatting of bpp output depending on value
