@@ -39,10 +39,10 @@ my $adv_usage = "Advanced usage:  " . s_b($suite->{tool_name}) . " "
      --acodec   set audio codec
      --vcodec   set video codec\n";
 
-my ($opts_start, $opts_end, $target_size, $bpp, $target_passes, $autocrop, $prescale, $postscale);
-my ($dry_run, $acodec, $vcodec);
+my ($opts_start, $opts_end, $target_size, $bpp, $autocrop, $prescale, $postscale);
+my ($dry_run, $opts_acodec, $opts_vcodec, $opts_cont);
 my $custom_scale;# = "off";
-my $container = $defaults->{container};
+my $target_passes = 1;
 
 my $parse = GetOptions(
 	"start=f"=>\$opts_start,
@@ -61,9 +61,9 @@ my $parse = GetOptions(
 	"f|smooth"=> sub { $prescale = "spp,"; $postscale = ",hqdn3d"; },
 	"D|dryrun"=> sub { $dry_run = 1; },
 
-	"cont=s"=>\$container,
-	"acodec=s"=>\$acodec,
-	"vcodec=s"=>\$vcodec,
+	"cont=s"=>\$opts_cont,
+	"acodec=s"=>\$opts_acodec,
+	"vcodec=s"=>\$opts_vcodec,
 );
 
 print_tool_banner();
@@ -92,8 +92,9 @@ init_logdir();
 
 # Set container and codecs
 
-my ($audio_codec, $video_codec, $ext, @cont_opts) = set_container_opts($acodec,
-	$vcodec, $container);
+my $container = $opts_cont ? $opts_cont : $defaults->{container};
+my ($audio_codec, $video_codec, $ext, @cont_args) = set_container_opts($opts_acodec,
+	$opts_vcodec, $container);
 
 print " - Output format :: "
 	. "container: " . s_it($container)
@@ -116,7 +117,7 @@ foreach my $file (@files) {
 	}
 
 	my $title = $file;
-	$title =~ s/\..*//g;
+	$title =~ s/^(.*)\..*$/$1/g;
 
 
 	# Display encode status
@@ -159,9 +160,63 @@ foreach my $file (@files) {
 		scale_title($title_data->{width}, $title_data->{heigth}, $custom_scale);
 	$title_data->{width} = $width;
 	$title_data->{heigth} = $height;
-	my $scale_opts = "scale=$width:$height";
+	my @scale_args = ("scale=$width:$height");
 
 	# Estimate filesize of audio
+
+	my $audio_bitrate = set_acodec_opts($container, $audio_codec,
+		$title_data->{abitrate}, 1);
+	my $audio_size = compute_media_size($title_data->{length}, $audio_bitrate);
+	my @acodec_args = set_acodec_opts($container, $audio_codec,
+		$title_data->{abitrate});
+
+	# Decide bpp
+
+	if ($bpp) {
+	} elsif ($target_size) {
+		my $video_size = $target_size - $audio_size;
+		$video_size = 1 if $video_size <= 0;
+		$bpp = compute_bpp($title_data->{width}, $title_data->{heigth},
+			$title_data->{fps}, $title_data->{length}, $video_size);
+	} else {
+		$bpp = set_bpp($video_codec, $target_passes);
+	}
+
+	# Reset the number of passes based on the bpp
+
+	my $passes;
+	if ($target_passes) {
+		$passes = $target_passes;
+	} else {
+		$passes = set_passes($video_codec, $bpp);
+	}
+
+	# Compute bitrate
+
+	my $video_bitrate = compute_vbitrate($title_data->{width},
+		$title_data->{height}, $title_data->{fps}, $bpp);
+
+
+	# Dry run
+
+	if ($dry_run) {
+
+		$title_data->{aformat} = $audio_codec;
+		$title_data->{vformat} = $video_codec;
+
+		# Estimate output size
+
+		if ($target_size) {
+			$title_data->{filesize} = $target_size;
+		} else {
+			my $video_size = compute_media_size($title_data->{length},
+				$video_bitrate);
+			$title_data->{filesize} = int($video_size + $audio_size);
+		}
+
+		print_title_line(0, $title_data);
+	}
+
 
 
 

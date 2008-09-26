@@ -19,12 +19,16 @@ our @EXPORT = qw(
 	print_tool_banner
 	print_version
 	compute_bpp
+	set_bpp
+	compute_vbitrate
 	examine_dvd_for_titlecount
 	examine_title
 	crop_title
 	print_title_line
-	set_container_opts
 	scale_title
+	compute_media_size
+	set_container_opts
+	set_acodec_opts
 	);
 
 
@@ -222,6 +226,45 @@ sub compute_bpp {
 	return $bpp;
 }
 
+# set bpp based on the codec and number of passes
+sub set_bpp {
+	my ($video_codec, $passes) = @_;
+
+	my $bpp;
+	if ($video_codec eq "h264") {
+		$bpp = $defaults->{h264_1pass_bpp} if $passes == 1;
+		$bpp = $defaults->{h264_2pass_bpp} if $passes > 1;
+	} else {
+		$bpp = $defaults->{xvid_1pass_bpp} if $passes == 1;
+		$bpp = $defaults->{xvid_2pass_bpp} if $passes > 1;
+	}
+
+	return $bpp;
+}
+
+# set the number of passes based on codec and bpp
+sub set_passes {
+	my ($video_codec, $bpp) = @_;
+
+	my $passes = 1;
+	if ($video_codec eq "h264") {
+		$passes = 2 if $bpp < $defaults->{h264_1pass_bpp};
+	} else {
+		$passes = 2 if $bpp < $defaults->{xvid_1pass_bpp};
+	}
+
+	return $passes;
+}
+
+# compute video bitrate based on title length
+sub compute_vbitrate {
+	my ($width, $height, $fps, $bpp) = @_;
+
+	my $bitrate = ($width * $height * $fps * $bpp) / 1024;
+
+	return $bitrate;
+}
+
 # extract number of titles from dvd
 sub examine_dvd_for_titlecount {
 	my $source = shift;
@@ -269,7 +312,7 @@ sub examine_title {
 		width =>    find(0,  $s, "ID_VIDEO_WIDTH=(.+)"),
 		heigth =>   find(0,  $s, "ID_VIDEO_HEIGHT=(.+)"),
 		fps =>      find(0,  $s, "ID_VIDEO_FPS=(.+)"),
-		len =>      find(0, $s, "ID_LENGTH=(.+)"),
+		length =>   find(0, $s, "ID_LENGTH=(.+)"),
 		abitrate => find(0,  $s, "ID_AUDIO_BITRATE=(.+)"),
 		aformat =>  lc(find(0,  $s, "ID_AUDIO_CODEC=(.+)")),
 		vbitrate => find(0,  $s, "ID_VIDEO_BITRATE=(.+)"),
@@ -406,41 +449,6 @@ sub print_title_line {
 	print $wrap->("$dim  $fps  $len  $bpp $passes $vbitrate $vformat  $abitrate $aformat  $filesize  $filename\n");
 }
 
-# get container options and decide on codecs
-sub set_container_opts {
-	my ($acodec, $vcodec, $container) = @_;
-
-	my $audio_codec = "mp3";
-	my $video_codec = "h264";
-	my $ext = "avi";
-	my @opts = ("avi");
-
-	if ($container =~ /(avi|mkv|ogm)/) {
-	} elsif ($container eq "mp4") {
-		$audio_codec = "aac";
-		$video_codec = "h264";
-	} else {
-
-		# use lavf muxing
-		if ($container =~ "(asf|au|dv|flv|ipod|mov|mpg|nut|rm|swf)") {
-			$ext = $container;
-			@opts = ("lavf", "-lavfopts", "format=$container");
-
-			if ($container eq "flv") {
-				$audio_codec = "mp3";
-				$video_codec = "flv";
-			}
-		} else {
-			fatal("Unrecognized container %%%$container%%%");
-		}
-	}
-
-	$audio_codec = $acodec if $acodec;
-	$video_codec = $vcodec if $vcodec;
-
-	return ($audio_codec, $video_codec, $ext, @opts);
-}
-
 # compute title scaling
 sub scale_title {
 	my ($width, $height, $custom_scale) = @_;
@@ -464,15 +472,15 @@ sub scale_title {
 			}
 
 			if (       $nwidth > 0 and ! $nheight > 0) {
-				$nheight = int($height*$nwidth/$width);
+				$nheight = int($height*$nwidth/ $width > 0 ? $width : 1 );
 			} elsif (! $nwidth > 0 and   $nheight > 0) {
-				$nwidth = int($width*$nheight/$height);
+				$nwidth = int($width*$nheight/ $height > 0 ? $height : 1 );
 			}
 
 		# apply default scaling heuristic
 		} else {
 			# compute scaling factor based on baseline value
-			my $framesize = $width * $height;
+			my $framesize = $width*$height > 0 ? $width*$height : 1;
 			my $factor = sqrt($defaults->{framesize_baseline}/$framesize);
 
 			# scale by factor, do not upscale
@@ -514,7 +522,8 @@ sub scale_by_x {
 			my $down_step = $width - ($step * $divisor);
 			foreach my $x_step ($up_step, $down_step) {
 				my $x_width = $x_step - ($x_step % $divisor);
-				my $x_height = $x_width * ($orig_height/$orig_width);
+				my $x_height =
+					$x_width * ($orig_height/ $orig_width > 0 ? $orig_width : 1);
 				if (($x_width % $divisor) + ($x_height % $divisor) == 0) {
 					$completed = 1;
 					$width = $x_width;
@@ -525,6 +534,88 @@ sub scale_by_x {
 	}
 
 	return ($width, $height);
+}
+
+# compute size of media given length and bitrate
+sub compute_media_size {
+	my ($length, $bitrate) = @_;
+	return ($bitrate / 8) * ($length / 1024);
+}
+
+# get container options and decide on codecs
+sub set_container_opts {
+	my ($acodec, $vcodec, $container) = @_;
+
+	my $audio_codec = "mp3";
+	my $video_codec = "h264";
+	my $ext = "avi";
+	my @opts = ("avi");
+
+	if ($container =~ /(avi|mkv|ogm)/) {
+	} elsif ($container eq "mp4") {
+		$audio_codec = "aac";
+		$video_codec = "h264";
+	} else {
+
+		# use lavf muxing
+		if ($container =~ "(asf|au|dv|flv|ipod|mov|mpg|nut|rm|swf)") {
+			$ext = $container;
+			@opts = ("lavf", "-lavfopts", "format=$container");
+
+			if ($container eq "flv") {
+				$audio_codec = "mp3";
+				$video_codec = "flv";
+			}
+		} else {
+			fatal("Unrecognized container %%%$container%%%");
+		}
+	}
+
+	$audio_codec = $acodec if $acodec;
+	$video_codec = $vcodec if $vcodec;
+
+	return ($audio_codec, $video_codec, $ext, @opts);
+}
+
+# get audio codec options
+sub set_acodec_opts {
+	my ($container, $codec, $orig_bitrate, $get_bitrate) = @_;
+
+	my @opts;
+	if ($container eq "flv"){
+		push(@opts, "-srate", "44100");		# flv supports 44100, 22050, 11025
+	}
+
+	my $bitrate;
+	if ($codec eq "copy") {
+		$bitrate = $orig_bitrate;
+		push(@opts, "copy");
+	} elsif ($codec eq "mp3") {
+		$bitrate = 160;
+		push(@opts, "mp3lame", "-lameopts", "vbr=3:$bitrate:q=3");
+	} elsif ($codec eq "aac") {
+		$bitrate = 192;
+		push(@opts, "faac", "-faacopts", "br=$bitrate:mpeg=4:object=2",
+			"-channels", "2");
+
+	# use lavc codec
+	} else {
+		$bitrate = 224;		# mencoder manpage default
+		my $cs = "ac3|flac|g726|libamr_nb|libamr_wb|mp2|roq_dpcm|sonic|sonicls|"
+			. "vorbis|wmav1|wmav2";
+		if ($codec =~ /($cs)/) {
+			push(@opts, "lavc", "-lavcopts",
+				"abitrate=$bitrate:acodec=$codec");
+		} else {
+			fatal("Unrecognized audio codec %%%$codec%%%");
+		}
+	}
+
+	if ($get_bitrate) {
+		return $bitrate;
+	} else {
+		return @opts;
+	}
 }
 
 
