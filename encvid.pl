@@ -114,10 +114,13 @@ foreach my $file (@files) {
 	if (! -e $file) {
 		nonfatal("File %%%$file%%% does not exist");
 		next;
+	} elsif (-d $file) {
+		nonfatal("%%%$file%%% is a directory");
+		next;
 	}
 
-	my $title = $file;
-	$title =~ s/^(.*)\..*$/$1/g;
+	my $title_name = $file;
+	$title_name =~ s/^(.*)\..*$/$1/g;
 
 
 	# Display encode status
@@ -137,7 +140,14 @@ foreach my $file (@files) {
 
 	# Extract information from the title
 
-	my $title_data = examine_title($file);
+	my $title = examine_title($file);
+
+	# Init encoding target info
+
+	my $ntitle = deep_copy($title);
+	$ntitle->{aformat} = $audio_codec;
+	$ntitle->{vformat} = $video_codec;
+	$ntitle->{filename} = "$title_name.$ext";
 
 
 	# Do we need to crop?
@@ -148,73 +158,69 @@ foreach my $file (@files) {
 		if (! $width or ! $height or ! @crop_opts) {
 			fatal("Crop detection failed");
 		}
-		$title_data->{width} = $width;
-		$title_data->{heigth} = $height;
-		use Data::Dumper;
-		print Dumper($title_data);
+		$ntitle->{width} = $width;
+		$ntitle->{height} = $height;
 	}
 
 	# Find out how to scale the dimensions
 
 	my ($width, $height) =
-		scale_title($title_data->{width}, $title_data->{heigth}, $custom_scale);
-	$title_data->{width} = $width;
-	$title_data->{heigth} = $height;
+		scale_title($ntitle->{width}, $ntitle->{height}, $custom_scale);
+	$ntitle->{width} = $width;
+	$ntitle->{height} = $height;
 	my @scale_args = ("scale=$width:$height");
 
 	# Estimate filesize of audio
 
-	my $audio_bitrate = set_acodec_opts($container, $audio_codec,
-		$title_data->{abitrate}, 1);
-	my $audio_size = compute_media_size($title_data->{length}, $audio_bitrate);
-	my @acodec_args = set_acodec_opts($container, $audio_codec,
-		$title_data->{abitrate});
+	$ntitle->{abitrate} = set_acodec_opts($container, $ntitle->{aformat},
+		$ntitle->{abitrate}, 1);
+	my $audio_size = compute_media_size($ntitle->{length}, $ntitle->{abitrate});
+	my @acodec_args = set_acodec_opts($container, $ntitle->{aformat},
+		$ntitle->{abitrate});
 
 	# Decide bpp
 
 	if ($bpp) {
+		$ntitle->{bpp} = $bpp;
 	} elsif ($target_size) {
 		my $video_size = $target_size - $audio_size;
 		$video_size = 1 if $video_size <= 0;
-		$bpp = compute_bpp($title_data->{width}, $title_data->{heigth},
-			$title_data->{fps}, $title_data->{length}, $video_size);
+		$ntitle->{bpp} = compute_bpp($ntitle->{width}, $ntitle->{height},
+			$ntitle->{fps}, $ntitle->{length}, $video_size);
 	} else {
-		$bpp = set_bpp($video_codec, $target_passes);
+		$ntitle->{bpp} = set_bpp($video_codec, $target_passes);
 	}
 
 	# Reset the number of passes based on the bpp
 
-	my $passes;
 	if ($target_passes) {
-		$passes = $target_passes;
+		$ntitle->{passes} = $target_passes;
 	} else {
-		$passes = set_passes($video_codec, $bpp);
+		$ntitle->{passes} = set_passes($video_codec, $ntitle->{bpp});
 	}
 
 	# Compute bitrate
 
-	my $video_bitrate = compute_vbitrate($title_data->{width},
-		$title_data->{height}, $title_data->{fps}, $bpp);
+	$ntitle->{vbitrate} = compute_vbitrate($ntitle->{width},
+		$ntitle->{height}, $ntitle->{fps}, $ntitle->{bpp});
 
 
 	# Dry run
 
 	if ($dry_run) {
 
-		$title_data->{aformat} = $audio_codec;
-		$title_data->{vformat} = $video_codec;
-
 		# Estimate output size
 
 		if ($target_size) {
-			$title_data->{filesize} = $target_size;
+			$ntitle->{filesize} = $target_size;
 		} else {
-			my $video_size = compute_media_size($title_data->{length},
-				$video_bitrate);
-			$title_data->{filesize} = int($video_size + $audio_size);
+			my $video_size = compute_media_size($ntitle->{length},
+				$ntitle->{vbitrate});
+			$ntitle->{filesize} = int($video_size + $audio_size);
 		}
 
-		print_title_line(0, $title_data);
+		print_title_line(0, $title);
+		print_title_line(0, $ntitle);
 	}
 
 

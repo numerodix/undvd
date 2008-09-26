@@ -71,14 +71,9 @@ foreach my $title (@titles) {
 			nonfatal("File %%%$title%%% does exist");
 			next;
 		}
-		$filesize = int( (stat($title))[7] / 1024 / 1024 );
 	}
 
 	my $data = examine_title($title, $dvd_device);
-
-	$data->{filesize} = $filesize or 0;
-	$data->{bpp} = compute_bpp($data->{width}, $data->{heigth}, $data->{fps},
-		$data->{len}, 0, $data->{vbitrate});
 
 	print_title_line(0, $data);
 }

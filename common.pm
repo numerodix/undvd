@@ -13,6 +13,8 @@ our @EXPORT_OK = qw($suite $defaults $tools);
 our @EXPORT = qw(
 	nonfatal
 	fatal
+	p
+	deep_copy
 	init_logdir
 	run
 	init_cmds
@@ -100,6 +102,32 @@ sub fatal {
 	nonfatal($_[0]);
 	exit 1;
 }
+
+# print object
+sub p {
+	my @these = @_;
+	foreach my $this (@these) {
+		if (ref $this eq "ARRAY") {
+			print "dump:  ".join(" , ", @$this)."\n";
+		} else {
+			use Data::Dumper;
+			print Dumper($this);
+		}
+	}
+}
+
+# deep copy objects
+sub deep_copy {
+	my $this = shift;
+	if (not ref $this) {
+		$this;
+	} elsif (ref $this eq "ARRAY") {
+		[map deep_copy($_), @$this];
+	} elsif (ref $this eq "HASH") {
+		+{map { $_ => deep_copy($this->{$_}) } keys %$this};
+	} else { die "what type is $_?" }
+}
+
 
 # create directory for logging
 sub init_logdir {
@@ -260,7 +288,7 @@ sub set_passes {
 sub compute_vbitrate {
 	my ($width, $height, $fps, $bpp) = @_;
 
-	my $bitrate = ($width * $height * $fps * $bpp) / 1024;
+	my $bitrate = int( ($width * $height * $fps * $bpp) / 1024);
 
 	return $bitrate;
 }
@@ -310,7 +338,7 @@ sub examine_title {
 	my $data = {
 		filename => $file,
 		width =>    find(0,  $s, "ID_VIDEO_WIDTH=(.+)"),
-		heigth =>   find(0,  $s, "ID_VIDEO_HEIGHT=(.+)"),
+		height =>   find(0,  $s, "ID_VIDEO_HEIGHT=(.+)"),
 		fps =>      find(0,  $s, "ID_VIDEO_FPS=(.+)"),
 		length =>   find(0, $s, "ID_LENGTH=(.+)"),
 		abitrate => find(0,  $s, "ID_AUDIO_BITRATE=(.+)"),
@@ -321,9 +349,12 @@ sub examine_title {
 
 	$data->{abitrate} = int($data->{abitrate} / 1024);	# to kbps
 	$data->{vbitrate} = int($data->{vbitrate} / 1024);	# to kbps
+	$data->{bpp} = compute_bpp($data->{width}, $data->{height}, $data->{fps},
+		$data->{len}, 0, $data->{vbitrate});
 
-	use Data::Dumper;
-#	print Dumper($data);
+	if (! $dvd_device) {
+		$data->{filesize} = int( (stat($file))[7] / 1024 / 1024 );
+	}
 
 	return $data;
 }
@@ -406,11 +437,11 @@ sub print_title_line {
 		$filename = "title";
 	} else {
 		my $x = $data->{width}  > 0 ? $data->{width}  : "";
-		my $y = $data->{heigth} > 0 ? $data->{heigth} : "";
-		$dim = $x."x".$y ne "x"     ? $x."x".$y            : "";
-		$fps = $data->{fps} > 0  ? $data->{fps}            : "";
-		$len = $data->{len} > 0  ? int($data->{len} / 60)  : "";
-		$bpp = $data->{bpp} < 1  ? substr($data->{bpp}, 1) : $data->{bpp};
+		my $y = $data->{height} > 0 ? $data->{height} : "";
+		$dim = $x."x".$y ne "x"     ? $x."x".$y                 : "";
+		$fps = $data->{fps}    > 0  ? $data->{fps}              : "";
+		$len = $data->{length} > 0  ? int($data->{length} / 60) : "";
+		$bpp = $data->{bpp}    < 1  ? substr($data->{bpp}, 1)   : $data->{bpp};
 		$passes =   $data->{passes}     > 0 ? $data->{passes}   : "";
 		$vbitrate = $data->{vbitrate}   > 0 ? $data->{vbitrate} : "";
 		$vformat =  $data->{vformat} ne "0" ? $data->{vformat}  : "";
@@ -472,9 +503,9 @@ sub scale_title {
 			}
 
 			if (       $nwidth > 0 and ! $nheight > 0) {
-				$nheight = int($height*$nwidth/ $width > 0 ? $width : 1 );
+				$nheight = int($height * $nwidth  / ($width  > 0 ? $width  : 1) );
 			} elsif (! $nwidth > 0 and   $nheight > 0) {
-				$nwidth = int($width*$nheight/ $height > 0 ? $height : 1 );
+				$nwidth =  int($width  * $nheight / ($height > 0 ? $height : 1) );
 			}
 
 		# apply default scaling heuristic
@@ -521,9 +552,9 @@ sub scale_by_x {
 			my $up_step = $width + ($step * $divisor);
 			my $down_step = $width - ($step * $divisor);
 			foreach my $x_step ($up_step, $down_step) {
-				my $x_width = $x_step - ($x_step % $divisor);
-				my $x_height =
-					$x_width * ($orig_height/ $orig_width > 0 ? $orig_width : 1);
+				my $x_width = int($x_step - ($x_step % $divisor));
+				my $x_height = int($x_width *
+					($orig_height/ ($orig_width > 0 ? $orig_width : 1) ));
 				if (($x_width % $divisor) + ($x_height % $divisor) == 0) {
 					$completed = 1;
 					$width = $x_width;
