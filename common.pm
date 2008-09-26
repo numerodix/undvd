@@ -26,6 +26,7 @@ our @EXPORT = qw(
 	compute_vbitrate
 	examine_dvd_for_titlecount
 	examine_title
+	get_crop_eta
 	crop_title
 	print_title_line
 	scale_title
@@ -390,6 +391,13 @@ sub examine_title {
 	}
 
 	return $data;
+}
+
+# estimate cropdetect duration
+sub get_crop_eta {
+	my ($length, $fps) = @_;
+
+	return int($length * $fps / 250 / 60);
 }
 
 # figure out how much to crop
