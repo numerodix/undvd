@@ -222,6 +222,17 @@ foreach my $file (@files) {
 
 		print_title_line(0, $title);
 		print_title_line(0, $ntitle);
+
+
+	# Encode video
+
+	} else {
+
+		for (my $pass = 1; $pass <= $ntitle->{passes}; $pass++) {
+			my @vcodec_args = set_vcodec_opts($ntitle->{vformat},
+				$ntitle->{passes}, $pass, $ntitle->{vbitrate});
+		}
+
 	}
 
 

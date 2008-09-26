@@ -33,6 +33,7 @@ our @EXPORT = qw(
 	compute_media_size
 	set_container_opts
 	set_acodec_opts
+	set_vcodec_opts
 	);
 
 
@@ -679,6 +680,64 @@ sub set_acodec_opts {
 	} else {
 		return @opts;
 	}
+}
+
+# get video codec options
+sub set_vcodec_opts {
+	my ($codec, $passes, $pass, $bitrate) = @_;
+
+	my @opts;
+	if ($codec eq "copy") {
+		push(@opts, "copy");
+
+	} elsif ($codec eq "h264") {
+		my $local_opt = "subq=5:frameref=2";
+		if ($passes > 1) {
+			if ($pass < $passes) {
+				$local_opt = "pass=$pass:subq=1:frameref=1";
+			} else {
+				$local_opt = "pass=$pass:$local_opt";
+			}
+		}
+		push(@opts, "x264", "-x264encopts",
+			"$local_opt:partitions=all:weight_b:bitrate=$bitrate:threads=auto");
+
+	} elsif ($codec eq "xvid") {
+		my $local_opt;
+		if ($passes > 1) {
+			if ($pass < $passes) {
+				$local_opt = "pass=$pass:";
+			} else {
+				$local_opt = "pass=$pass:";
+			}
+		}
+		push(@opts, "xvid", "-xvidencopts",
+			"${local_opt}bitrate=$bitrate");
+
+	# use lavc codec
+	} else {
+		my $local_opt;
+		if ($passes > 1) {
+			if ($pass < $passes) {
+				$local_opt = "vpass=$pass:";
+			} else {
+				$local_opt = "vpass=$pass:";
+			}
+		}
+
+		my $cs = "asv1|asv2|dvvideo|ffv1|flv|h261|h263|h263p|huffyuv|libtheora|"
+			. "ljpeg|mjpeg|mpeg1video|mpeg2video|mpeg4|msmpeg4|msmpeg4v2|"
+			. "roqvideo|rv10|snow|svq1|wmv1|wmv2";
+		if ($cs =~ /($cs)/) {
+			push(@opts, "lavc", "-lavcopts",
+				"${local_opt}vbitrate=$bitrate:vcodec=$codec");
+
+		} else {
+			fatal("Unrecognized video codec %%%$codec%%%");
+		}
+	}
+
+	return @opts;
 }
 
 
