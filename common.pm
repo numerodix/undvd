@@ -13,6 +13,7 @@ our @EXPORT_OK = qw($suite $defaults $tools);
 our @EXPORT = qw(
 	nonfatal
 	fatal
+	trunc
 	p
 	deep_copy
 	init_logdir
@@ -101,6 +102,25 @@ sub nonfatal {
 sub fatal {
 	nonfatal($_[0]);
 	exit 1;
+}
+
+# truncate text
+sub trunc {
+	my ($width, $side, $s, $fill) = @_;
+
+	my $trunc_len = length($s) - $width;
+	$s = substr($s, 0, $width);
+
+	substr($s, length($s) - length($fill), length($fill), $fill)
+		if (($trunc_len > 0) and $fill);
+
+	my $pad_len = abs($width - length($s));
+	my $pad = " " x $pad_len;
+
+	$s = $pad . $s if $side == -1;
+	$s = $s . $pad if $side == 1;
+
+	return $s;
 }
 
 # print object
@@ -420,13 +440,13 @@ sub print_title_line {
 	my $is_header = shift;
 	my $data = shift;
 
-	my ($dim, $fps, $len, $bpp, $passes, $vbitrate, $vformat, $abitrate, $aformat);
+	my ($dim, $fps, $length, $bpp, $passes, $vbitrate, $vformat, $abitrate, $aformat);
 	my ($filesize, $filename);
 
 	if ($is_header) {
 		$dim = "dim";
 		$fps = "fps";
-		$len = "length";
+		$length = "length";
 		$bpp = "bpp";
 		$passes = "p";
 		$vbitrate = "vbitrate";
@@ -438,10 +458,10 @@ sub print_title_line {
 	} else {
 		my $x = $data->{width}  > 0 ? $data->{width}  : "";
 		my $y = $data->{height} > 0 ? $data->{height} : "";
-		$dim = $x."x".$y ne "x"     ? $x."x".$y                 : "";
-		$fps = $data->{fps}    > 0  ? $data->{fps}              : "";
-		$len = $data->{length} > 0  ? int($data->{length} / 60) : "";
-		$bpp = $data->{bpp}    < 1  ? substr($data->{bpp}, 1)   : $data->{bpp};
+		$dim =    $x."x".$y ne "x"     ? $x."x".$y                 : "";
+		$fps =    $data->{fps}    > 0  ? $data->{fps}              : "";
+		$length = $data->{length} > 0  ? int($data->{length} / 60) : "";
+		$bpp =    $data->{bpp}    < 1  ? substr($data->{bpp}, 1)   : $data->{bpp};
 		$passes =   $data->{passes}     > 0 ? $data->{passes}   : "";
 		$vbitrate = $data->{vbitrate}   > 0 ? $data->{vbitrate} : "";
 		$vformat =  $data->{vformat} ne "0" ? $data->{vformat}  : "";
@@ -451,29 +471,16 @@ sub print_title_line {
 		$filename = $data->{filename};
 	}
 
-	sub trunc {
-		my $width = shift;
-		my $s = shift;
-
-		$s = substr($s, 0, $width);
-		my $fill = $width - length($s);
-
-		my $pad;
-		for (my $i = $fill; $i > 0; $i -= 1) { $pad .= " "; }
-
-		return $pad . $s;
-	}
-
-	$dim = trunc(9, $dim);
-	$fps = trunc(6, $fps);
-	$len = trunc(3, $len);
-	$bpp = trunc(4, $bpp);
-	$passes = trunc(1, $passes);
-	$vbitrate = trunc(4, $vbitrate);
-	$vformat = trunc(4, $vformat);
-	$abitrate = trunc(4, $abitrate);
-	$aformat = trunc(4, $aformat);
-	$filesize = trunc(4, $filesize);
+	$dim =      trunc(9, -1, $dim);
+	$fps =      trunc(6, -1, $fps);
+	$length =   trunc(3, -1, $length);
+	$bpp =      trunc(4,  1, $bpp);
+	$passes =   trunc(1, -1, $passes);
+	$vbitrate = trunc(4, -1, $vbitrate);
+	$vformat =  trunc(4, -1, $vformat);
+	$abitrate = trunc(4, -1, $abitrate);
+	$aformat =  trunc(4, -1, $aformat);
+	$filesize = trunc(4, -1, $filesize);
 
 	if ($filename =~ /dvd:\/\//) {
 		$filesize = s_est($filesize);
@@ -481,7 +488,7 @@ sub print_title_line {
 
 	$bpp = markup_bpp($bpp, $vformat) unless $is_header;
 
-	my $line = "$dim  $fps  $len  $bpp $passes $vbitrate $vformat  "
+	my $line = "$dim  $fps  $length  $bpp $passes $vbitrate $vformat  "
 		. "$abitrate $aformat  $filesize  $filename\n";
 	$line = s_b($line) if $is_header;
 	print $line;

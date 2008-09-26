@@ -126,7 +126,7 @@ foreach my $file (@files) {
 	# Display encode status
 
 	if (! $dry_run) {
-		print " * Now encoding file " . s_bb(substr($file, 0, 36));
+		print " * Now encoding file " . s_bb(trunc(38, 1, $file, "..."));
 		if ($opts_start and $opts_end) {
 			print "  [" . s_bb($opts_start) . "s - " . s_bb($opts_end) . "s]";
 		} elsif ($opts_start) {
