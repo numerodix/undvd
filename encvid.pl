@@ -234,14 +234,14 @@ foreach my $file (@files) {
 			my @vcodec_args = set_vcodec_opts($ntitle->{vformat},
 				$ntitle->{passes}, $pass, $ntitle->{vbitrate});
 
-			my @args = ("time", "nice", "-n20");
-			push(@args, $tools->{mencoder}, "-v", $file);
-			push(@args, @startpos, @endpos);
+			my @args = (@startpos, @endpos);
 			push(@args, "-vf", "${crop_arg}${prescale}${scale_arg}${postscale}");
 			push(@args, "-oac", @acodec_args);
 			push(@args, "-ovc", @vcodec_args);
 			push(@args, "-of", @cont_args);
 
+			run_encode(\@args, $file, $title_name, $ext, $ntitle->{length},
+				$ntitle->{passes}, $pass);
 		}
 
 	}

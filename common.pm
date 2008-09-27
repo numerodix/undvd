@@ -34,6 +34,7 @@ our @EXPORT = qw(
 	set_container_opts
 	set_acodec_opts
 	set_vcodec_opts
+	run_encode
 	);
 
 
@@ -130,10 +131,10 @@ sub p {
 	my @these = @_;
 	foreach my $this (@these) {
 		if (ref $this eq "ARRAY") {
-			print "dump:  ".join(" , ", @$this)."\n";
+			print "\ndump:  ".join(" , ", @$this)."\n";
 		} else {
 			use Data::Dumper;
-			print Dumper($this);
+			print "\n".Dumper($this);
 		}
 	}
 }
@@ -170,20 +171,35 @@ sub which {
 	return ($bin, 1);
 }
 
-# extremely suspicious
-sub run {
+# launch command without waiting
+sub launch {
 	my (@args) = @_;
 
-	my ($out, $exit, $err);
-	print STDERR join(' ', @_)."\n" if $ENV{"DEBUG"};
+	print STDERR join(' ', @args)."\n" if $ENV{"DEBUG"};
 
 	use IPC::Open3;
-	my $pid = open3(\*WRITER, \*READER, \*ERROR, @args);
-	#wait;	# stalls mplayer -vf cropdetect
-	$exit = $? >> 8;
 
-	while (my $output = <READER>) { $out .= $output; }
-	while (my $output = <ERROR>) { $err .= $output; }
+	# spawn process
+	my($writer, $reader, $error);
+	my $pid = open3($writer, $reader, $error, @args);
+
+	return ($pid, $writer, $reader, $error);
+}
+
+# launch command waiting for output and exit
+sub run {
+	my ($pid, $writer, $reader, $error) = launch(@_);
+
+	# read from pipes as output comes
+	my ($out, $exit, $err);
+	while ((my $stdout = <$reader>) or (my $stderr = <$error>)) {
+		$out .= $stdout;
+		$err .= $stderr;
+	}
+
+	# wait for pid and capture exit value
+	wait;
+	$exit = $? >> 8;
 
 	chomp($out);
 	chomp($err);
@@ -656,7 +672,7 @@ sub set_acodec_opts {
 		push(@opts, "copy");
 	} elsif ($codec eq "mp3") {
 		$bitrate = 160;
-		push(@opts, "mp3lame", "-lameopts", "vbr=3:$bitrate:q=3");
+		push(@opts, "mp3lame", "-lameopts", "vbr=3:abr=$bitrate:q=3");
 	} elsif ($codec eq "aac") {
 		$bitrate = 192;
 		push(@opts, "faac", "-faacopts", "br=$bitrate:mpeg=4:object=2",
@@ -738,6 +754,53 @@ sub set_vcodec_opts {
 	}
 
 	return @opts;
+}
+
+# run encode and print updates
+sub run_encode {
+	my ($args, $file, $title_name, $ext, $length, $passes, $pass) = @_;
+
+	# Set output and logging depending on number of passes
+
+	my $output_file = "$title_name.$ext.partial";
+	my $base = basename($title_name);
+	my $logfile = $defaults->{logdir}."/$base.log";
+
+	if ($passes > 1) {
+		$logfile = "$logfile.pass$pass";
+		if ($pass < $passes) {
+			$output_file = "/dev/null";
+		}
+	} else {
+		$pass = "-";
+	}
+
+	unshift(@$args, "time", "nice", "-n20", $tools->{mencoder}, "-v");
+	push(@$args, "-o", $output_file, $file);
+
+	# Print initial status message
+
+	my $status = trunc(19, 1, "[$pass] Encoding");
+	print "$status\r";
+
+	# Execute encoder in the background
+
+	my ($pid, $writer, $reader, $error) = launch(@$args);
+	p($pid);
+
+	# read from pipes as output comes
+	my $start_time = time();
+	while ((my $stdout = <$reader>) or (my $stderr = <$error>)) {
+		my $s = $stdout;
+		$s .= $stderr;
+		print(">>>>>> Out:\n$s\n");
+	}
+
+	# wait for pid and capture exit value
+	wait;
+	my $exit = $? >> 8;
+
+	print(">>>>>> Exit: $exit\n");
 }
 
 
