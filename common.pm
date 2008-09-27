@@ -4,7 +4,11 @@
 package common;
 
 use strict;
+use Data::Dumper;
 use File::Basename;
+use File::Path;
+use IPC::Open3;
+use POSIX ":sys_wait_h";
 
 use colors;
 
@@ -147,7 +151,6 @@ sub p {
 		if (ref $this eq "ARRAY") {
 			print "\ndump:  ".join(" , ", @$this)."\n";
 		} else {
-			use Data::Dumper;
 			print "\n".Dumper($this);
 		}
 	}
@@ -197,7 +200,6 @@ sub run {
 	print STDERR join(' ', @$args)."\n" if $ENV{"DEBUG"};
 
 	# spawn process
-	use IPC::Open3;
 	my($writer, $reader, $error);
 	my $pid = open3($writer, $reader, $error, @$args);
 
@@ -434,7 +436,6 @@ sub clone_vobcopy {
 		exit 1;
 	}
 
-	use File::Path;
 	if (-e $dir) {
 		rmtree($dir);
 	}
@@ -904,7 +905,6 @@ sub run_encode {
 	my $start_time = time();
 	my ($exit, $perc, $secs, $fps, $size, $ela, $eta);
 
-	use POSIX ":sys_wait_h";
 	while ((my $kid = waitpid($pid, WNOHANG)) != -1) {
 		sysread($reader, my $s, 1024*1024);
 		$exit = $? >> 8;
