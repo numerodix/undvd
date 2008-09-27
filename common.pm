@@ -40,6 +40,9 @@ our @EXPORT = qw(
 
 ### DECLARATIONS
 
+# autoflush write buffer globally
+$| = 1;
+
 our $suite = {
 	name => "undvd",
 	version => "0.6.1",
@@ -48,6 +51,8 @@ our $suite = {
 
 our $defaults = {
 	logdir => "logs",
+
+	timer_refresh => 1,
 
 	dvd_device => "/dev/dvd",
 	disc_image => "disc.iso",
@@ -786,25 +791,27 @@ sub run_encode {
 	print $fh_logfile join(" ", @$args)."\n";
 	my ($pid, $reader, $error) = run(\@$args, 1);
 
-	# read from pipes as output comes
+	# Write mencoder's ETA estimate
+
+	my $line = trunc(59, 1, $status);
 	my $start_time = time();
 	my ($exit, $perc, $secs, $fps, $size, $ela, $eta);
+
 	use POSIX ":sys_wait_h";
 	while ((my $kid = waitpid($pid, WNOHANG)) != -1) {
-		sysread($reader, my $s, 400);
+		sysread($reader, my $s, 40000);
 		$exit = $? >> 8;
 		print $fh_logfile $s;
 
-		if (int(time()) % 2 == 0) {
+		if (int(time()) % $defaults->{timer_refresh} == 0) {
 			$perc = s_it2( trunc(4, -1, $1) )    if ($s =~ /\(([0-9 ]{2}%)\)/);
 			$secs =        trunc(6, -1, "$1s")   if ($s =~ /Pos:[ ]*([0-9]+)\.[0-9]*s/);
 			$fps  =  s_it( trunc(7, -1, $1) )    if ($s =~ /([0-9]+fps)/);
 			$size =        trunc(6, -1, $1)      if ($s =~ /([0-9]+mb)/);
 			$ela  = s_ela( "+".int((time() - $start_time) / 60 )."min" ) if $perc;
 			$eta  = s_eta(              "-$1" )  if ($s =~ /Trem:[ ]*([0-9]+min)/);
-			my $line = trunc(78, 1,
-				"$status   $perc   $secs   $fps   $size    $ela  $eta");
-			print "$line\n";
+			$line = "$status   $perc   $secs   $fps   $size     " if $perc;
+			print "${line}$ela  $eta    \r";
 			sleep 1
 		}
 	}
@@ -813,11 +820,9 @@ sub run_encode {
 	# Report exit code
 
 	if ($exit == 0) {
-		print trunc(59, 1, $status)
-			. trunc(19, 1, "[ " . s_ok("done") . " ]") . "\n";
+		print $line . "[ " . s_ok("done")    . trunc(14, 1, " ]") . "\n";
 	} else {
-		print trunc(59, 1, $status)
-			. trunc(19, 1, "[ " . s_err("failed") . " ] check log") . "\n";
+		print $line . "[ " . s_err("failed") . trunc(12, 1, " ] check log") . "\n";
 	}
 }
 
