@@ -15,6 +15,7 @@ our @EXPORT = qw(
 	fatal
 	trunc
 	p
+	resolve_symlink
 	deep_copy
 	init_logdir
 	run
@@ -24,6 +25,9 @@ our @EXPORT = qw(
 	compute_bpp
 	set_bpp
 	compute_vbitrate
+	ternary_int_str
+	clone_dd
+	clone_vobcopy
 	examine_dvd_for_titlecount
 	examine_title
 	get_crop_eta
@@ -47,7 +51,7 @@ $| = 1;
 our $suite = {
 	name => "undvd",
 	version => "0.6.1",
-	tool_name => basename(grep(-l, $0) ? readlink $0 : $0),
+	tool_name => basename(resolve_symlink($0)),
 };
 
 our $defaults = {
@@ -148,6 +152,11 @@ sub p {
 	}
 }
 
+# resolve symlink
+sub resolve_symlink {
+	return (grep(-l, $_[0]) ? readlink $_[0] : $_[0]);
+}
+
 # deep copy objects
 sub deep_copy {
 	my $this = shift;
@@ -214,7 +223,10 @@ sub run {
 
 # aggregate invocation results
 sub run_agg {
-	my ($invokes, $fh_logfile) = @_;
+	my ($invokes, $logfile) = @_;
+
+	my $fh_logfile;
+	open($fh_logfile, ">", $logfile);
 
 	my $exit;
 	foreach my $args (@$invokes) {
@@ -223,6 +235,8 @@ sub run_agg {
 		print $fh_logfile join(" ", @$args)."\n";
 		print $fh_logfile $o.$e."\n";
 	}
+
+	close($fh_logfile);
 
 	return $exit;
 }
@@ -359,6 +373,79 @@ sub compute_vbitrate {
 	my $bitrate = int( ($width * $height * $fps * $bpp) / 1024);
 
 	return $bitrate;
+}
+
+# prepend with int key if int, otherwise with string key
+sub ternary_int_str {
+	my ($value, $int_key, $str_key) = @_;
+
+	my @args;
+	if ($value =~ /^[0-9]+$/) {
+		push(@args, $int_key, $value);
+	} else {
+		push(@args, $str_key, $value);
+	}
+
+	return @args;
+}
+
+# clone disc to iso image
+sub clone_dd {
+	my ($dvd_device, $img) = @_;
+
+	my @args = ("time", "nice", "-n20");
+	push(@args, $tools->{dd}, "if=$dvd_device", "of=$img.partial");
+	my @a = (\@args);
+	my $exit = run_agg(\@a, $defaults->{logdir} . "/clone.log");
+
+	if ($exit) {
+		return $exit;
+	} else {
+		rename("$img.partial", $img);
+		return $exit;
+	}
+}
+
+# clone encrypted disc to directory
+sub clone_vobcopy {
+	my ($dvd_device, $dir) = @_;
+
+	$dvd_device = resolve_symlink($dvd_device);
+
+	my @args = ($tools->{mount});
+	my ($mount_table, $exit, $err) = run(\@args);
+
+	if ($exit) {
+		fatal("Failed to lookup mount table");
+	}
+
+	my $mnt_point = (map { /$dvd_device on ([^ ]+)/ } split('\n', $mount_table))[0];
+
+	if (! $mnt_point) {
+		print "\n" . s_wa("=>") . " Your dvd device " . s_bb($dvd_device)
+			. " has to be mounted for this.\n";
+		print s_wa("=>") . " Mount the dvd and supply the device to " .
+			$suite->{tool_name} . ", eg:\n";
+		print "    " . s_b("sudo mount") . " " . s_bb($dvd_device) . " " .
+			s_b("/mnt/dvd") . " " . s_b("-t") . " " . s_b("iso9660") . "\n";
+		print "    " . s_b($suite->{tool_name}) . " " . s_b("-d") . " " .
+			s_bb($dvd_device) . " [" . s_b("other options") . "]\n";
+		exit 1;
+	}
+
+	use File::Path;
+	if (-e $dir) {
+		rmtree($dir);
+	}
+
+	my @args = ("time", "nice", "-n20");
+	push(@args, $tools->{vobcopy}, "-f", "-l", "-m", "-F", "64");
+	push(@args, "-i", $mnt_point, "-t", $dir);
+	my @a = (\@args);
+
+	my $exit = run_agg(\@a, $defaults->{logdir} . "/clone.log");
+
+	return $exit;
 }
 
 # extract number of titles from dvd
@@ -860,9 +947,6 @@ sub remux_container {
 		my $base = basename($root);
 		my $logfile = $defaults->{logdir} . "/$base.remuxlog";
 
-		my $fh_logfile;
-		open($fh_logfile, ">", $logfile);
-
 		sub pre {
 			if (-f "$root.$container") {
 				unlink("$root.$container");
@@ -893,7 +977,7 @@ sub remux_container {
 				my @args5 = ($tools->{mp4creator}, "-optimize", "$root.$container");
 
 				my @a = (pre, \@args1, \@args2, \@args3, \@args4, \@args5);
-				my ($out, $exit, $err) = run_agg(\@a, $fh_logfile);
+				my ($out, $exit, $err) = run_agg(\@a, $logfile);
 				post();
 				return ($out, $exit, $err);
 			};
@@ -903,7 +987,7 @@ sub remux_container {
 					"$root.$ext");
 
 				my @a = (\@args);
-				my ($out, $exit, $err) = run_agg(\@a, $fh_logfile);
+				my ($out, $exit, $err) = run_agg(\@a, $logfile);
 				unlink("$root.$ext");
 				return ($out, $exit, $err);
 			};
@@ -913,7 +997,7 @@ sub remux_container {
 					"$root.$ext");
 
 				my @a = (\@args);
-				my ($out, $exit, $err) = run_agg(\@a, $fh_logfile);
+				my ($out, $exit, $err) = run_agg(\@a, $logfile);
 				unlink("$root.$ext");
 				return ($out, $exit, $err);
 			};
@@ -929,8 +1013,6 @@ sub remux_container {
 		my $exit = &$remux();
 
 		# Report exit code
-
-		close($fh_logfile);
 
 		if ($exit == 0) {
 			print "${status}[ " . s_ok("done")    . trunc(15, 1, " ]") . "\n";
