@@ -61,6 +61,7 @@ our $defaults = {
 
 	dvd_device => "/dev/dvd",
 	disc_image => "disc.iso",
+	disc_dir => "disc",
 	mencoder_source => "disc.iso",
 
 	framesize_baseline => 720*576*(2/3)^2,	# frame size in pixels

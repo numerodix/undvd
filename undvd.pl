@@ -168,8 +168,7 @@ if ((! $dvd_is_dir) and (! $skipclone)) {
 
 	my $exit;
 	if ($encrypted) {
-		$mencoder_source = "disc";
-		$exit = clone_vobcopy($dvd_device, $mencoder_source);
+		$exit = clone_vobcopy($dvd_device, $defaults->{disc_dir});
 	} else {
 		$exit = clone_dd($dvd_device, $defaults->{disc_image});
 	}
