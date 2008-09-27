@@ -216,17 +216,15 @@ sub run {
 sub run_agg {
 	my ($invokes, $fh_logfile) = @_;
 
-	my ($out, $exit, $err);
+	my $exit;
 	foreach my $args (@$invokes) {
 		my ($o, $x, $e) = run($args);
-		$out .= $o;
 		$exit += $x;
-		$err .= $e;
 		print $fh_logfile join(" ", @$args)."\n";
 		print $fh_logfile $o.$e."\n";
 	}
 
-	return ($out, $exit, $err);
+	return $exit;
 }
 
 # check for missing dependencies
@@ -899,6 +897,26 @@ sub remux_container {
 				post();
 				return ($out, $exit, $err);
 			};
+		} elsif ($container eq "mkv") {
+			$remux = sub {
+				my @args = ($tools->{mkvmerge}, "-o", "$root.$container",
+					"$root.$ext");
+
+				my @a = (\@args);
+				my ($out, $exit, $err) = run_agg(\@a, $fh_logfile);
+				unlink("$root.$ext");
+				return ($out, $exit, $err);
+			};
+		} elsif ($container eq "ogm") {
+			$remux = sub {
+				my @args = ($tools->{ogmmerge}, "-o", "$root.$container",
+					"$root.$ext");
+
+				my @a = (\@args);
+				my ($out, $exit, $err) = run_agg(\@a, $fh_logfile);
+				unlink("$root.$ext");
+				return ($out, $exit, $err);
+			};
 		}
 
 		# Print initial status message
@@ -908,7 +926,7 @@ sub remux_container {
 
 		# Execute remux in the background
 
-		my ($out, $exit, $err) = &$remux();
+		my $exit = &$remux();
 
 		# Report exit code
 
