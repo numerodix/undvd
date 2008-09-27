@@ -225,6 +225,8 @@ foreach my $file (@files) {
 			$ntitle->{filesize} = int($video_size + $audio_size);
 		}
 
+		$ntitle->{filename} = "$title_name.$container";
+
 		print_title_line(0, $title);
 		print_title_line(0, $ntitle);
 
