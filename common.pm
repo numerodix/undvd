@@ -35,6 +35,7 @@ our @EXPORT = qw(
 	set_acodec_opts
 	set_vcodec_opts
 	run_encode
+	remux_container
 	);
 
 
@@ -67,6 +68,9 @@ our $defaults = {
 	xvid_2pass_bpp => .200,
 
 	container => "avi",
+
+	prescale => "",
+	postscale => ",harddup",
 };
 
 
@@ -204,6 +208,23 @@ sub run {
 
 	chomp($out);
 	chomp($err);
+
+	return ($out, $exit, $err);
+}
+
+# aggregate invocation results
+sub run_agg {
+	my ($invokes, $fh_logfile) = @_;
+
+	my ($out, $exit, $err);
+	foreach my $args (@$invokes) {
+		my ($o, $x, $e) = run($args);
+		$out .= $o;
+		$exit += $x;
+		$err .= $e;
+		print $fh_logfile join(" ", @$args)."\n";
+		print $fh_logfile $o.$e."\n";
+	}
 
 	return ($out, $exit, $err);
 }
@@ -799,7 +820,7 @@ sub run_encode {
 
 	use POSIX ":sys_wait_h";
 	while ((my $kid = waitpid($pid, WNOHANG)) != -1) {
-		sysread($reader, my $s, 1000);
+		sysread($reader, my $s, 1024*1024);
 		$exit = $? >> 8;
 		print $fh_logfile $s;
 
@@ -827,6 +848,77 @@ sub run_encode {
 		print $line . "[ " . s_ok("done")    . trunc(14, 1, " ]") . "\n";
 	} else {
 		print $line . "[ " . s_err("failed") . trunc(12, 1, " ] check log") . "\n";
+	}
+}
+
+# run remux and print updates
+sub remux_container {
+	my ($root, $ext, $fps, $container, $acodec, $vcodec) = @_;
+
+	if ($container =~ /(mp4|mkv|ogm)/) {
+
+		# Set logging
+
+		my $base = basename($root);
+		my $logfile = $defaults->{logdir} . "/$base.remuxlog";
+
+		my $fh_logfile;
+		open($fh_logfile, ">", $logfile);
+
+		sub pre {
+			if (-f "$root.$container") {
+				unlink("$root.$container");
+			}
+			my @args1 = ($tools->{mplayer}, "$root.$ext",
+				"-dumpaudio", "-dumpfile", "$root.$acodec");
+			my @args2 = ($tools->{mplayer}, "$root.$ext",
+				"-dumpvideo", "-dumpfile", "$root.$vcodec");
+			return (\@args1, \@args2);
+		}
+
+		sub post {
+			unlink "$root.$acodec";
+			unlink "$root.$vcodec";
+			unlink "$root.$ext";
+		}
+
+		my $remux;
+
+		if ($container eq "mp4") {
+			$remux = sub {
+				my @args1 = ($tools->{mp4creator}, "-create", "$root.$acodec",
+					"$root.$container");
+				my @args2 = ($tools->{mp4creator}, "-create", "$root.$vcodec",
+					"-rate=$fps", "$root.$container");
+				my @args3 = ($tools->{mp4creator}, "-hint=1", "$root.$container");
+				my @args4 = ($tools->{mp4creator}, "-hint=2", "$root.$container");
+				my @args5 = ($tools->{mp4creator}, "-optimize", "$root.$container");
+
+				my @a = (pre, \@args1, \@args2, \@args3, \@args4, \@args5);
+				my ($out, $exit, $err) = run_agg(\@a, $fh_logfile);
+				post();
+				return ($out, $exit, $err);
+			};
+		}
+
+		# Print initial status message
+
+		my $status = trunc(59, 1, "[.] Remuxing");
+		print "$status\r";
+
+		# Execute remux in the background
+
+		my ($out, $exit, $err) = &$remux();
+
+		# Report exit code
+
+		close($fh_logfile);
+
+		if ($exit == 0) {
+			print "${status}[ " . s_ok("done")    . trunc(15, 1, " ]") . "\n";
+		} else {
+			print "${status}[ " . s_err("failed") . " ] check log" . "\n";
+		}
 	}
 }
 

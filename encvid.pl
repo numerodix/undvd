@@ -39,10 +39,13 @@ my $adv_usage = "Advanced usage:  " . s_b($suite->{tool_name}) . " "
      --acodec   set audio codec
      --vcodec   set video codec\n";
 
-my ($opts_start, $opts_end, $target_size, $bpp, $autocrop, $prescale, $postscale);
+my ($opts_start, $opts_end, $target_size, $bpp, $autocrop);
 my ($dry_run, $opts_acodec, $opts_vcodec, $opts_cont);
+
 my $custom_scale = "off";
 my $target_passes = 1;
+my $prescale = $defaults->{prescale};
+my $postscale = $defaults->{postscale};
 
 my $parse = GetOptions(
 	"start=f"=>\$opts_start,
@@ -58,7 +61,7 @@ my $parse = GetOptions(
 	"2"=> sub { $target_passes = 2; },
 	"c|crop"=> sub { $autocrop = 1; },
 	"r|scale=s"=>\$custom_scale,
-	"f|smooth"=> sub { $prescale = "spp,"; $postscale = ",hqdn3d"; },
+	"f|smooth"=> sub { $prescale .= "spp,"; $postscale = ",hqdn3d$postscale"; },
 	"D|dryrun"=> sub { $dry_run = 1; },
 
 	"cont=s"=>\$opts_cont,
@@ -243,6 +246,17 @@ foreach my $file (@files) {
 			run_encode(\@args, $file, $title_name, $ext, $ntitle->{length},
 				$ntitle->{passes}, $pass);
 		}
+
+		if (-f "$title_name.$ext.partial") {
+			rename("$title_name.$ext.partial", "$title_name.$ext");
+		}
+
+		if (-f "divx2pass.log") {
+			unlink("divx2pass.log");
+		}
+
+		remux_container($title_name, $ext, $ntitle->{fps}, $container,
+			$ntitle->{aformat}, $ntitle->{vformat});
 
 	}
 
