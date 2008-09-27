@@ -799,7 +799,7 @@ sub run_encode {
 
 	use POSIX ":sys_wait_h";
 	while ((my $kid = waitpid($pid, WNOHANG)) != -1) {
-		sysread($reader, my $s, 40000);
+		sysread($reader, my $s, 1000);
 		$exit = $? >> 8;
 		print $fh_logfile $s;
 
@@ -815,6 +815,10 @@ sub run_encode {
 			sleep 1
 		}
 	}
+
+	# Flush pipe and close logfile
+
+	while (<$reader>) { print $fh_logfile $_; }
 	close($fh_logfile);
 
 	# Report exit code
