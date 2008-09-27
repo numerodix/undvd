@@ -787,18 +787,38 @@ sub run_encode {
 	my ($pid, $reader, $error) = run(\@$args, 1);
 
 	# read from pipes as output comes
-#	my $start_time = time();
-	my $exit;
+	my $start_time = time();
+	my ($exit, $perc, $secs, $fps, $size, $ela, $eta);
 	use POSIX ":sys_wait_h";
 	while ((my $kid = waitpid($pid, WNOHANG)) != -1) {
-		sysread($reader, my $s, 300);
+		sysread($reader, my $s, 400);
 		$exit = $? >> 8;
 		print $fh_logfile $s;
-		print(">>>>>> kid $kid, exit $exit, Out: " . time() . "\n$s\n");
+
+		if (int(time()) % 2 == 0) {
+			$perc = s_it2( trunc(4, -1, $1) )    if ($s =~ /\(([0-9 ]{2}%)\)/);
+			$secs =        trunc(6, -1, "$1s")   if ($s =~ /Pos:[ ]*([0-9]+)\.[0-9]*s/);
+			$fps  =  s_it( trunc(7, -1, $1) )    if ($s =~ /([0-9]+fps)/);
+			$size =        trunc(6, -1, $1)      if ($s =~ /([0-9]+mb)/);
+			$ela  = s_ela( "+".int((time() - $start_time) / 60 )."min" ) if $perc;
+			$eta  = s_eta(              "-$1" )  if ($s =~ /Trem:[ ]*([0-9]+min)/);
+			my $line = trunc(78, 1,
+				"$status   $perc   $secs   $fps   $size    $ela  $eta");
+			print "$line\n";
+			sleep 1
+		}
 	}
 	close($fh_logfile);
 
-	print(">>>>>> Exit: $exit\n");
+	# Report exit code
+
+	if ($exit == 0) {
+		print trunc(59, 1, $status)
+			. trunc(19, 1, "[ " . s_ok("done") . " ]") . "\n";
+	} else {
+		print trunc(59, 1, $status)
+			. trunc(19, 1, "[ " . s_err("failed") . " ] check log") . "\n";
+	}
 }
 
 
