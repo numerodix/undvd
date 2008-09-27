@@ -171,24 +171,20 @@ sub which {
 	return ($bin, 1);
 }
 
-# launch command without waiting
-sub launch {
-	my (@args) = @_;
-
-	print STDERR join(' ', @args)."\n" if $ENV{"DEBUG"};
-
-	use IPC::Open3;
-
-	# spawn process
-	my($writer, $reader, $error);
-	my $pid = open3($writer, $reader, $error, @args);
-
-	return ($pid, $writer, $reader, $error);
-}
-
 # launch command waiting for output and exit
 sub run {
-	my ($pid, $writer, $reader, $error) = launch(@_);
+	my ($args, $nowait) = @_;
+
+	print STDERR join(' ', @$args)."\n" if $ENV{"DEBUG"};
+
+	# spawn process
+	use IPC::Open3;
+	my($writer, $reader, $error);
+	my $pid = open3($writer, $reader, $error, @$args);
+
+	if ($nowait) {
+		return ($pid, $reader, $error);
+	}
 
 	# read from pipes as output comes
 	my ($out, $exit, $err);
@@ -231,7 +227,7 @@ sub init_cmds {
 		print " * Checking for $tool $type codec support...\n";
 
 		unshift(@args, $tools->{$tool});
-		my ($out, $exit, $err) = run(@args);
+		my ($out, $exit, $err) = run(\@args);
 		foreach my $codec (@$codecs) {
 			if ($out . $err =~ /$codec/i) {
 				print "   " . s_ok("*") . " $codec\n";
@@ -266,7 +262,7 @@ sub print_version {
 			print "  [" . s_err("!") . "] $tool missing\n";
 		} else {
 			unshift(@args, $tool_path);
-			my ($out, $exit, $err) = run(@args);
+			my ($out, $exit, $err) = run(\@args);
 			my $version = $1 if ($out . $err) =~ /$re/ms;
 			print "  [" . s_ok("*") . "] $tool $version\n";
 		}
@@ -349,7 +345,7 @@ sub examine_dvd_for_titlecount {
 	push(@args, "-frames", "0", "-identify");
 	push(@args, "-dvd-device", $source, "dvd://");
 
-	my ($out, $exit, $err) = run(@args);
+	my ($out, $exit, $err) = run(\@args);
 	my $titles = $1 if ($out . $err) =~ /^ID_DVD_TITLES=([^\s]+)/ms;
 
 	return $titles;
@@ -368,7 +364,7 @@ sub examine_title {
 	push(@args, "-frames", "0", "-identify");
 	push(@args, @source);
 
-	my ($out, $exit, $err) = run(@args);
+	my ($out, $exit, $err) = run(\@args);
 
 	sub find {
 		my $default = shift;
@@ -429,7 +425,7 @@ sub crop_title {
 	push(@args, "-fps", "10000", "-vf", "cropdetect");
 	push(@args, @source);
 
-	my ($out, $exit, $err) = run(@args);
+	my ($out, $exit, $err) = run(\@args);
 
 	my @cropdata = map { /^(\[CROP\].*)$/ } split("\n", $out . $err);
 	my $cropline = pop(@cropdata);
@@ -785,20 +781,22 @@ sub run_encode {
 
 	# Execute encoder in the background
 
-	my ($pid, $writer, $reader, $error) = launch(@$args);
-	p($pid);
+	my $fh_logfile;
+	open($fh_logfile, ">", $logfile);
+	print $fh_logfile join(" ", @$args)."\n";
+	my ($pid, $reader, $error) = run(\@$args, 1);
 
 	# read from pipes as output comes
-	my $start_time = time();
-	while ((my $stdout = <$reader>) or (my $stderr = <$error>)) {
-		my $s = $stdout;
-		$s .= $stderr;
-		print(">>>>>> Out:\n$s\n");
+#	my $start_time = time();
+	my $exit;
+	use POSIX ":sys_wait_h";
+	while ((my $kid = waitpid($pid, WNOHANG)) != -1) {
+		sysread($reader, my $s, 300);
+		$exit = $? >> 8;
+		print $fh_logfile $s;
+		print(">>>>>> kid $kid, exit $exit, Out: " . time() . "\n$s\n");
 	}
-
-	# wait for pid and capture exit value
-	wait;
-	my $exit = $? >> 8;
+	close($fh_logfile);
 
 	print(">>>>>> Exit: $exit\n");
 }

@@ -43,7 +43,8 @@ if (! $parse) {
 }
 
 print " * Scanning DVD for titles...\n";
-my ($out, $exit, $err) = run($tools->{lsdvd}, "-avs", $dvd_is_dir, $dvd_device);
+my @args = ($tools->{lsdvd}, "-avs", $dvd_is_dir, $dvd_device);
+my ($out, $exit, $err) = run(\@args);
 
 if ($exit) {
 	print s_err($err) . "\n";
