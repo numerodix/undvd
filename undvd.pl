@@ -56,7 +56,7 @@ my ($dry_run, $opts_acodec, $opts_vcodec, $opts_cont);
 
 my $dvd_device = $defaults->{dvd_device};
 my $skipclone = 0;
-my $custom_scale = "off";
+my $custom_scale;
 my $target_passes = 1;
 my $prescale = $defaults->{prescale};
 my $postscale = $defaults->{postscale};
@@ -191,22 +191,13 @@ if ($dry_run) {
 
 foreach my $file (@files) {
 
-	if (! -e $file) {
-		nonfatal("File %%%$file%%% does not exist");
-		next;
-	} elsif (-d $file) {
-		nonfatal("%%%$file%%% is a directory");
-		next;
-	}
-
 	my $title_name = $file;
-	$title_name =~ s/^(.*)\..*$/$1/g;
 
 
 	# Display encode status
 
 	if (! $dry_run) {
-		print " * Now encoding file " . s_bb(trunc(38, 1, $file, "..."));
+		print " * Now ripping title " . s_bb(trunc(38, 1, $file, "..."));
 		if ($opts_start and $opts_end) {
 			print "  [" . s_bb($opts_start) . "s - " . s_bb($opts_end) . "s]";
 		} elsif ($opts_start) {
@@ -220,7 +211,7 @@ foreach my $file (@files) {
 
 	# Extract information from the title
 
-	my $title = examine_title($file);
+	my $title = examine_title("dvd://$file", $mencoder_source);
 
 	# Init encoding target info
 
@@ -237,7 +228,8 @@ foreach my $file (@files) {
 		my $est = get_crop_eta($ntitle->{length}, $ntitle->{fps});
 		print " + Finding out how much to crop... (est: ${est}min)\r";
 		my ($width, $height);
-		($width, $height, $crop_arg) = crop_title($file);
+		($width, $height, $crop_arg) = crop_title("dvd://$file",
+			$mencoder_source);
 		if (! $width or ! $height or ! $crop_arg) {
 			fatal("Crop detection failed");
 		}
@@ -319,8 +311,9 @@ foreach my $file (@files) {
 			push(@args, "-oac", @acodec_args);
 			push(@args, "-ovc", @vcodec_args);
 			push(@args, "-of", @cont_args);
+			push(@args, "-dvd-device", $mencoder_source);
 
-			run_encode(\@args, $file, $title_name, $ext, $ntitle->{length},
+			run_encode(\@args, "dvd://$file", $title_name, $ext, $ntitle->{length},
 				$ntitle->{passes}, $pass);
 		}
 

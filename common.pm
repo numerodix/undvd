@@ -776,13 +776,13 @@ sub set_acodec_opts {
 	my $bitrate;
 	if ($codec eq "copy") {
 		$bitrate = $orig_bitrate;
-		push(@opts, "copy");
+		unshift(@opts, "copy");
 	} elsif ($codec eq "mp3") {
 		$bitrate = 160;
-		push(@opts, "mp3lame", "-lameopts", "vbr=3:abr=$bitrate:q=3");
+		unshift(@opts, "mp3lame", "-lameopts", "vbr=3:abr=$bitrate:q=3");
 	} elsif ($codec eq "aac") {
 		$bitrate = 192;
-		push(@opts, "faac", "-faacopts", "br=$bitrate:mpeg=4:object=2",
+		unshift(@opts, "faac", "-faacopts", "br=$bitrate:mpeg=4:object=2",
 			"-channels", "2");
 
 	# use lavc codec
@@ -791,7 +791,7 @@ sub set_acodec_opts {
 		my $cs = "ac3|flac|g726|libamr_nb|libamr_wb|mp2|roq_dpcm|sonic|sonicls|"
 			. "vorbis|wmav1|wmav2";
 		if ($codec =~ /($cs)/) {
-			push(@opts, "lavc", "-lavcopts",
+			unshift(@opts, "lavc", "-lavcopts",
 				"abitrate=$bitrate:acodec=$codec");
 		} else {
 			fatal("Unrecognized audio codec %%%$codec%%%");
