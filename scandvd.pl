@@ -15,24 +15,23 @@ BEGIN {
 
 
 my $usage = "Usage:  "   . s_b($suite->{tool_name})   . " ["
-	. s_b("--dev") . " " . s_bb("/dev/dvd") . " | "
+	. s_b("--dev") . " " . s_bb($defaults->{dvd_device}) . " | "
 	. s_b("--dir") . " " . s_bb("/path")    . " | "
-	. s_b("--iso") . " " . s_bb("disc.iso") . "]
-  -d --dev      dvd device to read from (default is " . s_bb("/dev/dvd") . ")
+	. s_b("--iso") . " " . s_bb($defaults->{disc_image}) . "]
+  -d --dev      dvd device to read from (default is " .  s_bb($defaults->{dvd_device}) . ")
   -q --dir      dvd directory to read from
   -i --iso      dvd iso image to read from
   -v            be verbose (print id numbers)
      --version  show " . $suite->{suite_name} . " version\n";
 
-my ($verbose, $dvd_device, $dvd_is_dir);
-$dvd_device = $defaults->{dvd_device};
+my ($verbose, $dvd_is_dir);
+my $dvd_device = $defaults->{dvd_device};
 my $parse = GetOptions(
 	"d|dev=s"=>\$dvd_device,
 	"q|dir=s"=> sub { $dvd_device = $_[1]; $dvd_is_dir = 1; },
 	"i|iso=s"=> sub { $dvd_device = $_[1]; $dvd_is_dir = 1; },
 	"v"=>\$verbose,
 	"version"=>\&print_version,
-	"C"=> sub { init_cmds(1); exit; },
 );
 
 print_tool_banner();

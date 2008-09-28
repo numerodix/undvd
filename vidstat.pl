@@ -16,11 +16,11 @@ BEGIN {
 
 my $usage = "Usage:  "   . s_b($suite->{tool_name})   . " ["
 	. s_bb("<file(s)>") . " | "
-	. s_b("--dev") . " " . s_bb("/dev/dvd") . " | "
+	. s_b("--dev") . " " . s_bb($defaults->{dvd_device}) . " | "
 	. s_b("--dir") . " " . s_bb("/path")    . " | "
-	. s_b("--iso") . " " . s_bb("disc.iso") . "]
+	. s_b("--iso") . " " . s_bb($defaults->{disc_image}) . "]
   <file(s)>     files to read
-  -d --dev      dvd device to read from (default is " . s_bb("/dev/dvd") . ")
+  -d --dev      dvd device to read from (default is " . s_bb($defaults->{dvd_device}) . ")
   -q --dir      dvd directory to read from
   -i --iso      dvd iso image to read from
      --version  show " . $suite->{suite_name} . " version\n";
@@ -46,6 +46,8 @@ if ((! $dvd_device) and (! @ARGV)) {
 }
 
 
+# Build array either of dvd titles or files given as input
+
 my @titles = ();
 if ($dvd_device) {
 	my $titles_count = examine_dvd_for_titlecount($dvd_device);
@@ -61,16 +63,12 @@ if ($dvd_device) {
 
 print_title_line(1);
 foreach my $title (@titles) {
-	my ($dvd_source, $filesize);
 
 	if ($dvd_device) {
-		$dvd_source = $dvd_device;
 		$title = "dvd://$title";
-	} else {
-		if (! -e $title) {
-			nonfatal("File %%%$title%%% does exist");
-			next;
-		}
+	} elsif (! -e $title) {
+		nonfatal("File %%%$title%%% does not exist");
+		next;
 	}
 
 	my $data = examine_title($title, $dvd_device);

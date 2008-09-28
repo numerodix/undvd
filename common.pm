@@ -309,7 +309,7 @@ sub print_version {
 			print "  [" . s_ok("*") . "] $tool $version\n";
 		}
 	};
-	print $suite->{name} . " " . $suite->{version} . "\n";
+	print $suite->{suite_name} . " " . $suite->{version} . "\n";
 	check_tool("mplayer", "^MPlayer ([^ ]+)", qw());
 	check_tool("mencoder", "^MEncoder ([^ ]+)", qw(-oac help));
 	check_tool("lsdvd", "^lsdvd ([^ ]+)", qw(-V));
