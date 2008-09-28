@@ -20,7 +20,7 @@ our @EXPORT = qw(
 	trunc
 	p
 	resolve_symlink
-	deep_copy
+	copy_hashref
 	init_logdir
 	run
 	init_cmds
@@ -162,16 +162,14 @@ sub resolve_symlink {
 	return (grep(-l, $_[0]) ? `readlink -f $_[0]` : $_[0]);
 }
 
-# deep copy objects
-sub deep_copy {
-	my $this = shift;
-	if (not ref $this) {
-		$this;
-	} elsif (ref $this eq "ARRAY") {
-		[map deep_copy($_), @$this];
-	} elsif (ref $this eq "HASH") {
-		+{map { $_ => deep_copy($this->{$_}) } keys %$this};
-	} else { die "what type is $_?" }
+# copy hash reference
+sub copy_hashref {
+	my $ref = shift;
+
+	my %newhash = %$ref;
+	my $newref = \%newhash;
+
+	return $newref;
 }
 
 

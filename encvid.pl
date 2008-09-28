@@ -147,7 +147,7 @@ foreach my $file (@files) {
 
 	# Init encoding target info
 
-	my $ntitle = deep_copy($title);
+	my $ntitle = copy_hashref($title);
 	$ntitle->{aformat} = $audio_codec;
 	$ntitle->{vformat} = $video_codec;
 	$ntitle->{filename} = "$title_name.$ext";
