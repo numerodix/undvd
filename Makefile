@@ -13,8 +13,8 @@ clean:
 
 install:
 	mkdir -p ${SHARED_CHROOT}
-	install -m644 colors.sh ${SHARED_CHROOT}
-	install -m644 lib.sh ${SHARED_CHROOT}
+	install -m644 colors.pm ${SHARED_CHROOT}
+	install -m644 common.pm ${SHARED_CHROOT}
 	install -m755 encvid ${SHARED_CHROOT}
 	install -m755 scandvd ${SHARED_CHROOT}
 	install -m755 undvd ${SHARED_CHROOT}

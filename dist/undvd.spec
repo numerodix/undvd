@@ -29,8 +29,8 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-,root,root)
 
-/usr/share/undvd/colors.sh
-/usr/share/undvd/lib.sh
+/usr/share/undvd/colors.pm
+/usr/share/undvd/common.pm
 /usr/share/undvd/encvid
 /usr/share/undvd/scandvd
 /usr/share/undvd/undvd
