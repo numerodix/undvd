@@ -14,14 +14,7 @@ KEYWORDS="~x86"
 IUSE="aac css ffmpeg matroska mp4 ogm xvid"
 
 DEPEND="sys-apps/coreutils
-	app-shells/bash
-	sys-apps/findutils
-	sys-apps/gawk
-	sys-apps/grep
-	sys-process/procps
-	sys-apps/sed
-	sys-devel/bc
-	sys-apps/util-linux
+	dev-lang/perl
 	media-video/lsdvd
 	media-video/mplayer
 	css? (
