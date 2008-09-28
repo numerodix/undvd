@@ -965,6 +965,8 @@ sub remux_container {
 		my $logfile = $defaults->{logdir} . "/$base.remuxlog";
 
 		sub pre {
+			my ($root, $container, $ext, $acodec, $vcodec) = @_;
+
 			if (-f "$root.$container") {
 				unlink("$root.$container");
 			}
@@ -976,6 +978,8 @@ sub remux_container {
 		}
 
 		sub post {
+			my ($root, $ext, $acodec, $vcodec) = @_;
+
 			unlink "$root.$acodec";
 			unlink "$root.$vcodec";
 			unlink "$root.$ext";
@@ -985,6 +989,8 @@ sub remux_container {
 
 		if ($container eq "mp4") {
 			$remux = sub {
+				my ($root, $container, $ext, $acodec, $vcodec) = @_;
+
 				my @args1 = ($tools->{mp4creator}, "-create", "$root.$acodec",
 					"$root.$container");
 				my @args2 = ($tools->{mp4creator}, "-create", "$root.$vcodec",
@@ -993,13 +999,16 @@ sub remux_container {
 				my @args4 = ($tools->{mp4creator}, "-hint=2", "$root.$container");
 				my @args5 = ($tools->{mp4creator}, "-optimize", "$root.$container");
 
-				my @a = (pre, \@args1, \@args2, \@args3, \@args4, \@args5);
+				my @p = pre($root, $container, $ext, $acodec, $vcodec);
+				my @a = (@p, \@args1, \@args2, \@args3, \@args4, \@args5);
 				my ($out, $exit, $err) = run_agg(\@a, $logfile);
-				post();
+				post($root, $ext, $acodec, $vcodec);
 				return ($out, $exit, $err);
 			};
 		} elsif ($container eq "mkv") {
 			$remux = sub {
+				my ($root, $container, $ext, $acodec, $vcodec) = @_;
+
 				my @args = ($tools->{mkvmerge}, "-o", "$root.$container",
 					"$root.$ext");
 
@@ -1010,6 +1019,8 @@ sub remux_container {
 			};
 		} elsif ($container eq "ogm") {
 			$remux = sub {
+				my ($root, $container, $ext, $acodec, $vcodec) = @_;
+
 				my @args = ($tools->{ogmmerge}, "-o", "$root.$container",
 					"$root.$ext");
 
@@ -1027,7 +1038,7 @@ sub remux_container {
 
 		# Execute remux in the background
 
-		my $exit = &$remux();
+		my $exit = &$remux($root, $container, $ext, $acodec, $vcodec);
 
 		# Report exit code
 
