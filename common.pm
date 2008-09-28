@@ -159,7 +159,7 @@ sub p {
 
 # resolve symlink
 sub resolve_symlink {
-	return (grep(-l, $_[0]) ? readlink $_[0] : $_[0]);
+	return (grep(-l, $_[0]) ? `readlink -f $_[0]` : $_[0]);
 }
 
 # deep copy objects
