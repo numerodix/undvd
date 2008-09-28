@@ -22,7 +22,7 @@ my $usage = "Usage:  "   . s_b($suite->{tool_name})   . " ["
   -q --dir      dvd directory to read from
   -i --iso      dvd iso image to read from
   -v            be verbose (print id numbers)
-     --version  show " . $suite->{name} . " version\n";
+     --version  show " . $suite->{suite_name} . " version\n";
 
 my ($verbose, $dvd_device, $dvd_is_dir);
 $dvd_device = $defaults->{dvd_device};

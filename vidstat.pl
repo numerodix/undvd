@@ -23,7 +23,7 @@ my $usage = "Usage:  "   . s_b($suite->{tool_name})   . " ["
   -d --dev      dvd device to read from (default is " . s_bb("/dev/dvd") . ")
   -q --dir      dvd directory to read from
   -i --iso      dvd iso image to read from
-     --version  show " . $suite->{name} . " version\n";
+     --version  show " . $suite->{suite_name} . " version\n";
 
 my $dvd_device;
 my $parse = GetOptions(

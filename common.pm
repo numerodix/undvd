@@ -54,7 +54,7 @@ our @EXPORT = qw(
 $| = 1;
 
 our $suite = {
-	name => "undvd",
+	suite_name => "undvd",
 	version => "0.7.0",
 	tool_name => basename(resolve_symlink($0)),
 };

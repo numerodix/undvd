@@ -22,7 +22,7 @@ my $usage = "Usage:  " . s_b($suite->{tool_name}) . " "
   -e --end      end after this many seconds (usually for testing)\n
   -C            do sanity check (check for missing tools)
   -z --adv      <show advanced options>
-     --version  show " . $suite->{name} . " version\n";
+     --version  show " . $suite->{suite_name} . " version\n";
 
 my $adv_usage = "Advanced usage:  " . s_b($suite->{tool_name}) . " "
 	. s_bb("<file(s)>")
