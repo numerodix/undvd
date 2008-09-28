@@ -397,7 +397,7 @@ sub ternary_int_str {
 sub clone_dd {
 	my ($dvd_device, $img) = @_;
 
-	my @args = ($tools->{time}, $tools->{nice}, "-n20");
+	my @args = ($tools->{time}, "-v", $tools->{nice}, "-n20");
 	push(@args, $tools->{dd}, "if=$dvd_device", "of=$img.partial");
 	my @a = (\@args);
 	my $exit = run_agg(\@a, $defaults->{logdir} . "/clone.log");
@@ -441,7 +441,7 @@ sub clone_vobcopy {
 		rmtree($dir);
 	}
 
-	my @args = ($tools->{time}, $tools->{nice}, "-n20");
+	my @args = ($tools->{time}, "-v", $tools->{nice}, "-n20");
 	push(@args, $tools->{vobcopy}, "-f", "-l", "-m", "-F", "64");
 	push(@args, "-i", $mnt_point, "-t", $dir);
 	my @a = (\@args);
@@ -899,7 +899,8 @@ sub run_encode {
 		$pass = "-";
 	}
 
-	unshift(@$args, $tools->{time}, $tools->{nice}, "-n20", $tools->{mencoder}, "-v");
+	unshift(@$args, $tools->{time}, "-v", $tools->{nice}, "-n20",
+		$tools->{mencoder}, "-v");
 	push(@$args, "-o", $output_file, $file);
 
 	# Print initial status message
