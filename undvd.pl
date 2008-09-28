@@ -18,12 +18,12 @@ my $usage = "Usage:  " . s_b($suite->{tool_name}) . " "
 	.       s_b("-t") . " " . s_bb("01,02,03") . " "
 	.       s_b("-a") . " " . s_bb("en") . " "
 	.       s_b("-s") . " " . s_bb("es") . " "
-	. "[" . s_b("-d") . " " . s_bb("/dev/dvd") . "]"
+	. "[" . s_b("-d") . " " . s_bb($defaults->{dvd_device}) . "]"
 	. " [" . s_b("more options") . "]\n
   -t --title    title(s) to rip (comma separated)
   -a --audio    audio language (two letter code, eg. " . s_bb("en") . ", or integer id)
   -s --subs     subtitle language (two letter code or " . s_bb("off") . ", or integer id)\n
-  -d --dev      dvd device to rip from (default is " . s_bb("/dev/dvd") . ")
+  -d --dev      dvd device to rip from (default is " .  s_bb($defaults->{dvd_device}) . ")
   -q --dir      dvd directory to rip from
   -i --iso      dvd iso image to rip from\n
      --start    start after this many seconds (usually for testing)
@@ -49,11 +49,12 @@ my $adv_usage = "Advanced usage:  " . s_b($suite->{tool_name}) . " "
      --acodec   set audio codec
      --vcodec   set video codec\n";
 
-my ($titles, $alang, $slang, $mencoder_source, $dvd_is_dir,
+my (@titles, $alang, $mencoder_source, $dvd_is_dir,
 	$dvd_is_iso, $opt_noclone, $encrypted);
 my ($opts_start, $opts_end, $target_size, $bpp, $autocrop);
 my ($dry_run, $opts_acodec, $opts_vcodec, $opts_cont);
 
+my $slang = "off";
 my $dvd_device = $defaults->{dvd_device};
 my $skipclone = 0;
 my $custom_scale;
@@ -62,7 +63,7 @@ my $prescale = $defaults->{prescale};
 my $postscale = $defaults->{postscale};
 
 my $parse = GetOptions(
-	"t|titles=s"=>\$titles,
+	"t|titles=s"=> sub { @titles = split(",", $_[1]); },
 	"a|audio=s"=>\$alang,
 	"s|subs=s"=>\$slang,
 
@@ -122,8 +123,7 @@ if ($opts_end) {
 	push(@endpos, "-endpos", $opts_end);
 }
 
-my @files = split(",", $titles);
-if (scalar @files < 1) {
+if (scalar @titles < 1) {
 	nonfatal("No titles to rip, exiting");
 	print $usage;
 	exit 2;
@@ -138,12 +138,7 @@ if (! $alang) {
 	@audio_args = ternary_int_str($alang, "-aid", "-alang");
 }
 
-my @subs_args;
-if (! $slang) {
-	push(@subs_args, "-slang", "off");
-} else {
-	@subs_args = ternary_int_str($slang, "-sid", "-slang");
-}
+my @subs_args = ternary_int_str($slang, "-sid", "-slang");
 
 
 init_logdir();
@@ -185,21 +180,20 @@ if ((! $dvd_is_dir) and (! $skipclone)) {
 # Display dry-run status
 
 if ($dry_run) {
-	print " * Performing dry-run\n";
+	print " * Performing dry-run on title(s) " . s_bb(join(' ', @titles)) . "\n";
 	print_title_line(1);
 }
 
-foreach my $file (@files) {
-
-	my $title_name = $file;
-
+foreach my $title_name (@titles) {
 
 	# Display encode status
 
 	if (! $dry_run) {
-		print " * Now ripping title " . s_bb(trunc(38, 1, $file, "..."));
+		print " * Now ripping title " . s_bb($title_name) . ", with audio " .
+			s_bb($alang) . " and subtitles " . s_bb($slang) . "    ";
 		if ($opts_start and $opts_end) {
-			print "  [" . s_bb($opts_start) . "s - " . s_bb($opts_end) . "s]";
+			print "  [" . s_bb($opts_start) . "s - " . s_bb($opts_start+$opts_end) 
+				. "s]";
 		} elsif ($opts_start) {
 			print "  [" . s_bb($opts_start) . "s -> ]";
 		} elsif ($opts_end) {
@@ -211,7 +205,7 @@ foreach my $file (@files) {
 
 	# Extract information from the title
 
-	my $title = examine_title("dvd://$file", $mencoder_source);
+	my $title = examine_title("dvd://$title_name", $mencoder_source);
 
 	# Init encoding target info
 
@@ -228,7 +222,7 @@ foreach my $file (@files) {
 		my $est = get_crop_eta($ntitle->{length}, $ntitle->{fps});
 		print " + Finding out how much to crop... (est: ${est}min)\r";
 		my ($width, $height);
-		($width, $height, $crop_arg) = crop_title("dvd://$file",
+		($width, $height, $crop_arg) = crop_title("dvd://$title_name",
 			$mencoder_source);
 		if (! $width or ! $height or ! $crop_arg) {
 			fatal("Crop detection failed");
@@ -315,8 +309,8 @@ foreach my $file (@files) {
 			push(@args, "-of", @cont_args);
 			push(@args, "-dvd-device", $mencoder_source);
 
-			run_encode(\@args, "dvd://$file", $title_name, $ext, $ntitle->{length},
-				$ntitle->{passes}, $pass);
+			run_encode(\@args, "dvd://$title_name", $title_name, $ext,
+				$ntitle->{length}, $ntitle->{passes}, $pass);
 		}
 
 		if (-f "$title_name.$ext.partial") {
