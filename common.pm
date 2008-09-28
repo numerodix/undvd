@@ -55,7 +55,7 @@ $| = 1;
 
 our $suite = {
 	name => "undvd",
-	version => "0.6.1",
+	version => "0.7.0",
 	tool_name => basename(resolve_symlink($0)),
 };
 
@@ -230,17 +230,19 @@ sub run_agg {
 	my $fh_logfile;
 	open($fh_logfile, ">", $logfile);
 
-	my $exit;
 	foreach my $args (@$invokes) {
 		my ($o, $x, $e) = run($args);
-		$exit += $x;
 		print $fh_logfile join(" ", @$args)."\n";
 		print $fh_logfile $o.$e."\n";
+		if ($x) {
+			close($fh_logfile);
+			return $x;
+		}
 	}
 
 	close($fh_logfile);
 
-	return $exit;
+	return 0;
 }
 
 # check for missing dependencies

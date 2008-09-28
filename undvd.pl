@@ -175,6 +175,7 @@ if ((! $dvd_is_dir) and (! $skipclone)) {
 
 	if ($exit) {
 		print s_err("failed, check log")."\n";
+		exit 1;
 	} else {
 		print s_ok("done")."\n";
 	}
