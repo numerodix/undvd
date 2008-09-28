@@ -32,6 +32,7 @@ our @EXPORT = qw(
 	ternary_int_str
 	clone_dd
 	clone_vobcopy
+	scan_dvd_for_titledata
 	examine_dvd_for_titlecount
 	examine_title
 	get_crop_eta
@@ -448,6 +449,20 @@ sub clone_vobcopy {
 	my $exit = run_agg(\@a, $defaults->{logdir} . "/clone.log");
 
 	return $exit;
+}
+
+# extract title data from dvd
+sub scan_dvd_for_titledata {
+	my ($dvd_device, $dvd_is_dir) = @_;
+
+	my $is_dir;
+	if ($dvd_is_dir) {
+		$is_dir = "-q";
+	}
+	my @args = ($tools->{lsdvd}, "-avs", $is_dir, $dvd_device);
+	my ($out, $exit, $err) = run(\@args);
+
+	return ($out, $exit, $err);
 }
 
 # extract number of titles from dvd

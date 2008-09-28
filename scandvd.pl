@@ -28,8 +28,8 @@ my ($verbose, $dvd_device, $dvd_is_dir);
 $dvd_device = $defaults->{dvd_device};
 my $parse = GetOptions(
 	"d|dev=s"=>\$dvd_device,
-	"q|dir=s"=> sub { $dvd_device = $_[1]; $dvd_is_dir = "-q"; },
-	"i|iso=s"=> sub { $dvd_device = $_[1]; $dvd_is_dir = "-q"; },
+	"q|dir=s"=> sub { $dvd_device = $_[1]; $dvd_is_dir = 1; },
+	"i|iso=s"=> sub { $dvd_device = $_[1]; $dvd_is_dir = 1; },
 	"v"=>\$verbose,
 	"version"=>\&print_version,
 	"C"=> sub { init_cmds(1); exit; },
@@ -43,11 +43,10 @@ if (! $parse) {
 }
 
 print " * Scanning DVD for titles...\n";
-my @args = ($tools->{lsdvd}, "-avs", $dvd_is_dir, $dvd_device);
-my ($out, $exit, $err) = run(\@args);
+my ($out, $exit, $err) = scan_dvd_for_titledata($dvd_device, $dvd_is_dir);
 
 if ($exit) {
-	print s_err($err) . "\n";
+	print s_err($out.$err) . "\n";
 	print "$usage";
 	exit 2;
 }
