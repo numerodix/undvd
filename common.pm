@@ -69,7 +69,7 @@ our $defaults = {
 	disc_dir => "disc",
 	mencoder_source => "disc.iso",
 
-	framesize_baseline => 720*576*(2/3)^2,	# in pixels
+	framesize_baseline => 720*576*(2/3)**2,	# in pixels
 
 	h264_1pass_bpp => .195,
 	h264_2pass_bpp => .150,
