@@ -459,13 +459,9 @@ sub clone_vobcopy {
 
 # extract title data from dvd
 sub scan_dvd_for_titledata {
-	my ($dvd_device, $dvd_is_dir) = @_;
+	my ($dvd_device) = @_;
 
-	my $is_dir;
-	if ($dvd_is_dir) {
-		$is_dir = "-q";
-	}
-	my @args = ($tools->{lsdvd}, "-avs", $is_dir, $dvd_device);
+	my @args = ($tools->{lsdvd}, "-avs", $dvd_device);
 	my ($out, $exit, $err) = run(\@args);
 
 	return ($out, $exit, $err);

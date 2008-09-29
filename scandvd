@@ -24,12 +24,12 @@ my $usage = "Usage:  "   . s_b($suite->{tool_name})   . " ["
   -v            be verbose (print id numbers)
      --version  show " . $suite->{suite_name} . " version\n";
 
-my ($verbose, $dvd_is_dir);
+my ($verbose);
 my $dvd_device = $defaults->{dvd_device};
 my $parse = GetOptions(
 	"d|dev=s"=>\$dvd_device,
-	"q|dir=s"=> sub { $dvd_device = $_[1]; $dvd_is_dir = 1; },
-	"i|iso=s"=> sub { $dvd_device = $_[1]; $dvd_is_dir = 1; },
+	"q|dir=s"=>\$dvd_device,
+	"i|iso=s"=>\$dvd_device,
 	"v"=>\$verbose,
 	"version"=>\&print_version,
 );
@@ -42,7 +42,7 @@ if (! $parse) {
 }
 
 print " * Scanning DVD for titles...\n";
-my ($out, $exit, $err) = scan_dvd_for_titledata($dvd_device, $dvd_is_dir);
+my ($out, $exit, $err) = scan_dvd_for_titledata($dvd_device);
 
 if ($exit) {
 	print s_err($out.$err) . "\n";
