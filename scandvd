@@ -42,10 +42,10 @@ if (! $parse) {
 }
 
 print " * Scanning DVD for titles...\n";
-my ($out, $exit, $err) = scan_dvd_for_titledata($dvd_device);
+my ($out, $exit) = scan_dvd_for_titledata($dvd_device);
 
 if ($exit) {
-	print s_err($out.$err) . "\n";
+	nonfatal($out);
 	print "$usage";
 	exit 2;
 }

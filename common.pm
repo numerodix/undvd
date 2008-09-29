@@ -205,28 +205,26 @@ sub run {
 	print STDERR join(' ', @$args)."\n" if $ENV{"DEBUG"};
 
 	# spawn process
-	my($writer, $reader, $error);
-	my $pid = open3($writer, $reader, $error, @$args);
+	my($writer, $reader);
+	my $pid = open3(my $writer, $reader, $reader, @$args);
 
 	if ($nowait) {
-		return ($pid, $reader, $error);
+		return ($pid, $reader);
 	}
 
-	# read from pipes as output comes
-	my ($out, $exit, $err);
-	while ((my $stdout = <$reader>) or (my $stderr = <$error>)) {
+	# read from pipe as output comes
+	my $out;
+	while (my $stdout = <$reader>) {
 		$out .= $stdout;
-		$err .= $stderr;
 	}
 
 	# wait for pid and capture exit value
 	wait;
-	$exit = $? >> 8;
+	my $exit = $? >> 8;
 
 	chomp($out);
-	chomp($err);
 
-	return ($out, $exit, $err);
+	return ($out, $exit);
 }
 
 # aggregate invocation results
@@ -237,9 +235,9 @@ sub run_agg {
 	open($fh_logfile, ">", $logfile);
 
 	foreach my $args (@$invokes) {
-		my ($o, $x, $e) = run($args);
+		my ($o, $x) = run($args);
 		print $fh_logfile join(" ", @$args)."\n";
-		print $fh_logfile $o.$e."\n";
+		print $fh_logfile $o."\n";
 		if ($x) {
 			close($fh_logfile);
 			return $x;
@@ -275,9 +273,9 @@ sub init_cmds {
 		print " * Checking for $tool $type codec support...\n";
 
 		unshift(@args, $tools->{$tool});
-		my ($out, $exit, $err) = run(\@args);
+		my ($out, $exit) = run(\@args);
 		foreach my $codec (@$codecs) {
-			if ($out . $err =~ /$codec/i) {
+			if ($out =~ /$codec/i) {
 				print "   " . s_ok("*") . " $codec\n";
 			} else {
 				print "   " . s_wa("*") . " $codec missing\n";
@@ -310,8 +308,8 @@ sub print_version {
 			print "  [" . s_err("!") . "] $tool missing\n";
 		} else {
 			unshift(@args, $tool_path);
-			my ($out, $exit, $err) = run(\@args);
-			my $version = $1 if ($out . $err) =~ /$re/ms;
+			my ($out, $exit) = run(\@args);
+			my $version = $1 if ($out) =~ /$re/ms;
 			print "  [" . s_ok("*") . "] $tool $version\n";
 		}
 	};
@@ -423,7 +421,7 @@ sub clone_vobcopy {
 	$dvd_device = resolve_symlink($dvd_device);
 
 	my @args = ($tools->{mount});
-	my ($mount_table, $exit, $err) = run(\@args);
+	my ($mount_table, $exit) = run(\@args);
 
 	if ($exit) {
 		fatal("Failed to lookup mount table");
@@ -462,9 +460,9 @@ sub scan_dvd_for_titledata {
 	my ($dvd_device) = @_;
 
 	my @args = ($tools->{lsdvd}, "-avs", $dvd_device);
-	my ($out, $exit, $err) = run(\@args);
+	my ($out, $exit) = run(\@args);
 
-	return ($out, $exit, $err);
+	return ($out, $exit);
 }
 
 # extract number of titles from dvd
@@ -475,8 +473,8 @@ sub examine_dvd_for_titlecount {
 	push(@args, "-frames", "0", "-identify");
 	push(@args, "-dvd-device", $source, "dvd://");
 
-	my ($out, $exit, $err) = run(\@args);
-	my $titles = $1 if ($out . $err) =~ /^ID_DVD_TITLES=([^\s]+)/ms;
+	my ($out, $exit) = run(\@args);
+	my $titles = $1 if ($out) =~ /^ID_DVD_TITLES=([^\s]+)/ms;
 
 	return $titles;
 }
@@ -494,7 +492,7 @@ sub examine_title {
 	push(@args, "-frames", "0", "-identify");
 	push(@args, @source);
 
-	my ($out, $exit, $err) = run(\@args);
+	my ($s, $exit) = run(\@args);
 
 	sub find {
 		my $default = shift;
@@ -508,7 +506,6 @@ sub examine_title {
 		} else { return $default; }
 	}
 
-	my $s = $out . $err;
 	my $data = {
 		filename =>    $file,
 		width =>       find(0, $s, "ID_VIDEO_WIDTH=(.+)"),
@@ -555,9 +552,9 @@ sub crop_title {
 	push(@args, "-fps", "10000", "-vf", "cropdetect");
 	push(@args, @source);
 
-	my ($out, $exit, $err) = run(\@args);
+	my ($out, $exit) = run(\@args);
 
-	my @cropdata = map { /^(\[CROP\].*)$/ } split("\n", $out . $err);
+	my @cropdata = map { /^(\[CROP\].*)$/ } split("\n", $out);
 	my $cropline = pop(@cropdata);
 
 	my ($w, $h, $x, $y) =
@@ -915,7 +912,7 @@ sub run_encode {
 	my $fh_logfile;
 	open($fh_logfile, ">", $logfile);
 	print $fh_logfile join(" ", @$args)."\n";
-	my ($pid, $reader, $error) = run(\@$args, 1);
+	my ($pid, $reader) = run(\@$args, 1);
 
 	# Write mencoder's ETA estimate
 
