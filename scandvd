@@ -65,7 +65,7 @@ foreach my $titleno (@title_numbers) {
 
 	while ($title_s =~ m/Subtitle: .*Language: ([a-zA-Z]+)/g) { push(@slangs, $1); }
 	while ($title_s =~ m/Subtitle: .*Stream id: (0x[0-9abcdefABCDEF]+)/g) {
-		push(@sids, oct($1)); }
+		push(@sids, oct($1) - 32); }
 
 	my $audio = "";
 	for (my $i = 0; $i < scalar @aids; $i++) {
