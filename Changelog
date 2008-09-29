@@ -3,6 +3,7 @@
 * Internalize all unncessary external calls, remove unneeded dependencies.
 * Add time estimate on crop detection.
 * Fix: Output the right file extension in dry run mode.
+* Fix: Correct subtitle id numbers.
 
 0.6.1:
 * Validate user input.
