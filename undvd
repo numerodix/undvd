@@ -8,7 +8,7 @@ use Getopt::Long qw(:config no_ignore_case);
 
 BEGIN {
 	use File::Basename;
-	push(@INC, dirname(grep(-l, $0) ? readlink $0 : $0));
+	push(@INC, dirname(`readlink -f $0`));
 	require colors; colors->import(qw(:DEFAULT));
 	require common; common->import(qw(:DEFAULT $suite $defaults $tools));
 }
