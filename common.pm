@@ -925,6 +925,7 @@ sub run_encode {
 		$exit = $? >> 8;
 		print $fh_logfile $s;
 
+		$s = substr($s, length($s) - 1000);
 		if (int(time()) % $defaults->{timer_refresh} == 0) {
 			$perc = s_it2( trunc(4, -1, $1) )    if ($s =~ /\(([0-9 ]{2}%)\)/);
 			$secs =        trunc(6, -1, "$1s")   if ($s =~ /Pos:[ ]*([0-9]+)\.[0-9]*s/);
