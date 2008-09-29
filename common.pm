@@ -69,7 +69,7 @@ our $defaults = {
 	disc_dir => "disc",
 	mencoder_source => "disc.iso",
 
-	framesize_baseline => 720*576*(2/3)^2,	# frame size in pixels
+	framesize_baseline => 720*576*(2/3)^2,	# in pixels
 
 	h264_1pass_bpp => .195,
 	h264_2pass_bpp => .150,
@@ -159,7 +159,13 @@ sub p {
 
 # resolve symlink
 sub resolve_symlink {
-	return (grep(-l, $_[0]) ? `readlink -f $_[0]` : $_[0]);
+	if (grep(-l, $_[0])) {
+		my $file = `readlink -f $_[0]`;
+		chomp($file);
+		return $file;
+	} else {
+		return $_[0];
+	}
 }
 
 # copy hash reference
