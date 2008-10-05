@@ -140,7 +140,7 @@ And these are special video tools we need:
 <tr><td><c>-q --dir<c></td><td>dvd directory to rip from</td></tr>
 <tr><td><c>-i --iso<c></td><td>dvd iso image to rip from</td></tr>
 <tr><td><c>--start<c></td><td>start after this many seconds (usually for testing)</td></tr>
-<tr><td><c>-e --end<c></td><td>end after this many seconds (usually for testing)</td></tr>
+<tr><td><c>-e --end<c></td><td>end after this many seconds after start (usually for testing)</td></tr>
 <tr><td><c>-C<c></td><td>do sanity check (check for missing tools)</td></tr>
 <tr><td><c>-z<c></td><td>&lt;show advanced options&gt;</td></tr>
 <tr><td><c>--version<c></td><td>show undvd version</td></tr>
@@ -166,8 +166,8 @@ The above options are sufficient to get a good quality rip, but if you need more
 <tr><td><c>--bpp<c></td><td>bits per pixel (float value)</td></tr>
 <tr><td><c>-1<c></td><td>force 1-pass encoding</td></tr>
 <tr><td><c>-2<c></td><td>force 2-pass encoding</td></tr>
-<tr><td><c>-u --enc<c></td><td>dvd is encrypted, clone with vobcopy (needs libdvdcss)</td></tr>
-<tr><td><c>-n --noclone<c></td><td>no disc cloning (encode straight from the dvd)</td></tr>
+<tr><td><c>--clone<c></td><td>clone dvd to iso image before encoding</td></tr>
+<tr><td><c>--clone-x<c></td><td>clone encrypted dvd to directory with vobcopy</td></tr>
 <tr><td><c>-c --crop<c></td><td>autocrop video</td></tr>
 <tr><td><c>-r --scale<c></td><td>scale video to x:y (integer value or <h>0</h>) or <h>off</h> to disable</td></tr>
 <tr><td><c>-f --smooth<c></td><td>use picture smoothing filter (not recommended for top quality source content)</td></tr>

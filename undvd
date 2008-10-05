@@ -27,7 +27,7 @@ my $usage = "Usage:  " . s_b($suite->{tool_name}) . " "
   -q --dir      dvd directory to rip from
   -i --iso      dvd iso image to rip from\n
      --start    start after this many seconds (usually for testing)
-  -e --end      end after this many seconds (usually for testing)\n
+  -e --end      end after this many seconds after start (usually for testing)\n
   -C            do sanity check (check for missing tools)
   -z --adv      <show advanced options>
      --version  show " . $suite->{suite_name} . " version\n";
@@ -39,8 +39,8 @@ my $adv_usage = "Advanced usage:  " . s_b($suite->{tool_name}) . " "
      --bpp      bits per pixel (float value)
   -1            force 1-pass encoding
   -2            force 2-pass encoding
-  -u --enc      dvd is encrypted, clone with vobcopy (needs libdvdcss)
-  -n --noclone  no disc cloning (encode straight from the dvd)
+     --clone    clone dvd to iso image before encoding
+     --clone-x  clone encrypted dvd to directory with vobcopy
   -c --crop     autocrop video
   -r --scale    scale video to x:y (integer value or " . s_bb("0") . ") or " . s_bb("off") . " to disable
   -f --smooth   use picture smoothing filter
@@ -49,14 +49,14 @@ my $adv_usage = "Advanced usage:  " . s_b($suite->{tool_name}) . " "
      --acodec   set audio codec
      --vcodec   set video codec\n";
 
-my (@titles, $alang, $mencoder_source, $dvd_is_dir,
-	$dvd_is_iso, $opt_noclone, $encrypted);
+my (@titles, $alang, $dvd_is_dir, $dvd_is_iso, $encrypted);
 my ($opts_start, $opts_end, $target_size, $bpp, $autocrop);
 my ($dry_run, $opts_acodec, $opts_vcodec, $opts_cont);
 
 my $slang = "off";
 my $dvd_device = $defaults->{dvd_device};
-my $skipclone = 0;
+my $mencoder_source = $defaults->{dvd_device};
+my $clone = 0;
 my $custom_scale;
 my $target_passes = 1;
 my $prescale = $defaults->{prescale};
@@ -67,9 +67,9 @@ my $parse = GetOptions(
 	"a|audio=s"=>\$alang,
 	"s|subs=s"=>\$slang,
 
-	"d|dev=s"=> sub { $dvd_device = $_[1]; },
+	"d|dev=s"=> sub { $dvd_device = $_[1]; $mencoder_source = $_[1]; },
 	"q|dir=s"=> sub { $dvd_is_dir = 1; $mencoder_source = $_[1]; },
-	"i|iso=s"=> sub { $dvd_is_iso = 1; $mencoder_source = $_[1]; $skipclone = 1; },
+	"i|iso=s"=> sub { $dvd_is_iso = 1; $mencoder_source = $_[1]; },
 
 	"start=f"=>\$opts_start,
 	"e|end=f"=>\$opts_end,
@@ -82,8 +82,8 @@ my $parse = GetOptions(
 	"bpp=f"=>\$bpp,
 	"1"=> sub { $target_passes = 1; },
 	"2"=> sub { $target_passes = 2; },
-	"u|enc"=> sub { $encrypted = 1; },
-	"n|noclone"=> sub { $skipclone = 1; $opt_noclone = 1; },
+	"clone"=> sub { $clone = 1; },
+	"clone-x"=> sub { $clone = 1; $encrypted = 1; },
 	"c|crop"=> sub { $autocrop = 1; },
 	"r|scale=s"=>\$custom_scale,
 	"f|smooth"=> sub { $prescale .= "spp,"; $postscale = ",hqdn3d$postscale"; },
@@ -106,15 +106,9 @@ if (! -e $dvd_device) {
 	print s_wa("=>") . " The dvd device " . s_bb($dvd_device) . " does not exist.\n";
 	print s_wa("=>") . " Supply the right dvd device to " . $suite->{tool_name}
 		.  ", eg:\n";
-	print "    " . s_b($suite->{tool_name}) . " " . s_b("-d") . " " . s_bb($dvd_device)
-		. " [" . s_b("other options") . "]\n";
+	print "    " . s_b($suite->{tool_name}) . " " . s_b("-d") . " "
+		.  s_bb($defaults->{dvd_device}) . " [" . s_b("other options") . "]\n";
 	exit 2;
-}
-
-if ($opt_noclone) {
-	if ((! $dvd_is_dir) and (! $dvd_is_iso)) {
-		$mencoder_source = $dvd_device;
-	}
 }
 
 my @startpos = ("-ss", $opts_start ? $opts_start : 0);
@@ -158,7 +152,7 @@ print " - Output format :: "
 
 # Clone dvd
 
-if ((! $dvd_is_dir) and (! $skipclone)) {
+if (($clone) and (! $dvd_is_iso) and (! $dvd_is_dir)) {
 	print " * Cloning dvd to disk first... ";
 
 	my $exit;

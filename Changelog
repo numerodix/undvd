@@ -2,6 +2,7 @@
 * Port to perl. Speed boost all around, especially in scandvd.
 * Internalize all unncessary external calls, remove unneeded dependencies.
 * Add time estimate on crop detection.
+* Omit disc cloning by default.
 * Fix: Output the right file extension in dry run mode.
 * Fix: Correct subtitle id numbers.
 
