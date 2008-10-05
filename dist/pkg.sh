@@ -268,7 +268,9 @@ function package() {
 }
 
 
-if [ "$action" = "tarball" ]; then
+if [ "$action" = "tag" ]; then
+	git-tag $v -m$v -s -u $gpg_keyid
+elif [ "$action" = "tarball" ]; then
 	tarball pub
 elif [ "$action" = "fedora" ]; then
 	fedora pub
