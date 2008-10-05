@@ -1,4 +1,4 @@
-# Generated with codectest (time: 13min)
+# Generated with codectest (time: 9min)
 
 Tools detected:
 + mencoder 2:1.0~rc2-0ubuntu13
@@ -6,7 +6,7 @@ Tools detected:
 + mp4creator 1.6
 + mplayer 1.0rc2-4.2.3
 + ogmmerge v1.5
-+ undvd 0.6.0
++ undvd 0.7.0
 
 +-------------+-------------+-------------+-------------+
 | container   | vcodec      | acodec      | status      |
@@ -59,22 +59,22 @@ Tools detected:
 | flv         | xvid        | ac3         | enc_failed  |
 | flv         | xvid        | mp3         | enc_failed  |
 | flv         | xvid        | vorbis      | enc_failed  |
-| mkv         | flv         | aac         | enc_failed  |
+| mkv         | flv         | aac         | ok          |
 | mkv         | flv         | ac3         | ok          |
 | mkv         | flv         | mp3         | ok          |
-| mkv         | flv         | vorbis      | enc_failed  |
-| mkv         | h264        | aac         | enc_failed  |
+| mkv         | flv         | vorbis      | ok          |
+| mkv         | h264        | aac         | ok          |
 | mkv         | h264        | ac3         | ok          |
 | mkv         | h264        | mp3         | ok          |
-| mkv         | h264        | vorbis      | enc_failed  |
-| mkv         | mpeg4       | aac         | enc_failed  |
+| mkv         | h264        | vorbis      | ok          |
+| mkv         | mpeg4       | aac         | ok          |
 | mkv         | mpeg4       | ac3         | ok          |
 | mkv         | mpeg4       | mp3         | ok          |
-| mkv         | mpeg4       | vorbis      | enc_failed  |
-| mkv         | xvid        | aac         | enc_failed  |
+| mkv         | mpeg4       | vorbis      | ok          |
+| mkv         | xvid        | aac         | ok          |
 | mkv         | xvid        | ac3         | ok          |
 | mkv         | xvid        | mp3         | ok          |
-| mkv         | xvid        | vorbis      | enc_failed  |
+| mkv         | xvid        | vorbis      | ok          |
 | mov         | flv         | aac         | ok          |
 | mov         | flv         | ac3         | ok          |
 | mov         | flv         | mp3         | ok          |
@@ -91,22 +91,22 @@ Tools detected:
 | mov         | xvid        | ac3         | ok          |
 | mov         | xvid        | mp3         | ok          |
 | mov         | xvid        | vorbis      | ok          |
-| mp4         | flv         | aac         | enc_failed  |
-| mp4         | flv         | ac3         | enc_failed  |
-| mp4         | flv         | mp3         | enc_failed  |
-| mp4         | flv         | vorbis      | enc_failed  |
+| mp4         | flv         | aac         | ok          |
+| mp4         | flv         | ac3         | ok          |
+| mp4         | flv         | mp3         | ok          |
+| mp4         | flv         | vorbis      | ok          |
 | mp4         | h264        | aac         | ok          |
-| mp4         | h264        | ac3         | enc_failed  |
+| mp4         | h264        | ac3         | ok          |
 | mp4         | h264        | mp3         | ok          |
-| mp4         | h264        | vorbis      | enc_failed  |
-| mp4         | mpeg4       | aac         | enc_failed  |
-| mp4         | mpeg4       | ac3         | enc_failed  |
-| mp4         | mpeg4       | mp3         | enc_failed  |
-| mp4         | mpeg4       | vorbis      | enc_failed  |
+| mp4         | h264        | vorbis      | ok          |
+| mp4         | mpeg4       | aac         | ok          |
+| mp4         | mpeg4       | ac3         | ok          |
+| mp4         | mpeg4       | mp3         | ok          |
+| mp4         | mpeg4       | vorbis      | ok          |
 | mp4         | xvid        | aac         | ok          |
-| mp4         | xvid        | ac3         | enc_failed  |
+| mp4         | xvid        | ac3         | ok          |
 | mp4         | xvid        | mp3         | ok          |
-| mp4         | xvid        | vorbis      | enc_failed  |
+| mp4         | xvid        | vorbis      | ok          |
 | nut         | flv         | aac         | ok          |
 | nut         | flv         | ac3         | ok          |
 | nut         | flv         | mp3         | ok          |
