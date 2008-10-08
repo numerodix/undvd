@@ -14,7 +14,7 @@ KEYWORDS="~x86"
 IUSE="aac css ffmpeg matroska mp4 ogm xvid"
 
 DEPEND="sys-apps/coreutils
-	dev-lang/perl
+	>=dev-lang/perl-5.8.8
 	media-video/lsdvd
 	media-video/mplayer
 	css? (
