@@ -9,7 +9,7 @@ use Data::Dumper;
 use File::Basename;
 use File::Path;
 use IPC::Open3;
-use POSIX ":sys_wait_h";
+use POSIX qw(:sys_wait_h);
 
 use colors;
 
@@ -87,7 +87,7 @@ our $defaults = {
 
 my @videoutils = qw(lsdvd dd mencoder mplayer);
 my @shellutils = qw(mount);
-my @coreutils = qw(nice time);
+my @coreutils = qw(time);
 my @extravideoutils = qw(mp4creator mkvmerge ogmmerge vobcopy);
 
 my @mencoder_acodecs = qw(copy faac lavc mp3lame);
@@ -198,6 +198,9 @@ sub run {
 	my ($args, $nowait) = @_;
 
 	print STDERR join(' ', @$args)."\n" if $ENV{"DEBUG"};
+
+	# renice to run unprivileged
+	POSIX::nice(20);
 
 	# spawn process
 	my($writer, $reader);
@@ -396,7 +399,7 @@ sub ternary_int_str {
 sub clone_dd {
 	my ($dvd_device, $img) = @_;
 
-	my @args = ($tools->{time}, "-v", $tools->{nice}, "-n20");
+	my @args = ($tools->{time}, "-v");
 	push(@args, $tools->{dd}, "if=$dvd_device", "of=$img.partial");
 	my @a = (\@args);
 	my $exit = run_agg(\@a, $defaults->{logdir} . "/clone.log");
@@ -440,7 +443,7 @@ sub clone_vobcopy {
 		rmtree($dir);
 	}
 
-	my @args = ($tools->{time}, "-v", $tools->{nice}, "-n20");
+	my @args = ($tools->{time}, "-v");
 	push(@args, $tools->{vobcopy}, "-f", "-l", "-m", "-F", "64");
 	push(@args, "-i", $mnt_point, "-t", $dir);
 	my @a = (\@args);
@@ -893,8 +896,7 @@ sub run_encode {
 		$pass = "-";
 	}
 
-	unshift(@$args, $tools->{time}, "-v", $tools->{nice}, "-n20",
-		$tools->{mencoder}, "-v");
+	unshift(@$args, $tools->{time}, "-v", $tools->{mencoder}, "-v");
 	push(@$args, "-o", $output_file, $file);
 
 	# Print initial status message
