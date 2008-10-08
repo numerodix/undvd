@@ -87,7 +87,7 @@ our $defaults = {
 
 my @videoutils = qw(lsdvd dd mencoder mplayer);
 my @shellutils = qw(mount);
-my @coreutils = qw(nice readlink time);
+my @coreutils = qw(nice time);
 my @extravideoutils = qw(mp4creator mkvmerge ogmmerge vobcopy);
 
 my @mencoder_acodecs = qw(copy faac lavc mp3lame);
