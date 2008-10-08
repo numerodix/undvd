@@ -4,6 +4,7 @@
 package common;
 
 use strict;
+use Cwd qw(abs_path);
 use Data::Dumper;
 use File::Basename;
 use File::Path;
@@ -159,13 +160,7 @@ sub p {
 
 # resolve symlink
 sub resolve_symlink {
-	if (grep(-l, $_[0])) {
-		my $file = `readlink -f $_[0]`;
-		chomp($file);
-		return $file;
-	} else {
-		return $_[0];
-	}
+	return abs_path($_[0]);
 }
 
 # copy hash reference
