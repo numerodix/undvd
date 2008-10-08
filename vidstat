@@ -6,12 +6,10 @@
 use strict;
 use Getopt::Long qw(:config no_ignore_case);
 
-BEGIN {
-	use File::Basename;
-	push(@INC, dirname(`readlink -f $0`));
-	require colors; colors->import(qw(:DEFAULT));
-	require common; common->import(qw(:DEFAULT $suite $defaults $tools));
-}
+use FindBin qw($RealBin);
+use lib $RealBin;
+use colors;
+use common qw(:DEFAULT $suite $defaults $tools);
 
 
 my $usage = "Usage:  "   . s_b($suite->{tool_name})   . " ["
