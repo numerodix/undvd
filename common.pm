@@ -598,6 +598,8 @@ sub examine_title {
 		my $re = shift;
 
 		my @match = map { /^${re}$/ } split('\n', $s);
+		for (my $i = 0; $i < scalar @match; $i ++) {
+			$match[$i] = mychomp($match[$i]); }
 
 		if ($uniq) {
 			my %seen = ();
