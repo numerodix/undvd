@@ -146,6 +146,18 @@ sub trunc {
 	return $s;
 }
 
+# replace chomp (broken on cygwin?)
+sub mychomp {
+	my ($s) = @_;
+
+	my $c = chop($s);
+	if ($c =~ /\s/) {
+		return $s;
+	} else {
+		return $s.$c;
+	}
+}
+
 # print object
 sub p {
 	my @these = @_;
@@ -498,7 +510,7 @@ sub examine_title {
 		my @match = map { /^${re}$/ } split('\n', $s);
 		if (@match) {
 			@match = sort {$b <=> $a} @match;
-			return shift(@match);
+			return mychomp(shift(@match));
 		} else { return $default; }
 	}
 
