@@ -87,7 +87,7 @@ our $defaults = {
 
 my @videoutils = qw(lsdvd dd mencoder mplayer);
 my @shellutils = qw(mount);
-my @coreutils = qw(time);
+my @coreutils = qw(dd);
 my @extravideoutils = qw(mp4creator mkvmerge ogmmerge vobcopy);
 
 my @mencoder_acodecs = qw(copy faac lavc mp3lame);
@@ -399,8 +399,7 @@ sub ternary_int_str {
 sub clone_dd {
 	my ($dvd_device, $img) = @_;
 
-	my @args = ($tools->{time});
-	push(@args, $tools->{dd}, "if=$dvd_device", "of=$img.partial");
+	my @args = ($tools->{dd}, "if=$dvd_device", "of=$img.partial");
 	my @a = (\@args);
 	my $exit = run_agg(\@a, $defaults->{logdir} . "/clone.log");
 
@@ -443,8 +442,7 @@ sub clone_vobcopy {
 		rmtree($dir);
 	}
 
-	my @args = ($tools->{time});
-	push(@args, $tools->{vobcopy}, "-f", "-l", "-m", "-F", "64");
+	my @args = ($tools->{vobcopy}, "-f", "-l", "-m", "-F", "64");
 	push(@args, "-i", $mnt_point, "-t", $dir);
 	my @a = (\@args);
 
@@ -896,7 +894,7 @@ sub run_encode {
 		$pass = "-";
 	}
 
-	unshift(@$args, $tools->{time}, $tools->{mencoder}, "-v");
+	unshift(@$args, $tools->{mencoder}, "-v");
 	push(@$args, "-o", $output_file, $file);
 
 	# Print initial status message
