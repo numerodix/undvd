@@ -85,10 +85,10 @@ our $defaults = {
 };
 
 
-my @videoutils = qw(lsdvd mencoder mplayer);
+my @videoutils = qw(mencoder mplayer);
 my @shellutils = qw(mount);
 my @coreutils = qw(dd);
-my @extravideoutils = qw(mp4creator mkvmerge ogmmerge vobcopy);
+my @extravideoutils = qw(lsdvd mp4creator mkvmerge ogmmerge vobcopy);
 
 my @mencoder_acodecs = qw(copy faac lavc mp3lame);
 my @mencoder_vcodecs = qw(copy lavc x264 xvid);
