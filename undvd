@@ -197,7 +197,7 @@ foreach my $title_name (@titles) {
 
 	# Extract information from the title
 
-	my $title = examine_title("dvd://$title_name", $mencoder_source);
+	my $title = examine_title($title_name, $mencoder_source);
 
 	# Init encoding target info
 

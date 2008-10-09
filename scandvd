@@ -39,49 +39,30 @@ if (! $parse) {
 	exit 2;
 }
 
-print " * Scanning DVD for titles...\n";
-my ($out, $exit) = scan_dvd_for_titledata($dvd_device);
-
-if ($exit) {
-	nonfatal($out);
-	print "$usage";
-	exit 2;
-}
+my @titles = scan_dvd_for_titledata($dvd_device);
 
 
-my @title_numbers = map( { /^Title: ([0-9]*)/ } split(/\n/, $out));
-
-foreach my $titleno (@title_numbers) {
+foreach my $title (@titles) {
 	my ($title_s, $length, @aids, @alangs, @sids, @slangs);
-	if ($out =~ /(Title: $titleno.*?\n\n)/s) { $title_s = $1; }
-
-	if ($title_s =~ /Title: $titleno, Length: ([0-9:]+)/) { $length = $1; }
-
-	while ($title_s =~ m/Audio: .*Language: ([a-zA-Z]+)/g) { push(@alangs, $1); }
-	while ($title_s =~ m/Audio: .*Stream id: (0x[0-9abcdefABCDEF]+)/g) {
-		push(@aids, oct($1)); }
-
-	while ($title_s =~ m/Subtitle: .*Language: ([a-zA-Z]+)/g) { push(@slangs, $1); }
-	while ($title_s =~ m/Subtitle: .*Stream id: (0x[0-9abcdefABCDEF]+)/g) {
-		push(@sids, oct($1) - 32); }
 
 	my $audio = "";
-	for (my $i = 0; $i < scalar @aids; $i++) {
+	for (my $i = 0; $i < scalar @{ $title->{aids} }; $i++) {
 		if ($i == 0) { $audio = "  audio: "; }
-		$audio .= s_bb($alangs[$i]) . " ";
-		if ($verbose) { $audio .= s_it($aids[$i]) . " "; }
+		$audio .= s_bb(@{ $title->{alangs} }[$i]) . " ";
+		if ($verbose) { $audio .= s_it(@{ $title->{aids} }[$i]) . " "; }
 	}
 	$audio =~ s/\s*$//;
 
 	my $subs = "";
-	for (my $i = 0; $i < scalar @sids; $i++) {
+	for (my $i = 0; $i < scalar @{ $title->{sids} }; $i++) {
 		if ($i == 0) { $subs = "  subs: "; }
-		$subs .= s_bb($slangs[$i]) . " ";
-		if ($verbose) { $subs .= s_it($sids[$i]) . " "; }
+		$subs .= s_bb(@{ $title->{slangs} }[$i]) . " ";
+		if ($verbose) { $subs .= s_it(@{ $title->{sids} }[$i]) . " "; }
 	}
 	$subs =~ s/\s*$//;
 
-	print s_b($titleno) ."  length: " . s_bb($length) . $audio . $subs . "\n";
+	print s_b($title->{title_number}) ."  length: " . s_bb($title->{length_s}) 
+		. $audio . $subs . "\n";
 }
 
 print "\nTo watch a title:\n";

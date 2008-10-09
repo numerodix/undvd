@@ -301,6 +301,17 @@ sub init_cmds {
 	}
 }
 
+# check tool availability
+sub have_tool {
+	my ($tool) = @_;
+
+	if ($tool =~ /^\/.*/) {
+		return 1;
+	} else {
+		return 0;
+	}
+}
+
 # print standard common banner
 sub print_tool_banner {
 	print "{( --- " . $suite->{tool_name} . " " . $suite->{version} . " --- )}\n";
@@ -463,14 +474,81 @@ sub clone_vobcopy {
 	return $exit;
 }
 
-# extract title data from dvd
-sub scan_dvd_for_titledata {
+# extract title data from dvd with lsdvd
+sub scan_dvd_for_titledata_lsdvd {
 	my ($dvd_device) = @_;
 
 	my @args = ($tools->{lsdvd}, "-avs", $dvd_device);
 	my ($out, $exit) = run(\@args);
 
-	return ($out, $exit);
+	if ($exit) {
+		fatal($out);
+	}
+
+	my @titles;
+
+	my @title_numbers = map( { /^Title: ([0-9]*)/ } split(/\n/, $out));
+	foreach my $titleno (@title_numbers) {
+		my ($title, $title_s, $length, @aids, @alangs, @sids, @slangs);
+
+		if ($out =~ /(Title: $titleno.*?\n\n)/s) { $title_s = $1; }
+
+		if ($title_s =~ /Title: $titleno, Length: ([0-9:]+)/) { $length = $1; }
+
+		while ($title_s =~ m/Audio: .*Language: ([a-zA-Z]+)/g) { push(@alangs, $1); }
+		while ($title_s =~ m/Audio: .*Stream id: (0x[0-9abcdefABCDEF]+)/g) {
+			push(@aids, oct($1)); }
+
+		while ($title_s =~ m/Subtitle: .*Language: ([a-zA-Z]+)/g) { push(@slangs, $1); }
+		while ($title_s =~ m/Subtitle: .*Stream id: (0x[0-9abcdefABCDEF]+)/g) {
+			push(@sids, oct($1) - 32); }
+
+		$title->{title_number} = $titleno;
+		$title->{length_s} = $length;
+		$title->{alangs} = \@alangs;
+		$title->{aids} = \@aids;
+		$title->{slangs} = \@slangs;
+		$title->{sids} = \@sids;
+
+		push(@titles, $title);
+	}
+
+	return @titles;
+}
+
+# extract title data from dvd with lsdvd
+sub scan_dvd_for_titledata_mplayer {
+	my ($dvd_device) = @_;
+
+	my @titles;
+
+	my $title_nos = examine_dvd_for_titlecount($dvd_device);
+
+	if (! $title_nos) {
+		fatal("Failed to read titles from dvd device %%%$dvd_device%%%");
+	}
+
+	for (my $i = 1; $i <= $title_nos; $i++) {
+		my $title = examine_title($i, $dvd_device);
+		push(@titles, $title);
+	}
+
+	return @titles;
+}
+
+# extract title data from dvd
+sub scan_dvd_for_titledata {
+	my ($dvd_device) = @_;
+
+	if (have_tool($tools->{lsdvd})) {
+		print " * Scanning DVD for titles with lsdvd...\n";
+		return scan_dvd_for_titledata_lsdvd($dvd_device);
+	} elsif (have_tool($tools->{mplayer})) {
+		print " * Scanning DVD for titles with mplayer (slow)...\n";
+		return scan_dvd_for_titledata_mplayer($dvd_device);
+	} else {
+		fatal("Failed to detect %%%lsdvd%%% or %%%mplayer%%% for dvd scan");
+	}
 }
 
 # extract number of titles from dvd
@@ -494,7 +572,7 @@ sub examine_title {
 
 	my @source = ($file);
 	if ($dvd_device) {
-		push (@source, "-dvd-device", $dvd_device);
+		@source = ("dvd://$file", "-dvd-device", $dvd_device);
 	}
 	my @args = ($tools->{mplayer}, "-ao", "null", "-vo", "null");
 	push(@args, "-frames", "0", "-identify");
@@ -514,16 +592,49 @@ sub examine_title {
 		} else { return $default; }
 	}
 
+	sub findall {
+		my $s = shift;
+		my $uniq = shift;
+		my $re = shift;
+
+		my @match = map { /^${re}$/ } split('\n', $s);
+
+		if ($uniq) {
+			my %seen = ();
+			my @uniqu = grep { ! $seen{$_} ++ } @match;
+			@match = @uniqu;
+		}
+
+		return \@match;
+	}
+
+	sub fmt_len {
+		my ($len) = @_;
+		my $h = int($len / 3600);
+		my $m = int(($len - ($h * 3600)) / 60);
+		my $s = int($len - ($h * 3600) - ($m * 60));
+		while (length($h) < 2) { $h = "0$h"; }
+		while (length($m) < 2) { $m = "0$m"; }
+		while (length($s) < 2) { $s = "0$s"; }
+		return "$h:$m:$s";
+	}
+
 	my $data = {
 		filename =>    $file,
+		title_number=> length($file) < 2 ? "0$file" : $file,
 		width =>       find(0, $s, "ID_VIDEO_WIDTH=(.+)"),
 		height =>      find(0, $s, "ID_VIDEO_HEIGHT=(.+)"),
 		fps =>         find(0, $s, "ID_VIDEO_FPS=(.+)"),
 		length =>      find(0, $s, "ID_LENGTH=(.+)"),
+		length_s =>    fmt_len(find(0, $s, "ID_LENGTH=(.+)")),
 		abitrate =>    find(0, $s, "ID_AUDIO_BITRATE=(.+)"),
 		aformat =>  lc(find(0, $s, "ID_AUDIO_CODEC=(.+)")),
 		vbitrate =>    find(0, $s, "ID_VIDEO_BITRATE=(.+)"),
 		vformat =>  lc(find(0, $s, "ID_VIDEO_FORMAT=(.+)")),
+		aids =>        findall($s, 1, "ID_AUDIO_ID=(.+)"),
+		alangs =>      findall($s, 0, "ID_AID_[0-9]+_LANG=(.+)"),
+		sids =>        findall($s, 1, "ID_SUBTITLE_ID=(.+)"),
+		slangs =>      findall($s, 0, "ID_SID_[0-9]+_LANG=(.+)"),
 	};
 
 	$data->{abitrate} = int($data->{abitrate} / 1024);	# to kbps
