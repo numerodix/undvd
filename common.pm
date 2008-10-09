@@ -56,7 +56,7 @@ $| = 1;
 
 our $suite = {
 	suite_name => "undvd",
-	version => "0.7.0",
+	version => "0.7.1",
 	tool_name => basename(resolve_symlink($0)),
 };
 

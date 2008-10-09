@@ -1,3 +1,6 @@
+0.7.1:
+* Posix compatibility. Tested on FreeBSD, Solaris, OS X, Cygwin.
+
 0.7.0:
 * Port to perl. Speed boost all around, especially in scandvd.
 * Internalize all unncessary external calls, remove unneeded dependencies.
