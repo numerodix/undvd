@@ -62,7 +62,7 @@ if ($dvd_device) {
 print_title_line(1);
 foreach my $title (@titles) {
 
-	if (! -e $title) {
+	if (! $dvd_device and ! -e $title) {
 		nonfatal("File %%%$title%%% does not exist");
 		next;
 	}
