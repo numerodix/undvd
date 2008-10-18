@@ -639,17 +639,35 @@ sub examine_title {
 		slangs =>      findall($s, 0, "ID_SID_[0-9]+_LANG=(.+)"),
 	};
 
-	$data->{abitrate} = int($data->{abitrate} / 1024);	# to kbps
-	$data->{vbitrate} = int($data->{vbitrate} / 1024);	# to kbps
-	$data->{bpp} = compute_bpp($data->{width}, $data->{height}, $data->{fps},
-		$data->{len}, 0, $data->{vbitrate});
-
 	if ($dvd_device) {
 		$data->{filesize} = int(
 			($data->{abitrate} + $data->{vbitrate}) * $data->{length} / 8 / 1024);
 	} else {
 		$data->{filesize} = int( (stat($file))[7] / 1024 / 1024 );
 	}
+
+	sub fill_bitrates {
+		my ($filesize, $length, $abitrate, $vbitrate) = @_;
+
+		if ($length and $filesize) {
+			if (       $abitrate and ! $vbitrate) {
+				$vbitrate = int((($filesize*1024/$length) - ($abitrate/8)) * 8);
+			} elsif (! $abitrate and   $vbitrate) {
+				$abitrate = int((($filesize*1024/$length) - ($vbitrate/8)) * 8);
+			}
+		}
+
+		return ($abitrate, $vbitrate);
+	}
+
+	$data->{abitrate} = int($data->{abitrate} / 1024);	# to kbps
+	$data->{vbitrate} = int($data->{vbitrate} / 1024);	# to kbps
+
+	($data->{abitrate}, $data->{vbitrate}) = fill_bitrates($data->{filesize},
+		$data->{length}, $data->{abitrate}, $data->{vbitrate});
+
+	$data->{bpp} = compute_bpp($data->{width}, $data->{height}, $data->{fps},
+		$data->{len}, 0, $data->{vbitrate});
 
 	return $data;
 }
