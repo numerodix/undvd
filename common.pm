@@ -639,6 +639,9 @@ sub examine_title {
 		slangs =>      findall($s, 0, "ID_SID_[0-9]+_LANG=(.+)"),
 	};
 
+	$data->{abitrate} = int($data->{abitrate} / 1024);	# to kbps
+	$data->{vbitrate} = int($data->{vbitrate} / 1024);	# to kbps
+
 	if ($dvd_device) {
 		$data->{filesize} = int(
 			($data->{abitrate} + $data->{vbitrate}) * $data->{length} / 8 / 1024);
@@ -659,9 +662,6 @@ sub examine_title {
 
 		return ($abitrate, $vbitrate);
 	}
-
-	$data->{abitrate} = int($data->{abitrate} / 1024);	# to kbps
-	$data->{vbitrate} = int($data->{vbitrate} / 1024);	# to kbps
 
 	($data->{abitrate}, $data->{vbitrate}) = fill_bitrates($data->{filesize},
 		$data->{length}, $data->{abitrate}, $data->{vbitrate});
