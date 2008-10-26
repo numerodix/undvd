@@ -654,9 +654,11 @@ sub examine_title {
 
 		if ($length and $filesize) {
 			if (       $abitrate and ! $vbitrate) {
-				$vbitrate = int((($filesize*1024/$length) - ($abitrate/8)) * 8);
+				$vbitrate = int((($filesize*1024/($length > 0 ? $length : 1)) 
+						- ($abitrate/8)) * 8);
 			} elsif (! $abitrate and   $vbitrate) {
-				$abitrate = int((($filesize*1024/$length) - ($vbitrate/8)) * 8);
+				$abitrate = int((($filesize*1024/($length > 0 ? $length : 1)) 
+						- ($vbitrate/8)) * 8);
 			}
 		}
 
