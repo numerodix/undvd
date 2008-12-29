@@ -40,7 +40,7 @@ my $adv_usage = "Advanced usage:  " . s_b($suite->{tool_name}) . " "
      --clone    clone dvd to iso image before encoding
      --clone-x  clone encrypted dvd to directory with vobcopy
   -c --crop     autocrop video
-  -r --scale    scale video to x:y (integer value or " . s_bb("0") . ") or " . s_bb("off") . " to disable
+  -r --scale    scale video to x:y (integer value) or " . s_bb("off") . " to disable
   -f --smooth   use picture smoothing filter
   -D --dryrun   dry run (display encoding parameters without encoding)\n
      --cont     set container format
