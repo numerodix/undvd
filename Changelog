@@ -1,3 +1,8 @@
+0.7.3:
+* Fix: Divide by zero bug.
+* Fix: File size estimate.
+* Fix: File not found on dvd scan with vidstat.
+
 0.7.2:
 * Reclassify lsdvd as soft dependency, can now use scandvd without it.
 * vidstat: compute bitrate if possible.
