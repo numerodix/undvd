@@ -16,7 +16,7 @@ if [ $v = "git" ]; then
 	v="9999"
 	tag=HEAD
 else
-	branch=$(git-branch -a | grep $v | head -n1 | tr -d "*")
+	branch=$(git branch -a | grep $v | head -n1 | tr -d "*")
 	if [ $branch ]; then
 		tag=$branch
 	fi
@@ -49,8 +49,8 @@ rpm_group="Applications/Multimedia"
 
 ubuntu_version=$(cat /etc/lsb-release 2>/dev/null | grep DISTRIB_CODENAME | sed "s/DISTRIB_CODENAME=//g")
 
-myname=$(git-config user.name)
-myemail=$(git-config user.email)
+myname=$(git config user.name)
+myemail=$(git config user.email)
 
 sf_user="numerodix"
 
@@ -66,7 +66,7 @@ function tarball() {
 	local nopack="$2"
 	mkdir -p $dest
 	files=$(find . doc test -maxdepth 1 -type f | xargs)
-	git-archive --prefix=$proj-$v/ $tag $files > $dest/$proj-$v.tar
+	git archive --prefix=$proj-$v/ $tag $files > $dest/$proj-$v.tar
 	if [ ! $nopack ]; then
 		gzip $dest/$proj-$v.tar
 	fi
@@ -269,7 +269,7 @@ function package() {
 
 
 if [ "$action" = "tag" ]; then
-	git-tag $v -m$v -s -u $gpg_keyid
+	git tag $v -m$v -s -u $gpg_keyid
 elif [ "$action" = "tarball" ]; then
 	tarball pub
 elif [ "$action" = "fedora" ]; then
