@@ -297,6 +297,7 @@ foreach my $title_name (@titles) {
 				$ntitle->{passes}, $pass, $ntitle->{vbitrate});
 
 			my @args = (@startpos, @endpos);
+			push(@args, @audio_args, @subs_args);
 			push(@args, "-vf", "${crop_arg}${prescale}${scale_arg}${postscale}");
 			push(@args, "-oac", @acodec_args);
 			push(@args, "-ovc", @vcodec_args);
