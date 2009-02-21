@@ -102,7 +102,7 @@ if (! $parse) {
 }
 
 
-if (! -e $dvd_device) {
+if ((! $dvd_is_iso) and (! $dvd_is_dir) and (! -e $dvd_device)) {
 	print s_wa("=>") . " The dvd device " . s_bb($dvd_device) . " does not exist.\n";
 	print s_wa("=>") . " Supply the right dvd device to " . $suite->{tool_name}
 		.  ", eg:\n";
