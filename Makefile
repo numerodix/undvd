@@ -23,6 +23,7 @@ install:
 	install -m755 test/codectest ${SHARED_CHROOT}/test
 
 	mkdir -p ${DOC_CHROOT}
+	install -m644 doc/LICENSE ${DOC_CHROOT}
 	install -m644 doc/userguide.html ${DOC_CHROOT}
 	install -m644 doc/codectest.svg ${DOC_CHROOT}
 	install -m644 doc/codectest.txt ${DOC_CHROOT}
